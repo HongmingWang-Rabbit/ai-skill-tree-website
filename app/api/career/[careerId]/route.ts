@@ -5,6 +5,9 @@ import { getCachedCareer, setCachedCareer } from '@/lib/cache';
 
 export const runtime = 'edge';
 
+// UUID v4 regex pattern
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ careerId: string }> }
@@ -26,12 +29,12 @@ export async function GET(
       });
     }
 
-    // Try to find by ID or canonical key
+    // Try to find by ID (if UUID) or canonical key
+    const isUuid = UUID_REGEX.test(careerId);
     const career = await db.query.careers.findFirst({
-      where: or(
-        eq(careers.id, careerId),
-        eq(careers.canonicalKey, careerId)
-      ),
+      where: isUuid
+        ? or(eq(careers.id, careerId), eq(careers.canonicalKey, careerId))
+        : eq(careers.canonicalKey, careerId),
     });
 
     if (!career) {

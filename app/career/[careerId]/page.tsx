@@ -219,8 +219,15 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       </div>
 
       {/* Skill Graph */}
-      <main className="flex-1">
-        <SkillGraph initialNodes={nodes} initialEdges={edges} />
+      <main className="flex-1 relative">
+        <div className="absolute inset-0">
+          <SkillGraph
+            initialNodes={nodes}
+            initialEdges={edges}
+            careerTitle={career.title}
+            careerDescription={career.description || ''}
+          />
+        </div>
       </main>
     </div>
   );

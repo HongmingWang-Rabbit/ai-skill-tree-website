@@ -117,19 +117,24 @@ body {
 }
 
 .react-flow__edge-path {
-  stroke: var(--color-neon-cyan);
+  stroke: #C9A227;
   stroke-width: 2;
 }
 
 .react-flow__edge.animated path {
-  stroke-dasharray: 5;
-  animation: dash 1s linear infinite;
+  stroke-dasharray: 8 4;
+  animation: dash 2s linear infinite;
 }
 
 @keyframes dash {
   to {
-    stroke-dashoffset: -10;
+    stroke-dashoffset: -24;
   }
+}
+
+/* Golden glow for edges */
+.react-flow__edge-path {
+  filter: drop-shadow(0 0 2px rgba(201, 162, 39, 0.5));
 }
 
 .react-flow__background {
