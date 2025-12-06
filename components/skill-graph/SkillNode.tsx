@@ -3,6 +3,8 @@
 import { memo } from 'react';
 import { NodeHandles } from './NodeHandles';
 
+export type SkillStatus = 'locked' | 'available' | 'completed';
+
 export interface SkillNodeData {
   id: string;
   name: string;
@@ -12,6 +14,7 @@ export interface SkillNodeData {
   category: string;
   progress: number;
   prerequisites: string[];
+  status?: SkillStatus;
   [key: string]: unknown;
 }
 
@@ -21,7 +24,7 @@ interface SkillNodeProps {
 }
 
 const LEVEL_COLORS = [
-  { max: 3, gradient: 'from-green-400 to-emerald-500' },
+  { max: 3, gradient: 'from-emerald-400 to-green-500' },
   { max: 6, gradient: 'from-blue-400 to-cyan-500' },
   { max: 8, gradient: 'from-purple-400 to-violet-500' },
   { max: Infinity, gradient: 'from-amber-400 to-orange-500' },
@@ -32,49 +35,67 @@ function getLevelColor(level: number): string {
 }
 
 function SkillNodeComponent({ data, selected }: SkillNodeProps) {
-  const isUnlocked = data.progress > 0;
-  const isMastered = data.progress === 100;
+  // Determine status: completed (100%), available (can study), or locked
+  const status: SkillStatus = data.status || (
+    data.progress === 100 ? 'completed' :
+    data.progress > 0 || data.prerequisites?.length === 0 ? 'available' :
+    'locked'
+  );
 
-  const borderColor = isMastered
-    ? 'border-amber-400'
-    : isUnlocked
-      ? 'border-cyan-400'
-      : 'border-slate-600';
+  const isCompleted = status === 'completed';
+  const isAvailable = status === 'available';
+  const isLocked = status === 'locked';
 
-  const glowClass = isMastered
-    ? 'shadow-[0_0_20px_rgba(251,191,36,0.5)]'
-    : isUnlocked
-      ? 'shadow-[0_0_20px_rgba(0,240,255,0.5)]'
+  // Styling based on status
+  const borderColor = isCompleted
+    ? 'border-emerald-400'
+    : isAvailable
+      ? 'border-amber-400'
+      : 'border-slate-600/50';
+
+  const glowClass = isCompleted
+    ? 'shadow-[0_0_20px_rgba(52,211,153,0.5)]'
+    : isAvailable
+      ? 'shadow-[0_0_20px_rgba(251,191,36,0.4)]'
       : '';
 
-  const progressBarColor = isMastered
-    ? 'bg-gradient-to-r from-amber-400 to-orange-500'
-    : 'bg-gradient-to-r from-cyan-400 to-purple-500';
+  const bgClass = isCompleted
+    ? 'bg-slate-800'
+    : isAvailable
+      ? 'bg-slate-800'
+      : 'bg-slate-900/60';
+
+  const opacityClass = isLocked ? 'opacity-50' : '';
+
+  const progressBarColor = isCompleted
+    ? 'bg-gradient-to-r from-emerald-400 to-green-500'
+    : 'bg-gradient-to-r from-amber-400 to-yellow-500';
 
   return (
     <div
       className={`
         relative p-4 rounded-xl border-2 min-w-[140px] max-w-[160px]
         transition-all duration-300 cursor-pointer
-        ${borderColor} ${glowClass}
+        ${borderColor} ${glowClass} ${bgClass} ${opacityClass}
         ${selected ? 'scale-110 z-10' : ''}
-        ${isUnlocked ? 'bg-slate-800' : 'bg-slate-900 opacity-70'}
-        hover:scale-105 hover:z-10
+        hover:scale-105 hover:z-10 hover:opacity-100
       `}
     >
       <NodeHandles />
 
       <div className="text-center">
-        <div className="text-3xl mb-2 drop-shadow-lg">{data.icon}</div>
+        <div className={`text-3xl mb-2 drop-shadow-lg ${isLocked ? 'grayscale' : ''}`}>
+          {data.icon}
+        </div>
 
-        <div className="font-bold text-white text-sm mb-1 leading-tight">
+        <div className={`font-bold text-sm mb-1 leading-tight ${isLocked ? 'text-slate-400' : 'text-white'}`}>
           {data.name}
         </div>
 
         <div
           className={`
             inline-block px-2 py-0.5 rounded-full text-xs font-semibold
-            bg-gradient-to-r ${getLevelColor(data.level)} text-white
+            ${isLocked ? 'bg-slate-700 text-slate-400' : `bg-gradient-to-r ${getLevelColor(data.level)} text-white`}
           `}
         >
           Lvl {data.level}
@@ -91,14 +112,20 @@ function SkillNodeComponent({ data, selected }: SkillNodeProps) {
           />
         </div>
 
-        <div className="text-xs text-slate-500 mt-1">
-          {data.progress}% Complete
+        <div className={`text-xs mt-1 ${isLocked ? 'text-slate-600' : 'text-slate-500'}`}>
+          {isLocked ? 'Locked' : `${data.progress}% Complete`}
         </div>
       </div>
 
-      {isMastered && (
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center text-xs">
+      {isCompleted && (
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-400 rounded-full flex items-center justify-center text-xs text-slate-900 font-bold">
           ✓
+        </div>
+      )}
+
+      {isAvailable && !isCompleted && data.progress === 0 && (
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center">
+          <div className="w-2 h-2 bg-slate-900 rounded-full animate-pulse" />
         </div>
       )}
     </div>

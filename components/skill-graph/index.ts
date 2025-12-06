@@ -1,6 +1,6 @@
 // Main components
 export { SkillGraph } from './SkillGraph';
-export { SkillNode, type SkillNodeData } from './SkillNode';
+export { SkillNode, type SkillNodeData, type SkillStatus } from './SkillNode';
 export { CenterNode, type CenterNodeData } from './CenterNode';
 export { SkillEdge, EdgeGradientDefs } from './SkillEdge';
 export { NodeHandles } from './NodeHandles';
