@@ -148,19 +148,38 @@ body {
 }
 
 .react-flow__controls {
+  --xy-controls-button-background-color: #1a1a25;
+  --xy-controls-button-background-color-hover: #252532;
+  --xy-controls-button-color: #ffffff;
+  --xy-controls-button-color-hover: #ffffff;
+  --xy-controls-button-border-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   overflow: hidden;
 }
 
 .react-flow__controls-button {
-  background-color: var(--color-dark-700);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: #1a1a25 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
 }
 
 .react-flow__controls-button:hover {
-  background-color: var(--color-dark-600);
+  background-color: #252532 !important;
+}
+
+.react-flow__controls-button svg {
+  max-width: 12px !important;
+  max-height: 12px !important;
+  fill: #ffffff !important;
+}
+
+.react-flow__controls-button svg path,
+.react-flow__controls-button svg polygon,
+.react-flow__controls-button svg rect,
+.react-flow__controls-button svg circle {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Scrollbar styling */

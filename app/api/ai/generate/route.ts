@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Generate new skill tree with AI
     const generated = await generateCareerSkillTree(career);
 
-    // Save to database
+    // Save to database - use upsert to handle race conditions
     const [newCareer] = await db
       .insert(careers)
       .values({
@@ -61,16 +61,43 @@ export async function POST(request: NextRequest) {
         title: generated.title,
         description: generated.description,
       })
-      .returning();
-
-    const [newSkillGraph] = await db
-      .insert(skillGraphs)
-      .values({
-        careerId: newCareer.id,
-        nodes: generated.skills,
-        edges: generated.edges,
+      .onConflictDoUpdate({
+        target: careers.canonicalKey,
+        set: {
+          title: generated.title,
+          description: generated.description,
+        },
       })
       .returning();
+
+    // Check if skill graph already exists for this career
+    const existingGraph = await db.query.skillGraphs.findFirst({
+      where: eq(skillGraphs.careerId, newCareer.id),
+    });
+
+    let newSkillGraph;
+    if (existingGraph) {
+      // Update existing skill graph
+      [newSkillGraph] = await db
+        .update(skillGraphs)
+        .set({
+          nodes: generated.skills,
+          edges: generated.edges,
+          updatedAt: new Date(),
+        })
+        .where(eq(skillGraphs.careerId, newCareer.id))
+        .returning();
+    } else {
+      // Create new skill graph
+      [newSkillGraph] = await db
+        .insert(skillGraphs)
+        .values({
+          careerId: newCareer.id,
+          nodes: generated.skills,
+          edges: generated.edges,
+        })
+        .returning();
+    }
 
     // Update career with skill graph ID
     await db

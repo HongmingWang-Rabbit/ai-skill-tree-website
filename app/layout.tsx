@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider, Web3Provider } from "@/components/providers";
+import { Header } from "@/components/layout";
 
 export const metadata: Metadata = {
   title: "Career Builder - AI-Powered Skill Trees",
@@ -14,8 +16,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
+      <body className="antialiased bg-slate-950 min-h-screen" suppressHydrationWarning>
+        <AuthProvider>
+          <Web3Provider>
+            <Header />
+            <main>{children}</main>
+          </Web3Provider>
+        </AuthProvider>
       </body>
     </html>
   );

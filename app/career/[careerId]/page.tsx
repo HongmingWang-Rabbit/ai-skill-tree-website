@@ -161,9 +161,9 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const overallProgress = calculateProgress(skillNodes);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50">
+    <div className="min-h-screen flex flex-col pt-16">
+      {/* Career Sub-header */}
+      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-xl sticky top-16 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
