@@ -90,7 +90,18 @@ export const verificationTokens = pgTable('verification_tokens', {
   pk: primaryKey({ columns: [table.identifier, table.token] }),
 }));
 
-// User skill progress tracking
+// User's saved career graphs
+export const userCareerGraphs = pgTable('user_career_graphs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  careerId: uuid('career_id').notNull().references(() => careers.id, { onDelete: 'cascade' }),
+  // Store node positions and progress as JSONB for flexibility
+  nodeData: jsonb('node_data').notNull().$type<UserNodeData[]>(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// User skill progress tracking (for detailed per-skill tracking)
 export const userSkillProgress = pgTable('user_skill_progress', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -102,6 +113,13 @@ export const userSkillProgress = pgTable('user_skill_progress', {
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
+
+// Type for user's node data (position + progress)
+export interface UserNodeData {
+  skillId: string;
+  progress: number;
+  position?: { x: number; y: number };
+}
 
 // Infer types from schema
 export type Career = typeof careers.$inferSelect;
@@ -118,3 +136,5 @@ export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 export type UserSkillProgress = typeof userSkillProgress.$inferSelect;
 export type NewUserSkillProgress = typeof userSkillProgress.$inferInsert;
+export type UserCareerGraph = typeof userCareerGraphs.$inferSelect;
+export type NewUserCareerGraph = typeof userCareerGraphs.$inferInsert;

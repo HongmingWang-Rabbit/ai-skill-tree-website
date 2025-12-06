@@ -1,0 +1,1 @@
+export { SkillTestModal } from './SkillTestModal';

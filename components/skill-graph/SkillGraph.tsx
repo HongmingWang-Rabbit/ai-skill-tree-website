@@ -23,6 +23,8 @@ import { SkillEdge, EdgeGradientDefs } from './SkillEdge';
 import { getLayoutedElements, updateEdgeHandles } from './use-skill-layout';
 import { CENTER_NODE_ID } from './constants';
 import { GlassPanel } from '@/components/ui/GlassPanel';
+import { SkillTestModal } from '@/components/skill-test/SkillTestModal';
+import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 
 const nodeTypes = {
   skill: SkillNode,
@@ -39,6 +41,7 @@ interface SkillGraphProps {
   careerTitle?: string;
   careerDescription?: string;
   onNodeClick?: (node: Node) => void;
+  onNodesChange?: (nodes: Node[]) => void;
 }
 
 export function SkillGraph({
@@ -47,8 +50,10 @@ export function SkillGraph({
   careerTitle = 'Career',
   careerDescription = '',
   onNodeClick,
+  onNodesChange: onNodesChangeProp,
 }: SkillGraphProps) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [testingSkill, setTestingSkill] = useState<SkillNodeData | null>(null);
 
   // Calculate overall progress
   const overallProgress = useMemo(() => {
@@ -71,19 +76,20 @@ export function SkillGraph({
   }, [initialNodes]);
 
   // Calculate status for each node based on prerequisites
+  // SKILL_PASS_THRESHOLD%+ is considered "completed" (passed the test)
   const getNodeStatus = useCallback((data: SkillNodeData): SkillStatus => {
-    if (data.progress === 100) return 'completed';
+    if (data.progress >= SKILL_PASS_THRESHOLD) return 'completed';
 
-    // Check if all prerequisites are completed
+    // Check if all prerequisites are passed
     const prereqs = data.prerequisites || [];
     if (prereqs.length === 0) return 'available';
 
-    const allPrereqsCompleted = prereqs.every((prereqId) => {
-      const prereqProgress = nodeProgressMap.get(prereqId);
-      return prereqProgress === 100;
+    const allPrereqsPassed = prereqs.every((prereqId) => {
+      const prereqProgress = nodeProgressMap.get(prereqId) || 0;
+      return prereqProgress >= SKILL_PASS_THRESHOLD;
     });
 
-    return allPrereqsCompleted ? 'available' : 'locked';
+    return allPrereqsPassed ? 'available' : 'locked';
   }, [nodeProgressMap]);
 
   // Create center node and edges to level 1 skills
@@ -156,11 +162,13 @@ export function SkillGraph({
         setNodes((currentNodes) => {
           // Update edges with new handle positions
           setEdges((currentEdges) => updateEdgeHandles(currentNodes, currentEdges));
+          // Notify parent of position changes
+          onNodesChangeProp?.(currentNodes);
           return currentNodes;
         });
       }
     },
-    [onNodesChange, setNodes, setEdges]
+    [onNodesChange, setNodes, setEdges, onNodesChangeProp]
   );
 
   const handleNodeClick = useCallback(
@@ -293,15 +301,98 @@ export function SkillGraph({
       {selectedNode && selectedNode.id !== CENTER_NODE_ID && (
         <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-10">
           <GlassPanel className="p-4">
-            <SelectedNodeDetails node={selectedNode} />
+            <SelectedNodeDetails
+              node={selectedNode}
+              onTakeTest={(skill) => setTestingSkill(skill)}
+            />
           </GlassPanel>
         </div>
+      )}
+
+      {/* Skill Test Modal */}
+      {testingSkill && (
+        <SkillTestModal
+          skill={testingSkill}
+          careerTitle={careerTitle}
+          onClose={() => setTestingSkill(null)}
+          onComplete={(progress) => {
+            // Update the node's progress and recalculate all statuses
+            setNodes((currentNodes) => {
+              // First, update the tested skill's progress
+              const updatedNodes = currentNodes.map((n) => {
+                if (n.id === testingSkill.id) {
+                  return {
+                    ...n,
+                    data: {
+                      ...(n.data as SkillNodeData),
+                      progress,
+                      status: progress >= SKILL_PASS_THRESHOLD ? 'completed' : 'available',
+                    },
+                  };
+                }
+                return n;
+              });
+
+              // Build a progress map from updated nodes
+              const progressMap = new Map<string, number>();
+              updatedNodes.forEach((n) => {
+                if (n.id === CENTER_NODE_ID) return;
+                const data = n.data as SkillNodeData;
+                progressMap.set(data.id, data.progress);
+              });
+
+              // Recalculate status for all nodes based on updated progress
+              const finalNodes = updatedNodes.map((n) => {
+                if (n.id === CENTER_NODE_ID) return n;
+                const data = n.data as SkillNodeData;
+
+                // Skip the just-tested skill (already updated)
+                if (n.id === testingSkill.id) return n;
+
+                // Calculate new status
+                let newStatus: SkillStatus;
+                if (data.progress >= SKILL_PASS_THRESHOLD) {
+                  newStatus = 'completed';
+                } else {
+                  const prereqs = data.prerequisites || [];
+                  if (prereqs.length === 0) {
+                    newStatus = 'available';
+                  } else {
+                    // Check if all prerequisites are passed
+                    const allPrereqsPassed = prereqs.every((prereqId) => {
+                      const prereqProgress = progressMap.get(prereqId) || 0;
+                      return prereqProgress >= SKILL_PASS_THRESHOLD;
+                    });
+                    newStatus = allPrereqsPassed ? 'available' : 'locked';
+                  }
+                }
+
+                return {
+                  ...n,
+                  data: { ...data, status: newStatus },
+                };
+              });
+
+              // Notify parent of progress changes
+              onNodesChangeProp?.(finalNodes);
+
+              return finalNodes;
+            });
+            setTestingSkill(null);
+            setSelectedNode(null);
+          }}
+        />
       )}
     </div>
   );
 }
 
-function SelectedNodeDetails({ node }: { node: Node }) {
+interface SelectedNodeDetailsProps {
+  node: Node;
+  onTakeTest: (skill: SkillNodeData) => void;
+}
+
+function SelectedNodeDetails({ node, onTakeTest }: SelectedNodeDetailsProps) {
   const data = node.data as unknown as SkillNodeData;
   const status = data.status || 'locked';
   const isCompleted = status === 'completed';
@@ -371,20 +462,29 @@ function SelectedNodeDetails({ node }: { node: Node }) {
           <button className="w-full py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm">
             Start Learning
           </button>
-          <button className="w-full py-2 px-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-semibold rounded-lg transition-colors text-sm border border-emerald-500/30">
-            Mark as Learned
+          <button
+            onClick={() => onTakeTest(data)}
+            className="w-full py-2 px-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-semibold rounded-lg transition-colors text-sm border border-emerald-500/30"
+          >
+            Skill Learned
           </button>
         </div>
       )}
 
       {isCompleted && (
-        <div className="mt-4 pt-3 border-t border-slate-700">
+        <div className="mt-4 pt-3 border-t border-slate-700 space-y-3">
           <div className="flex items-center justify-center gap-2 text-emerald-400">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <span className="font-semibold">Skill Mastered!</span>
           </div>
+          <button
+            onClick={() => onTakeTest(data)}
+            className="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium rounded-lg transition-colors text-sm"
+          >
+            Retake Test to Improve Score
+          </button>
         </div>
       )}
 

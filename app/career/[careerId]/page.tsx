@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { SkillGraph } from '@/components/skill-graph/SkillGraph';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
+import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import type { Node, Edge } from '@xyflow/react';
 import type { SkillNodeData } from '@/components/skill-graph/SkillNode';
 
@@ -34,15 +36,30 @@ interface CareerData {
   skillGraph: SkillGraphData;
 }
 
+interface UserNodeData {
+  skillId: string;
+  progress: number;
+  position?: { x: number; y: number };
+}
+
 export default function CareerPage({ params }: { params: Promise<{ careerId: string }> }) {
   const resolvedParams = use(params);
   const careerId = resolvedParams.careerId;
   const router = useRouter();
+  const { data: session, status: authStatus } = useSession();
   const [data, setData] = useState<CareerData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [userNodeData, setUserNodeData] = useState<UserNodeData[] | null>(null);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasShownPromptRef = useRef(false);
 
+  // Fetch career data
   useEffect(() => {
     async function fetchOrGenerateCareer() {
       setIsLoading(true);
@@ -86,17 +103,137 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     fetchOrGenerateCareer();
   }, [careerId]);
 
-  // Convert skill data to React Flow format
+  // Load user's saved progress if signed in
+  useEffect(() => {
+    async function loadUserProgress() {
+      if (!session?.user?.id || !data?.career?.id) {
+        setIsLoadingUserData(false);
+        return;
+      }
+
+      setIsLoadingUserData(true);
+      try {
+        const response = await fetch(`/api/user/graph/${data.career.id}`);
+        const result = await response.json();
+
+        if (result.saved && result.graph) {
+          setUserNodeData(result.graph.nodeData);
+          setIsSaved(true);
+        }
+      } catch (err) {
+        console.error('Failed to load user progress:', err);
+      } finally {
+        setIsLoadingUserData(false);
+      }
+    }
+
+    // Set loading state immediately if user is signed in
+    if (session?.user?.id && data?.career?.id) {
+      setIsLoadingUserData(true);
+    }
+    loadUserProgress();
+  }, [session?.user?.id, data?.career?.id]);
+
+  // Show sign-in prompt after graph loads (only once)
+  useEffect(() => {
+    if (!isLoading && data && authStatus === 'unauthenticated' && !hasShownPromptRef.current) {
+      // Small delay to let user see the graph first
+      const timeout = setTimeout(() => {
+        setShowSignInPrompt(true);
+        hasShownPromptRef.current = true;
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoading, data, authStatus]);
+
+  // Save function
+  const saveGraph = useCallback(async (nodeData: UserNodeData[]) => {
+    if (!session?.user?.id || !data?.career?.id) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/user/graph', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          careerId: data.career.id,
+          nodeData,
+        }),
+      });
+
+      if (response.ok) {
+        setIsSaved(true);
+        setUserNodeData(nodeData);
+      }
+    } catch (err) {
+      console.error('Failed to save graph:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [session?.user?.id, data?.career?.id]);
+
+  // Debounced save on changes
+  const handleGraphChange = useCallback((nodes: Node[]) => {
+    if (!session?.user?.id) {
+      // Show sign-in prompt if not shown yet
+      if (!hasShownPromptRef.current) {
+        setShowSignInPrompt(true);
+        hasShownPromptRef.current = true;
+      }
+      return;
+    }
+
+    // Extract node data for saving
+    const nodeData: UserNodeData[] = nodes
+      .filter(n => n.type === 'skill')
+      .map(n => ({
+        skillId: n.id,
+        progress: (n.data as SkillNodeData).progress,
+        position: n.position,
+      }));
+
+    // Debounce saves
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      saveGraph(nodeData);
+    }, 1000);
+  }, [session?.user?.id, saveGraph]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Convert skill data to React Flow format, applying user's saved data if available
   const convertToReactFlowFormat = (
     nodes: SkillNodeData[],
-    edges: SkillEdgeData[]
+    edges: SkillEdgeData[],
+    savedData?: UserNodeData[] | null
   ): { nodes: Node[]; edges: Edge[] } => {
-    const flowNodes: Node[] = nodes.map((skill) => ({
-      id: skill.id,
-      type: 'skill',
-      position: { x: 0, y: 0 }, // Will be calculated by layout
-      data: skill,
-    }));
+    // Create a map of saved data for quick lookup
+    const savedMap = new Map<string, UserNodeData>();
+    if (savedData) {
+      savedData.forEach((item) => savedMap.set(item.skillId, item));
+    }
+
+    const flowNodes: Node[] = nodes.map((skill) => {
+      const saved = savedMap.get(skill.id);
+      return {
+        id: skill.id,
+        type: 'skill',
+        position: saved?.position || { x: 0, y: 0 }, // Use saved position or default
+        data: {
+          ...skill,
+          progress: saved?.progress ?? skill.progress, // Use saved progress if available
+        },
+      };
+    });
 
     const flowEdges: Edge[] = edges.map((edge) => ({
       id: edge.id,
@@ -116,14 +253,20 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     return Math.round(totalProgress / nodes.length);
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading state - wait for career data and user progress (if signed in)
+  const shouldShowLoading = isLoading || (session?.user?.id && isLoadingUserData);
+
+  if (shouldShowLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="spinner mx-auto mb-4"></div>
           <p className="text-slate-400">
-            {isGenerating ? 'Generating skill tree with AI...' : 'Loading career...'}
+            {isGenerating
+              ? 'Generating skill tree with AI...'
+              : isLoadingUserData
+                ? 'Loading your progress...'
+                : 'Loading career...'}
           </p>
           {isGenerating && (
             <p className="text-sm text-slate-500 mt-2">
@@ -157,8 +300,16 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const { career, skillGraph } = data;
   const skillNodes = skillGraph.nodes as SkillNodeData[];
   const skillEdges = skillGraph.edges as SkillEdgeData[];
-  const { nodes, edges } = convertToReactFlowFormat(skillNodes, skillEdges);
-  const overallProgress = calculateProgress(skillNodes);
+  const { nodes, edges } = convertToReactFlowFormat(skillNodes, skillEdges, userNodeData);
+
+  // Calculate progress from nodes (which may include saved progress)
+  const nodesWithProgress = userNodeData
+    ? skillNodes.map((n) => {
+        const saved = userNodeData.find((s) => s.skillId === n.id);
+        return { ...n, progress: saved?.progress ?? n.progress };
+      })
+    : skillNodes;
+  const overallProgress = calculateProgress(nodesWithProgress);
 
   return (
     <div className="min-h-screen flex flex-col pt-16">
@@ -191,6 +342,24 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {/* Save status indicator */}
+            {session?.user && (
+              <div className="flex items-center gap-2 text-sm">
+                {isSaving ? (
+                  <span className="text-slate-400 flex items-center gap-1">
+                    <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                    Saving...
+                  </span>
+                ) : isSaved ? (
+                  <span className="text-emerald-400 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Saved
+                  </span>
+                ) : null}
+              </div>
+            )}
             <XPProgressRing progress={overallProgress} size={60} strokeWidth={4} />
           </div>
         </div>
@@ -206,13 +375,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
           <div className="flex items-center gap-2">
             <span className="text-slate-400">Unlocked:</span>
             <span className="text-cyan-400 font-semibold">
-              {skillNodes.filter((n) => n.progress > 0).length}
+              {nodesWithProgress.filter((n) => n.progress > 0).length}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-slate-400">Mastered:</span>
             <span className="text-amber-400 font-semibold">
-              {skillNodes.filter((n) => n.progress === 100).length}
+              {nodesWithProgress.filter((n) => n.progress >= SKILL_PASS_THRESHOLD).length}
             </span>
           </div>
         </div>
@@ -222,13 +391,48 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       <main className="flex-1 relative">
         <div className="absolute inset-0">
           <SkillGraph
+            key={userNodeData ? 'loaded' : 'initial'}
             initialNodes={nodes}
             initialEdges={edges}
             careerTitle={career.title}
             careerDescription={career.description || ''}
+            onNodesChange={handleGraphChange}
           />
         </div>
       </main>
+
+      {/* Sign-in Prompt Modal */}
+      {showSignInPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <GlassPanel className="max-w-md w-full p-6">
+            <div className="text-center">
+              <div className="text-5xl mb-4">💾</div>
+              <h2 className="text-xl font-bold text-white mb-2">Save Your Progress</h2>
+              <p className="text-slate-400 mb-6">
+                Sign in to save your skill tree progress and access it from anywhere.
+                Without signing in, your progress will be lost when you leave this page.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setShowSignInPrompt(false);
+                    router.push('/?signin=true');
+                  }}
+                  className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors"
+                >
+                  Sign In to Save
+                </button>
+                <button
+                  onClick={() => setShowSignInPrompt(false)}
+                  className="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium rounded-lg transition-colors"
+                >
+                  Continue Without Saving
+                </button>
+              </div>
+            </div>
+          </GlassPanel>
+        </div>
+      )}
     </div>
   );
 }

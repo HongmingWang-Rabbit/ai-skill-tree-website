@@ -1,64 +1,26 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useSignMessage } from 'wagmi';
-import { useEffect, useState } from 'react';
-import { SiweMessage } from 'siwe';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+// Dynamically import the Web3 login tab to avoid SSR issues with wagmi hooks
+const Web3LoginTab = dynamic(() => import('./Web3LoginTab').then(mod => ({ default: mod.Web3LoginTab })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center py-8">
+      <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+});
+
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<'social' | 'web3'>('social');
-  const { address, isConnected } = useAccount();
-  const { signMessageAsync } = useSignMessage();
-  const [isSigningIn, setIsSigningIn] = useState(false);
-
-  // Handle Web3 sign-in after wallet connection
-  useEffect(() => {
-    if (isConnected && address && activeTab === 'web3' && !isSigningIn) {
-      handleWeb3SignIn();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, address, activeTab]);
-
-  const handleWeb3SignIn = async () => {
-    if (!address || isSigningIn) return;
-
-    setIsSigningIn(true);
-    try {
-      const message = new SiweMessage({
-        domain: window.location.host,
-        address,
-        statement: 'Sign in to AI Skill Tree',
-        uri: window.location.origin,
-        version: '1',
-        chainId: 1,
-        nonce: Math.random().toString(36).substring(2),
-      });
-
-      const signature = await signMessageAsync({
-        message: message.prepareMessage(),
-      });
-
-      const result = await signIn('web3', {
-        message: JSON.stringify(message),
-        signature,
-        redirect: false,
-      });
-
-      if (result?.ok) {
-        onClose();
-      }
-    } catch (error) {
-      console.error('Web3 sign-in error:', error);
-    } finally {
-      setIsSigningIn(false);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -151,19 +113,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <p className="text-sm text-slate-400 text-center mb-4">
-              Connect your wallet to sign in securely
-            </p>
-            <div className="flex justify-center">
-              <ConnectButton />
-            </div>
-            {isConnected && isSigningIn && (
-              <p className="text-sm text-amber-400 text-center mt-4">
-                Please sign the message in your wallet...
-              </p>
-            )}
-          </div>
+          <Web3LoginTab onClose={onClose} />
         )}
 
         {/* Footer */}

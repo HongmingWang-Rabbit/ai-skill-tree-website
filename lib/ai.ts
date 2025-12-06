@@ -80,6 +80,155 @@ Generate at least 15-20 skills organized into a logical skill tree. Skills at th
   return validated;
 }
 
+export interface TestQuestion {
+  id: string;
+  question: string;
+  expectedConcepts: string[];
+}
+
+export interface GradingResult {
+  questionId: string;
+  score: number;
+  feedback: string;
+}
+
+export interface GradingResponse {
+  results: GradingResult[];
+  totalScore: number;
+}
+
+export async function generateSkillTestQuestions(
+  skillName: string,
+  skillDescription: string,
+  skillLevel: number,
+  category: string,
+  careerTitle: string
+): Promise<TestQuestion[]> {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `You are an expert educator creating assessment questions for professional skills. Create thoughtful, open-ended questions that test real understanding, not memorization.
+
+Questions should:
+- Be appropriate for the skill level (1-3: beginner, 4-6: intermediate, 7-10: advanced)
+- Test practical application and understanding
+- Require explanation or reasoning in answers
+- Be answerable in 2-4 sentences
+
+Return valid JSON only.`
+      },
+      {
+        role: 'user',
+        content: `Generate 3 test questions for this skill:
+
+Skill: ${skillName}
+Description: ${skillDescription}
+Level: ${skillLevel}/10
+Category: ${category}
+Career Context: ${careerTitle}
+
+Return JSON:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "question": "The question text",
+      "expectedConcepts": ["concept1", "concept2"]
+    }
+  ]
+}`
+      }
+    ],
+    temperature: 0.7,
+    max_tokens: 1000,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) {
+    throw new Error('No content in AI response');
+  }
+
+  const parsed = JSON.parse(content);
+  return parsed.questions || [];
+}
+
+export async function gradeSkillTestAnswers(
+  skillName: string,
+  skillDescription: string,
+  questions: Array<{
+    id: string;
+    question: string;
+    expectedConcepts: string[];
+    answer: string;
+  }>
+): Promise<GradingResponse> {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `You are an expert educator grading skill assessment answers. Be fair but rigorous in your evaluation.
+
+Grading criteria:
+- Score 0-100 for each answer
+- Consider accuracy, completeness, and understanding demonstrated
+- Provide constructive feedback
+- Empty or nonsense answers get 0
+
+Return valid JSON only.`
+      },
+      {
+        role: 'user',
+        content: `Grade these answers for the skill "${skillName}" (${skillDescription}):
+
+${questions.map((q, i) => `
+Question ${i + 1}: ${q.question}
+Expected concepts: ${q.expectedConcepts.join(', ')}
+Student answer: ${q.answer || '(no answer provided)'}
+`).join('\n')}
+
+Return JSON:
+{
+  "results": [
+    {
+      "questionId": "q1",
+      "score": 0-100,
+      "feedback": "Constructive feedback"
+    }
+  ],
+  "totalScore": average_of_all_scores
+}`
+      }
+    ],
+    temperature: 0.3,
+    max_tokens: 1000,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) {
+    throw new Error('No content in AI response');
+  }
+
+  const parsed = JSON.parse(content);
+
+  // Ensure results match question IDs
+  const results = questions.map((q) => {
+    const result = parsed.results?.find((r: GradingResult) => r.questionId === q.id);
+    return result || { questionId: q.id, score: 0, feedback: 'Unable to grade' };
+  });
+
+  // Calculate total score if not provided
+  const totalScore = parsed.totalScore ?? Math.round(
+    results.reduce((sum: number, r: GradingResult) => sum + r.score, 0) / results.length
+  );
+
+  return { results, totalScore };
+}
+
 export async function suggestCareerSearches(query: string): Promise<string[]> {
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
