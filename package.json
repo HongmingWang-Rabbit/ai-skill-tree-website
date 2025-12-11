@@ -21,6 +21,8 @@
     "@xyflow/react": "^12.9.3",
     "dagre": "^0.8.5",
     "drizzle-orm": "^0.44.7",
+    "html2canvas": "^1.4.1",
+    "modern-screenshot": "^4.6.7",
     "next": "15.5.7",
     "next-auth": "^4.24.13",
     "openai": "^6.9.1",

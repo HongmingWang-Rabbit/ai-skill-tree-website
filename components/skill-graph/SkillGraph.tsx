@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useImperativeHandle, forwardRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -21,10 +21,26 @@ import { SkillNode, type SkillNodeData, type SkillStatus } from './SkillNode';
 import { CenterNode, type CenterNodeData } from './CenterNode';
 import { SkillEdge, EdgeGradientDefs } from './SkillEdge';
 import { getLayoutedElements, updateEdgeHandles } from './use-skill-layout';
-import { CENTER_NODE_ID } from './constants';
+import { CENTER_NODE_ID, LAYOUT_CONFIG } from './constants';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { SkillTestModal } from '@/components/skill-test/SkillTestModal';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+
+// Node position info for screenshot capture
+export interface NodePositionInfo {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isCompleted: boolean;
+  isCenterNode: boolean;
+}
+
+// Ref handle for external access
+export interface SkillGraphHandle {
+  getNodePositions: () => NodePositionInfo[];
+}
 
 const nodeTypes = {
   skill: SkillNode,
@@ -44,14 +60,14 @@ interface SkillGraphProps {
   onNodesChange?: (nodes: Node[]) => void;
 }
 
-export function SkillGraph({
+export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function SkillGraphInner({
   initialNodes,
   initialEdges,
   careerTitle = 'Career',
   careerDescription = '',
   onNodeClick,
   onNodesChange: onNodesChangeProp,
-}: SkillGraphProps) {
+}, ref) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [testingSkill, setTestingSkill] = useState<SkillNodeData | null>(null);
 
@@ -146,6 +162,25 @@ export function SkillGraph({
 
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+
+  // Expose getNodePositions method via ref for screenshot capture
+  useImperativeHandle(ref, () => ({
+    getNodePositions: (): NodePositionInfo[] => {
+      return nodes.map((node) => {
+        const data = node.data as unknown as SkillNodeData;
+        const isCenterNode = node.id === CENTER_NODE_ID;
+        return {
+          id: node.id,
+          x: node.position.x,
+          y: node.position.y,
+          width: node.measured?.width ?? (isCenterNode ? LAYOUT_CONFIG.CENTER_NODE_SIZE : LAYOUT_CONFIG.NODE_WIDTH),
+          height: node.measured?.height ?? (isCenterNode ? LAYOUT_CONFIG.CENTER_NODE_SIZE : LAYOUT_CONFIG.NODE_HEIGHT),
+          isCompleted: !isCenterNode && data?.status === 'completed',
+          isCenterNode,
+        };
+      });
+    },
+  }), [nodes]);
 
   // Update edge handles when nodes are dragged
   const handleNodesChange = useCallback(
@@ -385,7 +420,7 @@ export function SkillGraph({
       )}
     </div>
   );
-}
+});
 
 interface SelectedNodeDetailsProps {
   node: Node;

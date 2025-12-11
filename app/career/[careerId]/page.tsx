@@ -3,9 +3,11 @@
 import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { SkillGraph } from '@/components/skill-graph/SkillGraph';
+import { SkillGraph, type SkillGraphHandle } from '@/components/skill-graph/SkillGraph';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
+import { ShareModal } from '@/components/ui/ShareModal';
+import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import type { Node, Edge } from '@xyflow/react';
 import type { SkillNodeData } from '@/components/skill-graph/SkillNode';
@@ -56,8 +58,18 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const [isSaving, setIsSaving] = useState(false);
   const [userNodeData, setUserNodeData] = useState<UserNodeData[] | null>(null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState<ShareSlideType>('full');
+  const [slidePreviews, setSlidePreviews] = useState<Record<ShareSlideType, string | null>>({
+    full: null,
+    completed: null,
+    summary: null,
+  });
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasShownPromptRef = useRef(false);
+  const graphContainerRef = useRef<HTMLDivElement>(null);
+  const skillGraphRef = useRef<SkillGraphHandle>(null);
+  const { isCapturing, capturePreview, downloadFromDataUrl, copyFromDataUrl, shareFromDataUrl } = useShareScreenshot();
 
   // Fetch career data
   useEffect(() => {
@@ -311,6 +323,37 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     : skillNodes;
   const overallProgress = calculateProgress(nodesWithProgress);
 
+  // Get completed skills for summary slide
+  const completedSkills = nodesWithProgress
+    .filter((n) => n.progress >= SKILL_PASS_THRESHOLD)
+    .map((n) => n.name);
+
+  // Capture preview for a specific slide type
+  const captureSlidePreview = async (slideType: ShareSlideType) => {
+    // Get node positions from SkillGraph ref
+    const nodePositions = skillGraphRef.current?.getNodePositions() || [];
+
+    const preview = await capturePreview(graphContainerRef.current, {
+      careerTitle: career.title,
+      progress: overallProgress,
+      slideType,
+      completedSkills,
+      totalSkills: nodesWithProgress.length,
+      nodePositions,
+    });
+    setSlidePreviews(prev => ({ ...prev, [slideType]: preview }));
+    return preview;
+  };
+
+  // Handle slide change
+  const handleSlideChange = async (slideType: ShareSlideType) => {
+    setCurrentSlide(slideType);
+    // Capture if not already captured
+    if (!slidePreviews[slideType]) {
+      await captureSlidePreview(slideType);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col pt-16">
       {/* Career Sub-header */}
@@ -360,6 +403,33 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                 ) : null}
               </div>
             )}
+            {/* Share Button */}
+            <button
+              onClick={async () => {
+                setShowShareModal(true);
+                setCurrentSlide('full');
+                setSlidePreviews({ full: null, completed: null, summary: null });
+                // Capture first slide
+                await captureSlidePreview('full');
+              }}
+              className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
+              title="Share your progress"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-slate-400 group-hover:text-amber-400 transition-colors"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+            </button>
             <XPProgressRing progress={overallProgress} size={60} strokeWidth={4} />
           </div>
         </div>
@@ -389,8 +459,9 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
 
       {/* Skill Graph */}
       <main className="flex-1 relative">
-        <div className="absolute inset-0">
+        <div ref={graphContainerRef} className="absolute inset-0">
           <SkillGraph
+            ref={skillGraphRef}
             key={userNodeData ? 'loaded' : 'initial'}
             initialNodes={nodes}
             initialEdges={edges}
@@ -433,6 +504,42 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
           </GlassPanel>
         </div>
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => {
+          setShowShareModal(false);
+          setSlidePreviews({ full: null, completed: null, summary: null });
+        }}
+        previews={slidePreviews}
+        isCapturing={isCapturing}
+        careerTitle={career.title}
+        progress={overallProgress}
+        filename={`${career.title.toLowerCase().replace(/\s+/g, '-')}-${currentSlide}.png`}
+        currentSlide={currentSlide}
+        onSlideChange={handleSlideChange}
+        onDownload={(slideType) => {
+          const preview = slidePreviews[slideType];
+          if (preview) {
+            downloadFromDataUrl(preview, `${career.title.toLowerCase().replace(/\s+/g, '-')}-${slideType}.png`);
+          }
+        }}
+        onCopy={(slideType) => {
+          const preview = slidePreviews[slideType];
+          return preview ? copyFromDataUrl(preview) : Promise.resolve(false);
+        }}
+        onNativeShare={(slideType) => {
+          const preview = slidePreviews[slideType];
+          return preview
+            ? shareFromDataUrl(
+                preview,
+                `My ${career.title} Skill Tree`,
+                `Check out my ${career.title} skill tree progress - ${overallProgress}% complete!`
+              )
+            : Promise.resolve(false);
+        }}
+      />
     </div>
   );
 }
