@@ -1,9 +1,10 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useState, useRef, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
+import { getLocalePath } from '@/i18n/routing';
 import Image from 'next/image';
 
 export function UserMenu() {
@@ -11,6 +12,7 @@ export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('common');
+  const locale = useLocale();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -93,7 +95,7 @@ export function UserMenu() {
           {/* Sign out */}
           <div className="py-1 border-t border-slate-700">
             <button
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={() => signOut({ callbackUrl: getLocalePath(locale) })}
               className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors"
             >
               {t('signOut')}

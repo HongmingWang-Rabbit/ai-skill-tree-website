@@ -3,10 +3,11 @@
 import { signIn, getProviders } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { CloseIcon, WeChatIcon, GoogleIcon } from '@/components/ui/Icons';
 import { isWeChatBrowser } from '@/lib/wechat-provider';
-import { AUTH_CALLBACK_URL, PROVIDER_COLORS } from '@/lib/constants';
+import { PROVIDER_COLORS, ROUTES } from '@/lib/constants';
+import { getLocalePath } from '@/i18n/routing';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -25,9 +26,13 @@ const Web3LoginTab = dynamic(() => import('./Web3LoginTab').then(mod => ({ defau
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const t = useTranslations('auth');
+  const locale = useLocale();
   const [activeTab, setActiveTab] = useState<'social' | 'web3'>('social');
   const [isInWeChatBrowser, setIsInWeChatBrowser] = useState(false);
   const [isWeChatEnabled, setIsWeChatEnabled] = useState(false);
+
+  // Construct locale-prefixed callback URL for auth redirect
+  const callbackUrl = getLocalePath(locale, ROUTES.DASHBOARD);
 
   // Detect WeChat browser and check if WeChat provider is available
   useEffect(() => {
@@ -46,7 +51,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   // Handle WeChat login - use different provider based on browser
   const handleWeChatLogin = () => {
     const provider = isInWeChatBrowser ? 'wechat-mp' : 'wechat';
-    signIn(provider, { callbackUrl: AUTH_CALLBACK_URL });
+    signIn(provider, { callbackUrl });
   };
 
   return (
@@ -102,7 +107,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="space-y-3">
             {/* Google Login */}
             <button
-              onClick={() => signIn('google', { callbackUrl: AUTH_CALLBACK_URL })}
+              onClick={() => signIn('google', { callbackUrl })}
               className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-slate-100 text-slate-900 font-medium rounded-lg transition-colors"
             >
               <GoogleIcon className="w-5 h-5" />

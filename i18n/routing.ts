@@ -16,6 +16,23 @@ export function getOgLocale(locale: string): string {
   return ogLocaleMap[locale as Locale] || 'en_US';
 }
 
+/**
+ * Constructs a locale-prefixed path for use in auth callbacks (signIn/signOut).
+ * Use this when next-intl's Link/router can't be used (e.g., NextAuth callbacks).
+ * @param locale - Current locale (from useLocale())
+ * @param path - Path to prefix (should start with "/", e.g., "/dashboard")
+ * @returns Locale-prefixed path (e.g., "/zh/dashboard")
+ */
+export function getLocalePath(locale: string, path: string = '/'): string {
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  // For root path, just return /{locale}
+  if (normalizedPath === '/') {
+    return `/${locale}`;
+  }
+  return `/${locale}${normalizedPath}`;
+}
+
 export const routing = defineRouting({
   locales,
   defaultLocale,

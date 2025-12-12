@@ -190,6 +190,12 @@ ASSETS.ICON_LARGE        // Large icon for hero
 // App branding
 APP_NAME                 // "Personal Skill Map"
 
+// Routes (centralized route paths)
+ROUTES.HOME              // "/"
+ROUTES.DASHBOARD         // "/dashboard"
+ROUTES.PROFILE           // "/profile"
+ROUTES.CAREER            // "/career"
+
 // Header behavior
 HEADER_SCROLL_THRESHOLD  // Pixels before header style changes
 NAV_LINKS                // Navigation links array for header

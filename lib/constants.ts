@@ -33,11 +33,19 @@ export const HEADER_SCROLL_THRESHOLD = 10;
 export const HEADER_HEIGHT_DEFAULT = 80; // h-20 in pixels
 export const HEADER_HEIGHT_SCROLLED = 64; // h-16 in pixels
 
+// Route paths (centralized route definitions)
+export const ROUTES = {
+  HOME: "/",
+  DASHBOARD: "/dashboard",
+  PROFILE: "/profile",
+  CAREER: "/career",
+} as const;
+
 // Navigation links (used in Header for both desktop and mobile)
 export const NAV_LINKS = [
-  { href: "/", labelKey: "common.home" },
-  { href: "/dashboard", labelKey: "common.dashboard" },
-  { href: "/", labelKey: "common.explore" },
+  { href: ROUTES.HOME, labelKey: "common.home" },
+  { href: ROUTES.DASHBOARD, labelKey: "common.dashboard" },
+  { href: ROUTES.HOME, labelKey: "common.explore" },
 ] as const;
 
 // Background animation constants
@@ -55,9 +63,6 @@ export const BACKGROUND_CONFIG = {
 
 // Hero section constants
 export const HERO_ICON_ROTATION_DURATION = 30; // seconds
-
-// Auth constants
-export const AUTH_CALLBACK_URL = "/dashboard";
 
 // Provider brand colors
 export const PROVIDER_COLORS = {

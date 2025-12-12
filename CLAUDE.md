@@ -21,10 +21,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Timing: `SIGN_IN_PROMPT_DELAY_MS`, `AUTO_SAVE_DEBOUNCE_MS`
      - Assets: `ASSETS.ICON`, `ASSETS.ICON_LARGE`
      - Branding: `APP_NAME`
+     - Routes: `ROUTES` (centralized route paths: `HOME`, `DASHBOARD`, `PROFILE`, `CAREER`)
      - Header: `HEADER_SCROLL_THRESHOLD`, `HEADER_HEIGHT_DEFAULT`, `HEADER_HEIGHT_SCROLLED`, `NAV_LINKS`
      - Background: `BACKGROUND_CONFIG` (grid, colors, mouse interaction settings)
      - Hero: `HERO_ICON_ROTATION_DURATION`
-     - Auth: `AUTH_CALLBACK_URL`, `PROVIDER_COLORS` (brand colors for OAuth providers)
+     - Auth: `PROVIDER_COLORS` (brand colors for OAuth providers)
      - SEO: `SITE_URL`, `APP_DESCRIPTION` (used across metadata and JSON-LD)
 
 2. **Check `components/` for existing UI**:
@@ -39,11 +40,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `useShareScreenshot` - Screenshot/share functionality
 
 4. **Check `i18n/` for internationalization**:
-   - `i18n/routing.ts` - Locale configuration: `locales`, `Locale` type, `defaultLocale`, `routing`, `ogLocaleMap`, `getOgLocale()`
+   - `i18n/routing.ts` - Locale configuration: `locales`, `Locale` type, `defaultLocale`, `routing`, `ogLocaleMap`, `getOgLocale()`, `getLocalePath()`
    - `i18n/request.ts` - Server-side request configuration for next-intl
    - `i18n/navigation.ts` - Locale-aware navigation: `Link`, `useRouter`, `usePathname`, `redirect`
    - **Important**: Always import `locales` and `Locale` type from `@/i18n/routing` - never define locale arrays elsewhere
    - **Important**: Use `getOgLocale()` for Open Graph locale codes - add new locales to `ogLocaleMap`
+   - **Important**: Use `getLocalePath(locale, path)` for auth callbacks (signIn/signOut) where next-intl's Link/router can't be used
 
 5. **Check `messages/` for translations**:
    - `messages/en.json` - English translations
@@ -109,6 +111,12 @@ t('common.signIn'); // Returns translated string
 
 // Navigation (use locale-aware versions)
 import { Link, useRouter } from '@/i18n/navigation';
+
+// Auth callbacks (signIn/signOut where next-intl routing doesn't apply)
+import { getLocalePath } from '@/i18n/routing';
+import { ROUTES } from '@/lib/constants';
+signIn('google', { callbackUrl: getLocalePath(locale, ROUTES.DASHBOARD) });
+signOut({ callbackUrl: getLocalePath(locale) }); // Redirects to locale root
 ```
 
 **AI-Generated Content Localization:**
