@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Review what was just done and ensure it follows best practices: modularized, scalable, easy to replace later, non-redundant, no hardcoded variables, and no one-time test logs, scripts or docs. Then update README.md, any relevant docs, and CLAUDE.md if they exist and need updating based on the changes made. If no updates are needed, briefly confirm the code quality check passed.",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
