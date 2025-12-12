@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { db, userCareerGraphs, type UserNodeData } from '@/lib/db';
+import { db, userCareerGraphs, careers, type UserNodeData } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Get all user's saved graphs
+// Get all user's saved graphs with career info (single query, no N+1)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -102,11 +102,31 @@ export async function GET() {
       );
     }
 
-    const savedGraphs = await db.query.userCareerGraphs.findMany({
-      where: eq(userCareerGraphs.userId, session.user.id),
-    });
+    // Join userCareerGraphs with careers to get all data in one query
+    const savedGraphsWithCareers = await db
+      .select({
+        graph: {
+          id: userCareerGraphs.id,
+          careerId: userCareerGraphs.careerId,
+          title: userCareerGraphs.title,
+          nodeData: userCareerGraphs.nodeData,
+          isPublic: userCareerGraphs.isPublic,
+          shareSlug: userCareerGraphs.shareSlug,
+          createdAt: userCareerGraphs.createdAt,
+          updatedAt: userCareerGraphs.updatedAt,
+        },
+        career: {
+          id: careers.id,
+          title: careers.title,
+          canonicalKey: careers.canonicalKey,
+          locale: careers.locale,
+        },
+      })
+      .from(userCareerGraphs)
+      .leftJoin(careers, eq(userCareerGraphs.careerId, careers.id))
+      .where(eq(userCareerGraphs.userId, session.user.id));
 
-    return NextResponse.json({ graphs: savedGraphs });
+    return NextResponse.json({ graphs: savedGraphsWithCareers });
   } catch (error) {
     console.error('Get graphs error:', error);
     return NextResponse.json(

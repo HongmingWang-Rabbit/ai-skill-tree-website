@@ -3,18 +3,21 @@
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 
 interface SavedGraph {
   id: string;
   careerId: string;
+  title: string | null;
   nodeData: Array<{
     skillId: string;
     progress: number;
     position?: { x: number; y: number };
   }>;
+  isPublic: boolean;
+  shareSlug: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,8 +26,10 @@ interface CareerInfo {
   id: string;
   title: string;
   canonicalKey: string;
+  locale: string;
 }
 
+// API returns joined data in single query
 interface SavedCareer {
   graph: SavedGraph;
   career: CareerInfo | null;
@@ -34,11 +39,10 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const t = useTranslations();
-  const locale = useLocale();
   const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
   const [isLoadingCareers, setIsLoadingCareers] = useState(true);
 
-  // Fetch user's saved career graphs
+  // Fetch user's saved career graphs (single API call with joined career data)
   useEffect(() => {
     async function fetchSavedCareers() {
       if (!session?.user?.id) return;
@@ -48,22 +52,8 @@ export default function DashboardPage() {
         const data = await response.json();
 
         if (data.graphs) {
-          // Fetch career info for each graph
-          const careersWithInfo = await Promise.all(
-            data.graphs.map(async (graph: SavedGraph) => {
-              try {
-                const careerResponse = await fetch(`/api/career/${graph.careerId}?locale=${locale}`);
-                const careerData = await careerResponse.json();
-                return {
-                  graph,
-                  career: careerData.success ? careerData.data.career : null,
-                };
-              } catch {
-                return { graph, career: null };
-              }
-            })
-          );
-          setSavedCareers(careersWithInfo);
+          // API returns joined data - no N+1 calls needed
+          setSavedCareers(data.graphs);
         }
       } catch (err) {
         console.error('Failed to fetch saved careers:', err);
@@ -73,7 +63,7 @@ export default function DashboardPage() {
     }
 
     fetchSavedCareers();
-  }, [session?.user?.id, locale]);
+  }, [session?.user?.id]);
 
   // Calculate stats from saved careers
   const stats = {
@@ -200,7 +190,7 @@ export default function DashboardPage() {
                     className="block bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all"
                   >
                     <h3 className="font-semibold text-white mb-2">
-                      {sc.career?.title || t('dashboard.unknownCareer')}
+                      {sc.graph.title || sc.career?.title || t('dashboard.unknownCareer')}
                     </h3>
                     <div className="flex items-center justify-between text-sm text-slate-400 mb-3">
                       <span>{masteredSkills}/{totalSkills} {t('dashboard.skillsMastered')}</span>
