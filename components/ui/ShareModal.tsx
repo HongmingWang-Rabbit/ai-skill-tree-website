@@ -47,6 +47,7 @@ interface ShareModalProps {
   shareSlug?: string | null;
   isPublic?: boolean;
   isOwner?: boolean;
+  locale?: string;
 }
 
 type ViewMode = 'main' | 'social';
@@ -64,6 +65,9 @@ export function ShareModal({
   onNativeShare,
   onSlideChange,
   currentSlide,
+  mapId,
+  shareSlug,
+  locale = 'en',
 }: ShareModalProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('main');
@@ -114,9 +118,24 @@ export function ShareModal({
     await onNativeShare(currentSlide);
   };
 
+  // Generate the shareable URL
+  const getShareUrl = () => {
+    if (typeof window === 'undefined') return '';
+    const origin = window.location.origin;
+    // Use shareSlug for public maps, mapId for private maps, or current URL as fallback
+    if (shareSlug) {
+      return `${origin}/${locale}/career/${shareSlug}`;
+    }
+    if (mapId) {
+      return `${origin}/${locale}/career/${mapId}`;
+    }
+    return window.location.href;
+  };
+
   const handleSocialShare = async (platform: SocialPlatform) => {
-    const shareText = `Check out my ${careerTitle} skill tree progress - ${progress}% complete!`;
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const shareUrl = getShareUrl();
+    // Text without URL - platforms add URL separately
+    const shareText = `Check out my ${careerTitle} skill map! ${progress}% complete 🗺️`;
 
     if (platform === 'wechat') {
       // WeChat requires downloading the image and sharing manually

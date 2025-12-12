@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 
@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const t = useTranslations();
+  const locale = useLocale();
   const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
   const [isLoadingCareers, setIsLoadingCareers] = useState(true);
 
@@ -51,7 +52,7 @@ export default function DashboardPage() {
           const careersWithInfo = await Promise.all(
             data.graphs.map(async (graph: SavedGraph) => {
               try {
-                const careerResponse = await fetch(`/api/career/${graph.careerId}`);
+                const careerResponse = await fetch(`/api/career/${graph.careerId}?locale=${locale}`);
                 const careerData = await careerResponse.json();
                 return {
                   graph,
@@ -72,7 +73,7 @@ export default function DashboardPage() {
     }
 
     fetchSavedCareers();
-  }, [session?.user?.id]);
+  }, [session?.user?.id, locale]);
 
   // Calculate stats from saved careers
   const stats = {
@@ -195,7 +196,7 @@ export default function DashboardPage() {
                 return (
                   <Link
                     key={sc.graph.id}
-                    href={`/career/${sc.career?.canonicalKey || sc.graph.careerId}`}
+                    href={`/career/${sc.graph.id}`}
                     className="block bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all"
                   >
                     <h3 className="font-semibold text-white mb-2">

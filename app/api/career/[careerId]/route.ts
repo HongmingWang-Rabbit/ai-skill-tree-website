@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, careers, skillGraphs } from '@/lib/db';
-import { eq, and, or } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { getCachedCareer, setCachedCareer } from '@/lib/cache';
 import { locales, type Locale } from '@/i18n/routing';
 
@@ -40,17 +40,32 @@ export async function GET(
 
     // Try to find by ID (if UUID) or canonical key with locale
     const isUuid = UUID_REGEX.test(careerId);
-    const career = await db.query.careers.findFirst({
-      where: isUuid
-        ? and(
-            or(eq(careers.id, careerId), eq(careers.canonicalKey, careerId)),
-            eq(careers.locale, validLocale)
-          )
-        : and(
+
+    let career;
+    if (isUuid) {
+      // First try exact UUID match (no locale filter - UUID is unique)
+      career = await db.query.careers.findFirst({
+        where: eq(careers.id, careerId),
+      });
+
+      // If not found by UUID, try as canonicalKey with locale
+      if (!career) {
+        career = await db.query.careers.findFirst({
+          where: and(
             eq(careers.canonicalKey, careerId),
             eq(careers.locale, validLocale)
           ),
-    });
+        });
+      }
+    } else {
+      // For non-UUID (canonicalKey), always filter by locale
+      career = await db.query.careers.findFirst({
+        where: and(
+          eq(careers.canonicalKey, careerId),
+          eq(careers.locale, validLocale)
+        ),
+      });
+    }
 
     if (!career) {
       return NextResponse.json(

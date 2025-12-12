@@ -664,19 +664,25 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         }}
         onNativeShare={(slideType) => {
           const preview = slidePreviews[slideType];
+          const shareUrl = userMap?.shareSlug
+            ? `${window.location.origin}/${locale}/career/${userMap.shareSlug}`
+            : userMap?.id
+            ? `${window.location.origin}/${locale}/career/${userMap.id}`
+            : window.location.href;
           return preview
             ? shareFromDataUrl(
                 preview,
-                `My ${displayTitle} Skill Tree`,
-                `Check out my ${displayTitle} skill tree progress - ${overallProgress}% complete!`
+                `My ${displayTitle} Skill Map`,
+                `Check out my ${displayTitle} skill map! ${overallProgress}% complete 🗺️\n\n${shareUrl}`
               )
             : Promise.resolve(false);
         }}
-        // New props for link sharing (will be added to ShareModal)
+        // Link sharing props
         mapId={userMap?.id}
         shareSlug={userMap?.shareSlug}
         isPublic={userMap?.isPublic}
         isOwner={viewMode === 'own-map'}
+        locale={locale}
       />
     </div>
   );
