@@ -68,6 +68,22 @@ An interactive web application that generates and visualizes career skill maps u
 
    # OpenAI
    OPENAI_API_KEY="sk-..."
+
+   # NextAuth
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="your-secret"
+
+   # Google OAuth
+   GOOGLE_CLIENT_ID="..."
+   GOOGLE_CLIENT_SECRET="..."
+
+   # Twitter OAuth (optional)
+   TWITTER_CLIENT_ID="..."
+   TWITTER_CLIENT_SECRET="..."
+
+   # WeChat OAuth (optional - login disabled if not set)
+   WECHAT_APP_ID="..."
+   WECHAT_APP_SECRET="..."
    ```
 
 5. Push the database schema:

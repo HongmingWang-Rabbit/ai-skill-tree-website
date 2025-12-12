@@ -100,5 +100,14 @@
   },
   "languageSwitcher": {
     "language": "言語"
+  },
+  "auth": {
+    "welcomeBack": "おかえりなさい",
+    "signInDescription": "スキルの進捗を追跡するにはログインしてください",
+    "socialLogin": "ソーシャルログイン",
+    "web3Wallet": "Web3 ウォレット",
+    "continueWithGoogle": "Google で続ける",
+    "continueWithWeChat": "WeChat で続ける",
+    "termsNotice": "ログインすると、利用規約とプライバシーポリシーに同意したことになります"
   }
 }

@@ -51,3 +51,14 @@ export const BACKGROUND_CONFIG = {
 
 // Hero section constants
 export const HERO_ICON_ROTATION_DURATION = 30; // seconds
+
+// Auth constants
+export const AUTH_CALLBACK_URL = '/dashboard';
+
+// Provider brand colors
+export const PROVIDER_COLORS = {
+  WECHAT: {
+    bg: '#07C160',
+    hover: '#06AD56',
+  },
+} as const;

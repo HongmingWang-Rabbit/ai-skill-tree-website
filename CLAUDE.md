@@ -11,7 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
    - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
-   - `lib/auth.ts` - NextAuth config with Google, Twitter, Web3 providers
+   - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
+   - `lib/wechat-provider.ts` - Custom WeChat OAuth provider: `WeChatProvider()`, `WeChatMPProvider()`, `isWeChatBrowser()`
    - `lib/db/index.ts` - Database connection, exports all schema types
    - `lib/constants.ts` - App constants:
      - Skill: `SKILL_PASS_THRESHOLD`, `SKILL_PROGRESS_MAX`, `SKILL_SCORE_EXCELLENT_THRESHOLD`
@@ -23,12 +24,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Header: `HEADER_SCROLL_THRESHOLD`, `HEADER_HEIGHT_DEFAULT`, `HEADER_HEIGHT_SCROLLED`, `NAV_LINKS`
      - Background: `BACKGROUND_CONFIG` (grid, colors, mouse interaction settings)
      - Hero: `HERO_ICON_ROTATION_DURATION`
+     - Auth: `AUTH_CALLBACK_URL`, `PROVIDER_COLORS` (brand colors for OAuth providers)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`, `ChevronRightIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
-   - `components/auth/` - Authentication components
+   - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
    - `components/providers/` - Context providers
 
 3. **Check `hooks/`** - Custom React hooks:
@@ -44,6 +46,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`
 
 ## Commands
 
@@ -116,12 +119,21 @@ import { Link, useRouter } from '@/i18n/navigation';
 
 ### Authentication
 
-NextAuth.js with three providers:
+NextAuth.js with four providers:
 - Google OAuth
 - Twitter OAuth 2.0
+- WeChat OAuth (Web QR code + in-app browser)
 - Web3 wallet (SIWE - Sign-In with Ethereum via wagmi/RainbowKit)
 
 Session strategy is JWT. Auth config in `lib/auth.ts`.
+
+**WeChat Login:**
+- `lib/wechat-provider.ts` - Custom OAuth provider supporting two flows:
+  - `WeChatProvider` - Web QR code login for desktop browsers (uses `qrconnect` endpoint)
+  - `WeChatMPProvider` - In-app browser login when user is inside WeChat (uses `oauth2/authorize` endpoint)
+- `isWeChatBrowser()` - Client-side helper to detect WeChat's in-app browser
+- `AuthModal.tsx` automatically detects browser type and uses appropriate provider
+- Requires `WECHAT_APP_ID` and `WECHAT_APP_SECRET` environment variables (optional - WeChat login is disabled if not set)
 
 ### User Maps & Sharing
 

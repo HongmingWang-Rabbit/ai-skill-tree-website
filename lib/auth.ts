@@ -7,6 +7,7 @@ import { db } from './db';
 import { users, accounts, sessions, verificationTokens } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { SiweMessage } from 'siwe';
+import WeChatProvider, { WeChatMPProvider } from './wechat-provider';
 
 declare module 'next-auth' {
   interface Session {
@@ -41,6 +42,20 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
       version: '2.0',
     }),
+    // WeChat Web QR code login (for desktop browsers)
+    ...(process.env.WECHAT_APP_ID && process.env.WECHAT_APP_SECRET
+      ? [
+          WeChatProvider({
+            clientId: process.env.WECHAT_APP_ID,
+            clientSecret: process.env.WECHAT_APP_SECRET,
+          }),
+          // WeChat in-app browser login
+          WeChatMPProvider({
+            clientId: process.env.WECHAT_APP_ID,
+            clientSecret: process.env.WECHAT_APP_SECRET,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       id: 'web3',
       name: 'Web3 Wallet',
