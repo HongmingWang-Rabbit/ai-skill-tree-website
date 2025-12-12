@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, careers, skillGraphs } from '@/lib/db';
-import { eq, or } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
 import { getCachedCareer, setCachedCareer } from '@/lib/cache';
+import { locales, type Locale } from '@/i18n/routing';
 
 export const runtime = 'edge';
 
@@ -14,12 +15,20 @@ export async function GET(
 ) {
   try {
     const { careerId } = await params;
+    const { searchParams } = new URL(request.url);
+    const locale = (searchParams.get('locale') || 'en') as Locale;
 
-    // Check cache first
+    // Validate locale using centralized config
+    const validLocale = locales.includes(locale) ? locale : 'en';
+
+    // Generate cache key with locale
+    const cacheKey = `${careerId}:${validLocale}`;
+
+    // Check cache first (with locale)
     const cached = await getCachedCareer<{
       career: typeof careers.$inferSelect;
       skillGraph: typeof skillGraphs.$inferSelect;
-    }>(careerId);
+    }>(cacheKey);
 
     if (cached) {
       return NextResponse.json({
@@ -29,12 +38,18 @@ export async function GET(
       });
     }
 
-    // Try to find by ID (if UUID) or canonical key
+    // Try to find by ID (if UUID) or canonical key with locale
     const isUuid = UUID_REGEX.test(careerId);
     const career = await db.query.careers.findFirst({
       where: isUuid
-        ? or(eq(careers.id, careerId), eq(careers.canonicalKey, careerId))
-        : eq(careers.canonicalKey, careerId),
+        ? and(
+            or(eq(careers.id, careerId), eq(careers.canonicalKey, careerId)),
+            eq(careers.locale, validLocale)
+          )
+        : and(
+            eq(careers.canonicalKey, careerId),
+            eq(careers.locale, validLocale)
+          ),
     });
 
     if (!career) {
@@ -59,7 +74,7 @@ export async function GET(
     const result = { career, skillGraph };
 
     // Cache the result
-    await setCachedCareer(career.canonicalKey, result);
+    await setCachedCareer(cacheKey, result);
 
     return NextResponse.json({
       success: true,

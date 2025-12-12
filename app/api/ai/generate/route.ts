@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateCareerSkillTree } from '@/lib/ai';
+import { generateCareerSkillTree, type SupportedLocale } from '@/lib/ai';
 import { GenerateCareerSchema } from '@/lib/schemas';
 import { normalizeCareerKey } from '@/lib/normalize-career';
 import { setCachedCareer, getCachedCareer } from '@/lib/cache';
 import { db, careers, skillGraphs } from '@/lib/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { career } = GenerateCareerSchema.parse(body);
+    const { career, locale = 'en' } = GenerateCareerSchema.parse(body);
 
     const canonicalKey = normalizeCareerKey(career);
+    // Include locale in cache key to store different language versions separately
+    const cacheKey = `${canonicalKey}:${locale}`;
 
     // Check cache first
     const cached = await getCachedCareer<{
       career: typeof careers.$inferSelect;
       skillGraph: typeof skillGraphs.$inferSelect;
-    }>(canonicalKey);
+    }>(cacheKey);
 
     if (cached) {
       return NextResponse.json({
@@ -29,9 +31,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check database
+    // Check database for this locale version
     const existingCareer = await db.query.careers.findFirst({
-      where: eq(careers.canonicalKey, canonicalKey),
+      where: and(
+        eq(careers.canonicalKey, canonicalKey),
+        eq(careers.locale, locale)
+      ),
     });
 
     if (existingCareer) {
@@ -41,7 +46,7 @@ export async function POST(request: NextRequest) {
 
       if (existingGraph) {
         const result = { career: existingCareer, skillGraph: existingGraph };
-        await setCachedCareer(canonicalKey, result);
+        await setCachedCareer(cacheKey, result);
         return NextResponse.json({
           success: true,
           data: result,
@@ -50,19 +55,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate new skill tree with AI
-    const generated = await generateCareerSkillTree(career);
+    // Generate new skill tree with AI in the specified locale
+    const generated = await generateCareerSkillTree(career, locale as SupportedLocale);
 
-    // Save to database - use upsert to handle race conditions
+    // Save to database with locale - use upsert to handle race conditions
     const [newCareer] = await db
       .insert(careers)
       .values({
         canonicalKey: generated.canonicalKey,
+        locale: locale,
         title: generated.title,
         description: generated.description,
       })
       .onConflictDoUpdate({
-        target: careers.canonicalKey,
+        target: [careers.canonicalKey, careers.locale],
         set: {
           title: generated.title,
           description: generated.description,
@@ -93,6 +99,7 @@ export async function POST(request: NextRequest) {
         .insert(skillGraphs)
         .values({
           careerId: newCareer.id,
+          locale: locale,
           nodes: generated.skills,
           edges: generated.edges,
         })
@@ -108,7 +115,7 @@ export async function POST(request: NextRequest) {
     const result = { career: newCareer, skillGraph: newSkillGraph };
 
     // Cache the result
-    await setCachedCareer(canonicalKey, result);
+    await setCachedCareer(cacheKey, result);
 
     return NextResponse.json({
       success: true,

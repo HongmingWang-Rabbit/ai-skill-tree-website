@@ -1,17 +1,26 @@
-import { pgTable, text, timestamp, uuid, integer, jsonb, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, integer, jsonb, primaryKey, unique } from 'drizzle-orm/pg-core';
+
+// Supported locales for i18n
+export const SUPPORTED_LOCALES = ['en', 'zh', 'ja'] as const;
+export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
 
 export const careers = pgTable('careers', {
   id: uuid('id').primaryKey().defaultRandom(),
-  canonicalKey: text('canonical_key').notNull().unique(),
+  canonicalKey: text('canonical_key').notNull(),
+  locale: text('locale').notNull().default('en'),
   title: text('title').notNull(),
   description: text('description'),
   skillGraphId: uuid('skill_graph_id'),
   generatedAt: timestamp('generated_at').defaultNow(),
-});
+}, (table) => ({
+  // Unique constraint on canonicalKey + locale combination
+  uniqueKeyLocale: unique('careers_canonical_key_locale_unique').on(table.canonicalKey, table.locale),
+}));
 
 export const skillGraphs = pgTable('skill_graphs', {
   id: uuid('id').primaryKey().defaultRandom(),
   careerId: uuid('career_id').references(() => careers.id),
+  locale: text('locale').notNull().default('en'),
   nodes: jsonb('nodes').notNull().$type<SkillNodeData[]>(),
   edges: jsonb('edges').notNull().$type<SkillEdgeData[]>(),
   createdAt: timestamp('created_at').defaultNow(),

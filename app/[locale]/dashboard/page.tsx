@@ -1,11 +1,11 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import { Link, useRouter } from '@/i18n/navigation';
 
 interface SavedGraph {
   id: string;
@@ -33,6 +33,7 @@ interface SavedCareer {
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const t = useTranslations();
   const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
   const [isLoadingCareers, setIsLoadingCareers] = useState(true);
 
@@ -89,7 +90,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Loading...</p>
+          <p className="text-slate-400">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -100,15 +101,15 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-6xl mb-6">🔒</div>
-          <h1 className="text-2xl font-bold text-white mb-4">Sign In Required</h1>
+          <h1 className="text-2xl font-bold text-white mb-4">{t('dashboard.signInRequired')}</h1>
           <p className="text-slate-400 mb-6">
-            Please sign in to access your dashboard and track your skill progress.
+            {t('dashboard.signInDescription')}
           </p>
           <button
             onClick={() => router.push('/?signin=true')}
             className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors"
           >
-            Sign In
+            {t('common.signIn')}
           </button>
         </div>
       </div>
@@ -155,34 +156,34 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
             <div className="text-3xl mb-2">📊</div>
-            <h3 className="text-lg font-semibold text-white mb-1">Career Paths</h3>
+            <h3 className="text-lg font-semibold text-white mb-1">{t('dashboard.careerPaths')}</h3>
             <p className="text-3xl font-bold text-amber-400">{stats.totalPaths}</p>
-            <p className="text-sm text-slate-400 mt-1">Paths explored</p>
+            <p className="text-sm text-slate-400 mt-1">{t('dashboard.pathsExplored')}</p>
           </div>
 
           <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
             <div className="text-3xl mb-2">🎯</div>
-            <h3 className="text-lg font-semibold text-white mb-1">Skills</h3>
+            <h3 className="text-lg font-semibold text-white mb-1">{t('dashboard.skills')}</h3>
             <p className="text-3xl font-bold text-cyan-400">{stats.totalSkillsInProgress}</p>
-            <p className="text-sm text-slate-400 mt-1">Skills in progress</p>
+            <p className="text-sm text-slate-400 mt-1">{t('dashboard.skillsInProgress')}</p>
           </div>
 
           <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
             <div className="text-3xl mb-2">✨</div>
-            <h3 className="text-lg font-semibold text-white mb-1">Mastered</h3>
+            <h3 className="text-lg font-semibold text-white mb-1">{t('dashboard.mastered')}</h3>
             <p className="text-3xl font-bold text-emerald-400">{stats.totalMastered}</p>
-            <p className="text-sm text-slate-400 mt-1">Skills completed</p>
+            <p className="text-sm text-slate-400 mt-1">{t('dashboard.skillsCompleted')}</p>
           </div>
         </div>
 
         {/* Saved Career Paths */}
         <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-6">Your Career Paths</h2>
+          <h2 className="text-xl font-bold text-white mb-6">{t('dashboard.yourCareerPaths')}</h2>
 
           {isLoadingCareers ? (
             <div className="text-center py-12">
               <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-400">Loading your saved paths...</p>
+              <p className="text-slate-400">{t('dashboard.loadingPaths')}</p>
             </div>
           ) : savedCareers.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -198,10 +199,10 @@ export default function DashboardPage() {
                     className="block bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all"
                   >
                     <h3 className="font-semibold text-white mb-2">
-                      {sc.career?.title || 'Unknown Career'}
+                      {sc.career?.title || t('dashboard.unknownCareer')}
                     </h3>
                     <div className="flex items-center justify-between text-sm text-slate-400 mb-3">
-                      <span>{masteredSkills}/{totalSkills} skills mastered</span>
+                      <span>{masteredSkills}/{totalSkills} {t('dashboard.skillsMastered')}</span>
                       <span className="text-amber-400">{progress}%</span>
                     </div>
                     <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -211,7 +212,7 @@ export default function DashboardPage() {
                       />
                     </div>
                     <p className="text-xs text-slate-500 mt-2">
-                      Last updated: {new Date(sc.graph.updatedAt).toLocaleDateString()}
+                      {t('dashboard.lastUpdated')}: {new Date(sc.graph.updatedAt).toLocaleDateString()}
                     </p>
                   </Link>
                 );
@@ -220,15 +221,15 @@ export default function DashboardPage() {
           ) : (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🌱</div>
-              <h3 className="text-lg font-semibold text-white mb-2">Start Your Journey</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">{t('dashboard.startYourJourney')}</h3>
               <p className="text-slate-400 mb-6 max-w-md mx-auto">
-                Explore career paths and start tracking your skill progress. Your saved paths will appear here.
+                {t('dashboard.startDescription')}
               </p>
               <Link
                 href="/"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors"
               >
-                <span>Explore Careers</span>
+                <span>{t('dashboard.exploreCareers')}</span>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

@@ -32,6 +32,7 @@ export const CareerSearchSchema = z.object({
 
 export const GenerateCareerSchema = z.object({
   career: z.string().min(1).max(200),
+  locale: z.enum(['en', 'zh', 'ja']).optional().default('en'),
 });
 
 // Types derived from schemas

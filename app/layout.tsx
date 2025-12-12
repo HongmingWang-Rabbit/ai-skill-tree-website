@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider, Web3Provider } from "@/components/providers";
-import { Header } from "@/components/layout";
 
 export const metadata: Metadata = {
   title: "Career Builder - AI-Powered Skill Trees",
@@ -14,16 +12,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className="antialiased bg-slate-950 min-h-screen" suppressHydrationWarning>
-        <AuthProvider>
-          <Web3Provider>
-            <Header />
-            <main>{children}</main>
-          </Web3Provider>
-        </AuthProvider>
-      </body>
-    </html>
-  );
+  // Note: lang attribute is set in [locale]/layout.tsx based on URL params
+  // to avoid hydration mismatch
+  return children;
 }

@@ -1,14 +1,17 @@
 'use client';
 
-import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { Link } from '@/i18n/navigation';
 import { UserMenu } from '../auth/UserMenu';
 import { AuthModal } from '../auth/AuthModal';
+import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 
 export function Header() {
   const { data: session, status } = useSession();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const t = useTranslations();
 
   return (
     <>
@@ -21,7 +24,7 @@ export function Header() {
               className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors"
             >
               <span className="text-2xl">🌳</span>
-              <span className="font-bold text-lg hidden sm:block">AI Skill Tree</span>
+              <span className="font-bold text-lg hidden sm:block">{t('header.brandName')}</span>
             </Link>
 
             {/* Navigation */}
@@ -30,24 +33,25 @@ export function Header() {
                 href="/"
                 className="text-slate-300 hover:text-white transition-colors text-sm"
               >
-                Home
+                {t('common.home')}
               </Link>
               <Link
                 href="/dashboard"
                 className="text-slate-300 hover:text-white transition-colors text-sm"
               >
-                Dashboard
+                {t('common.dashboard')}
               </Link>
               <Link
-                href="/explore"
+                href="/"
                 className="text-slate-300 hover:text-white transition-colors text-sm"
               >
-                Explore
+                {t('common.explore')}
               </Link>
             </nav>
 
-            {/* Auth Section */}
+            {/* Auth Section & Language Switcher */}
             <div className="flex items-center gap-4">
+              <LanguageSwitcher />
               {status === 'loading' ? (
                 <div className="w-8 h-8 rounded-full bg-slate-700 animate-pulse" />
               ) : session ? (
@@ -57,7 +61,7 @@ export function Header() {
                   onClick={() => setIsAuthModalOpen(true)}
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm"
                 >
-                  Sign In
+                  {t('common.signIn')}
                 </button>
               )}
             </div>

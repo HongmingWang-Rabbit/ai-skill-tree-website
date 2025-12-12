@@ -1,0 +1,85 @@
+{
+  "common": {
+    "appName": "AI Skill Tree",
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "explore": "Explore",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "loading": "Loading...",
+    "error": "Error",
+    "goBack": "Go Back",
+    "goBackHome": "Go Back Home",
+    "saved": "Saved",
+    "saving": "Saving..."
+  },
+  "header": {
+    "brandName": "AI Skill Tree"
+  },
+  "home": {
+    "title": "Career Builder",
+    "subtitle": "Discover your career path with AI-powered skill trees. Visualize the skills you need to master your dream career.",
+    "searchPlaceholder": "Enter a career (e.g., Software Engineer)",
+    "popularCareers": "Popular careers to explore",
+    "howItWorks": "How It Works",
+    "search": {
+      "title": "Search",
+      "description": "Enter any career path you want to explore. Our AI understands thousands of roles."
+    },
+    "generate": {
+      "title": "Generate",
+      "description": "AI generates a comprehensive skill tree with all the skills you need to master."
+    },
+    "track": {
+      "title": "Track",
+      "description": "Visualize your progress as you unlock skills and level up your career."
+    },
+    "footer": "Built with Next.js, React Flow, and OpenAI.",
+    "footerPowered": "Powered by AI skill tree generation."
+  },
+  "career": {
+    "loading": "Loading career...",
+    "generating": "Generating skill tree with AI...",
+    "generatingSubtext": "This may take a few seconds",
+    "loadingProgress": "Loading your progress...",
+    "totalSkills": "Total Skills",
+    "unlocked": "Unlocked",
+    "mastered": "Mastered",
+    "saveProgress": "Save Your Progress",
+    "saveDescription": "Sign in to save your skill tree progress and access it from anywhere. Without signing in, your progress will be lost when you leave this page.",
+    "signInToSave": "Sign In to Save",
+    "continueWithoutSaving": "Continue Without Saving",
+    "oops": "Oops!",
+    "failedToLoad": "Failed to load career",
+    "share": "Share your progress"
+  },
+  "dashboard": {
+    "signInRequired": "Sign In Required",
+    "signInDescription": "Please sign in to access your dashboard and track your skill progress.",
+    "careerPaths": "Career Paths",
+    "pathsExplored": "Paths explored",
+    "skills": "Skills",
+    "skillsInProgress": "Skills in progress",
+    "mastered": "Mastered",
+    "skillsCompleted": "Skills completed",
+    "yourCareerPaths": "Your Career Paths",
+    "loadingPaths": "Loading your saved paths...",
+    "skillsMastered": "skills mastered",
+    "lastUpdated": "Last updated",
+    "startYourJourney": "Start Your Journey",
+    "startDescription": "Explore career paths and start tracking your skill progress. Your saved paths will appear here.",
+    "exploreCareers": "Explore Careers",
+    "unknownCareer": "Unknown Career"
+  },
+  "featuredCareers": {
+    "frontendDeveloper": "Frontend Developer",
+    "dataScientist": "Data Scientist",
+    "uxDesigner": "UX Designer",
+    "devopsEngineer": "DevOps Engineer",
+    "productManager": "Product Manager",
+    "mlEngineer": "Machine Learning Engineer"
+  },
+  "languageSwitcher": {
+    "language": "Language"
+  }
+}

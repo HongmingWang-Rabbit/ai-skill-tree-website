@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useState, use, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useTranslations, useLocale } from 'next-intl';
 import { SkillGraph, type SkillGraphHandle } from '@/components/skill-graph/SkillGraph';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
 import { ShareModal } from '@/components/ui/ShareModal';
 import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import { useRouter } from '@/i18n/navigation';
 import type { Node, Edge } from '@xyflow/react';
 import type { SkillNodeData } from '@/components/skill-graph/SkillNode';
 
@@ -44,10 +45,12 @@ interface UserNodeData {
   position?: { x: number; y: number };
 }
 
-export default function CareerPage({ params }: { params: Promise<{ careerId: string }> }) {
+export default function CareerPage({ params }: { params: Promise<{ careerId: string; locale: string }> }) {
   const resolvedParams = use(params);
   const careerId = resolvedParams.careerId;
   const router = useRouter();
+  const t = useTranslations();
+  const locale = useLocale();
   const { data: session, status: authStatus } = useSession();
   const [data, setData] = useState<CareerData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,8 +81,8 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       setError(null);
 
       try {
-        // First try to fetch existing career
-        const fetchResponse = await fetch(`/api/career/${careerId}`);
+        // First try to fetch existing career (with locale for cache lookup)
+        const fetchResponse = await fetch(`/api/career/${careerId}?locale=${locale}`);
         const fetchResult = await fetchResponse.json();
 
         if (fetchResult.success) {
@@ -88,12 +91,12 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
           return;
         }
 
-        // If not found, generate new career
+        // If not found, generate new career in the current locale
         setIsGenerating(true);
         const generateResponse = await fetch('/api/ai/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ career: careerId.replace(/-/g, ' ') }),
+          body: JSON.stringify({ career: careerId.replace(/-/g, ' '), locale }),
         });
 
         const generateResult = await generateResponse.json();
@@ -101,10 +104,10 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         if (generateResult.success) {
           setData(generateResult.data);
         } else {
-          setError(generateResult.error || 'Failed to generate career');
+          setError(generateResult.error || t('career.failedToLoad'));
         }
       } catch (err) {
-        setError('An error occurred while loading the career');
+        setError(t('career.failedToLoad'));
         console.error(err);
       } finally {
         setIsLoading(false);
@@ -113,7 +116,7 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     }
 
     fetchOrGenerateCareer();
-  }, [careerId]);
+  }, [careerId, locale, t]);
 
   // Load user's saved progress if signed in
   useEffect(() => {
@@ -275,14 +278,14 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
           <div className="spinner mx-auto mb-4"></div>
           <p className="text-slate-400">
             {isGenerating
-              ? 'Generating skill tree with AI...'
+              ? t('career.generating')
               : isLoadingUserData
-                ? 'Loading your progress...'
-                : 'Loading career...'}
+                ? t('career.loadingProgress')
+                : t('career.loading')}
           </p>
           {isGenerating && (
             <p className="text-sm text-slate-500 mt-2">
-              This may take a few seconds
+              {t('career.generatingSubtext')}
             </p>
           )}
         </div>
@@ -296,13 +299,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       <div className="min-h-screen flex items-center justify-center">
         <GlassPanel className="p-8 text-center max-w-md">
           <div className="text-4xl mb-4">😕</div>
-          <h2 className="text-xl font-bold text-white mb-2">Oops!</h2>
-          <p className="text-slate-400 mb-4">{error || 'Failed to load career'}</p>
+          <h2 className="text-xl font-bold text-white mb-2">{t('career.oops')}</h2>
+          <p className="text-slate-400 mb-4">{error || t('career.failedToLoad')}</p>
           <button
             onClick={() => router.push('/')}
             className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 rounded-lg text-white transition-colors"
           >
-            Go Back Home
+            {t('common.goBackHome')}
           </button>
         </GlassPanel>
       </div>
@@ -391,14 +394,14 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                 {isSaving ? (
                   <span className="text-slate-400 flex items-center gap-1">
                     <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                    Saving...
+                    {t('common.saving')}
                   </span>
                 ) : isSaved ? (
                   <span className="text-emerald-400 flex items-center gap-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    Saved
+                    {t('common.saved')}
                   </span>
                 ) : null}
               </div>
@@ -413,7 +416,7 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                 await captureSlidePreview('full');
               }}
               className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
-              title="Share your progress"
+              title={t('career.share')}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -439,17 +442,17 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       <div className="border-b border-slate-800 bg-slate-900/50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <span className="text-slate-400">Total Skills:</span>
+            <span className="text-slate-400">{t('career.totalSkills')}:</span>
             <span className="text-white font-semibold">{nodes.length}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-slate-400">Unlocked:</span>
+            <span className="text-slate-400">{t('career.unlocked')}:</span>
             <span className="text-cyan-400 font-semibold">
               {nodesWithProgress.filter((n) => n.progress > 0).length}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-slate-400">Mastered:</span>
+            <span className="text-slate-400">{t('career.mastered')}:</span>
             <span className="text-amber-400 font-semibold">
               {nodesWithProgress.filter((n) => n.progress >= SKILL_PASS_THRESHOLD).length}
             </span>
@@ -478,10 +481,9 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
           <GlassPanel className="max-w-md w-full p-6">
             <div className="text-center">
               <div className="text-5xl mb-4">💾</div>
-              <h2 className="text-xl font-bold text-white mb-2">Save Your Progress</h2>
+              <h2 className="text-xl font-bold text-white mb-2">{t('career.saveProgress')}</h2>
               <p className="text-slate-400 mb-6">
-                Sign in to save your skill tree progress and access it from anywhere.
-                Without signing in, your progress will be lost when you leave this page.
+                {t('career.saveDescription')}
               </p>
               <div className="flex flex-col gap-3">
                 <button
@@ -491,13 +493,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                   }}
                   className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors"
                 >
-                  Sign In to Save
+                  {t('career.signInToSave')}
                 </button>
                 <button
                   onClick={() => setShowSignInPrompt(false)}
                   className="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium rounded-lg transition-colors"
                 >
-                  Continue Without Saving
+                  {t('career.continueWithoutSaving')}
                 </button>
               </div>
             </div>

@@ -16,13 +16,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/constants.ts` - App constants (e.g., `SKILL_PASS_THRESHOLD`)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - Authentication components
    - `components/providers/` - Context providers
 
 3. **Check `hooks/`** - Custom React hooks:
    - `useShareScreenshot` - Screenshot/share functionality
+
+4. **Check `i18n/` for internationalization**:
+   - `i18n/routing.ts` - Locale configuration: `locales`, `Locale` type, `defaultLocale`, `routing`
+   - `i18n/request.ts` - Server-side request configuration for next-intl
+   - `i18n/navigation.ts` - Locale-aware navigation: `Link`, `useRouter`, `usePathname`, `redirect`
+   - **Important**: Always import `locales` and `Locale` type from `@/i18n/routing` - never define locale arrays elsewhere
+
+5. **Check `messages/` for translations**:
+   - `messages/en.json` - English translations
+   - `messages/zh.json` - Chinese translations
+   - `messages/ja.json` - Japanese translations
 
 ## Commands
 
@@ -51,10 +62,44 @@ This is a Next.js 15 App Router application for generating AI-powered career ski
 
 ### Key Directories
 
+- `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
 - `app/api/` - API routes: `/ai/generate`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/progress`
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
+- `i18n/` - Internationalization configuration (next-intl)
+- `messages/` - Translation files (en.json, zh.json, ja.json)
 - `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress
 - `lib/ai.ts` - OpenAI integration: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`
+
+### Internationalization (i18n)
+
+Uses next-intl with locale-prefixed URLs. Supported locales: `en`, `zh`, `ja`.
+
+**Key files:**
+- `middleware.ts` - Locale detection and URL routing
+- `i18n/routing.ts` - Locale configuration
+- `i18n/navigation.ts` - Locale-aware `Link`, `useRouter`, `usePathname`
+- `messages/*.json` - Translation strings
+
+**Usage in components:**
+```tsx
+// Client components
+import { useTranslations, useLocale } from 'next-intl';
+const t = useTranslations();
+const locale = useLocale();
+t('common.signIn'); // Returns translated string
+
+// Navigation (use locale-aware versions)
+import { Link, useRouter } from '@/i18n/navigation';
+```
+
+**AI-Generated Content Localization:**
+- Career skill trees are generated in the user's current locale
+- `lib/ai.ts`: `generateCareerSkillTree(query, locale)` accepts locale parameter
+- All locales are stored in database with `locale` column
+- Database schema: `careers` and `skillGraphs` tables have `locale` column
+- Unique constraint: `(canonical_key, locale)` allows same career in multiple languages
+- Cache keys: `{careerId}:{locale}` for all locales
+- Skill names, descriptions, and categories are generated in the target language
 
 ### Authentication
 
@@ -75,3 +120,19 @@ Session strategy is JWT. Auth config in `lib/auth.ts`.
 ### Path Aliases
 
 `@/*` maps to project root (e.g., `@/lib/db`, `@/components/ui`)
+
+## Before Completing Any Task
+
+**Always perform these checks before finishing:**
+
+1. **Code Quality Review:**
+   - Modularized and reusable (no copy-paste duplication)
+   - Scalable (easy to extend)
+   - No hardcoded variables (use constants or config)
+   - No one-time test logs, scripts, or temporary code
+   - No unnecessary comments or console.logs
+
+2. **Documentation Updates (if changes affect them):**
+   - `README.md` - Update if features, setup, or structure changed
+   - `CLAUDE.md` - Update if new utilities, patterns, or architecture changed
+   - `messages/*.json` - Add translations for any new UI strings

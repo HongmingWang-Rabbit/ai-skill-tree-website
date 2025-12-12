@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { z } from 'zod';
 import { SkillNodeSchema, SkillEdgeSchema, CareerResponseSchema } from './schemas';
+import { type Locale } from '@/i18n/routing';
 
 const openai = new OpenAI();
 
@@ -12,7 +13,24 @@ export interface GeneratedCareer {
   edges: z.infer<typeof SkillEdgeSchema>[];
 }
 
-const SYSTEM_PROMPT = `You are an expert career advisor and skill tree designer. Generate comprehensive skill trees for careers that resemble video game skill trees.
+// Re-export Locale type for backward compatibility
+export type SupportedLocale = Locale;
+
+const LOCALE_INSTRUCTIONS: Record<Locale, string> = {
+  en: 'Generate all content in English.',
+  zh: 'Generate all content in Simplified Chinese (简体中文). All skill names, descriptions, categories, and the career title/description must be in Chinese.',
+  ja: 'Generate all content in Japanese (日本語). All skill names, descriptions, categories, and the career title/description must be in Japanese.',
+};
+
+const LOCALE_LANGUAGE_NAMES: Record<Locale, string> = {
+  en: 'English',
+  zh: 'Chinese',
+  ja: 'Japanese',
+};
+
+const getSystemPrompt = (locale: Locale) => `You are an expert career advisor and skill tree designer. Generate comprehensive skill trees for careers that resemble video game skill trees.
+
+${LOCALE_INSTRUCTIONS[locale]}
 
 When generating a skill tree:
 1. Create a hierarchical structure with foundational skills at the top
@@ -24,17 +42,21 @@ When generating a skill tree:
 
 Return valid JSON only with the exact structure requested.`;
 
-export async function generateCareerSkillTree(careerQuery: string): Promise<GeneratedCareer> {
-  const prompt = `Generate a complete skill tree for the career: "${careerQuery}"
+export async function generateCareerSkillTree(careerQuery: string, locale: Locale = 'en'): Promise<GeneratedCareer> {
+  const languageInstruction = locale !== 'en'
+    ? `\n\nIMPORTANT: Generate ALL text content (title, description, skill names, skill descriptions, category names) in ${LOCALE_LANGUAGE_NAMES[locale]}. The canonicalKey should remain in lowercase English with hyphens.`
+    : '';
+
+  const prompt = `Generate a complete skill tree for the career: "${careerQuery}"${languageInstruction}
 
 Return a JSON object with this exact structure:
 {
-  "canonicalKey": "lowercase-hyphenated-career-name",
+  "canonicalKey": "lowercase-hyphenated-career-name-in-english",
   "title": "Human Readable Career Title",
   "description": "A brief 1-2 sentence description of this career path",
   "skills": [
     {
-      "id": "unique-skill-id",
+      "id": "unique-skill-id-in-english",
       "name": "Skill Name",
       "description": "Brief description of this skill",
       "icon": "emoji",
@@ -60,7 +82,7 @@ Generate at least 15-20 skills organized into a logical skill tree. Skills at th
     model: 'gpt-4o',
     response_format: { type: 'json_object' },
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: getSystemPrompt(locale) },
       { role: 'user', content: prompt }
     ],
     temperature: 0.7,

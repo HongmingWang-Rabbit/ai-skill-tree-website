@@ -1,0 +1,85 @@
+{
+  "common": {
+    "appName": "AI スキルツリー",
+    "home": "ホーム",
+    "dashboard": "ダッシュボード",
+    "explore": "探索",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "goBack": "戻る",
+    "goBackHome": "ホームに戻る",
+    "saved": "保存済み",
+    "saving": "保存中..."
+  },
+  "header": {
+    "brandName": "AI スキルツリー"
+  },
+  "home": {
+    "title": "キャリアビルダー",
+    "subtitle": "AIを活用したスキルツリーでキャリアパスを発見。夢のキャリアに必要なスキルを可視化します。",
+    "searchPlaceholder": "キャリアを入力（例：ソフトウェアエンジニア）",
+    "popularCareers": "人気のキャリア",
+    "howItWorks": "仕組み",
+    "search": {
+      "title": "検索",
+      "description": "探索したいキャリアパスを入力してください。AIは数千の職種を理解しています。"
+    },
+    "generate": {
+      "title": "生成",
+      "description": "AIが習得すべきすべてのスキルを含む包括的なスキルツリーを生成します。"
+    },
+    "track": {
+      "title": "追跡",
+      "description": "スキルをアンロックしてキャリアをレベルアップする進捗を可視化します。"
+    },
+    "footer": "Next.js、React Flow、OpenAIで構築。",
+    "footerPowered": "AIスキルツリー生成技術で駆動。"
+  },
+  "career": {
+    "loading": "キャリアを読み込み中...",
+    "generating": "AIでスキルツリーを生成中...",
+    "generatingSubtext": "数秒かかる場合があります",
+    "loadingProgress": "進捗を読み込み中...",
+    "totalSkills": "総スキル数",
+    "unlocked": "アンロック済み",
+    "mastered": "マスター済み",
+    "saveProgress": "進捗を保存",
+    "saveDescription": "ログインしてスキルツリーの進捗を保存し、どこからでもアクセスできます。ログインしないと、このページを離れると進捗が失われます。",
+    "signInToSave": "ログインして保存",
+    "continueWithoutSaving": "保存せずに続ける",
+    "oops": "おっと！",
+    "failedToLoad": "キャリアの読み込みに失敗しました",
+    "share": "進捗を共有"
+  },
+  "dashboard": {
+    "signInRequired": "ログインが必要です",
+    "signInDescription": "ダッシュボードにアクセスしてスキルの進捗を追跡するにはログインしてください。",
+    "careerPaths": "キャリアパス",
+    "pathsExplored": "探索したパス",
+    "skills": "スキル",
+    "skillsInProgress": "進行中のスキル",
+    "mastered": "マスター済み",
+    "skillsCompleted": "完了したスキル",
+    "yourCareerPaths": "あなたのキャリアパス",
+    "loadingPaths": "保存したパスを読み込み中...",
+    "skillsMastered": "スキルをマスター",
+    "lastUpdated": "最終更新",
+    "startYourJourney": "旅を始めよう",
+    "startDescription": "キャリアパスを探索してスキルの進捗追跡を始めましょう。保存したパスはここに表示されます。",
+    "exploreCareers": "キャリアを探索",
+    "unknownCareer": "不明なキャリア"
+  },
+  "featuredCareers": {
+    "frontendDeveloper": "フロントエンドエンジニア",
+    "dataScientist": "データサイエンティスト",
+    "uxDesigner": "UXデザイナー",
+    "devopsEngineer": "DevOpsエンジニア",
+    "productManager": "プロダクトマネージャー",
+    "mlEngineer": "機械学習エンジニア"
+  },
+  "languageSwitcher": {
+    "language": "言語"
+  }
+}
