@@ -24,15 +24,15 @@ const SkillTreeBackground = () => {
   useEffect(() => {
     if (center.x === 0 && center.y === 0) return;
 
-    const numNodes = 20;
+    const numNodes = 15;
     const newNodes = Array.from({ length: numNodes }).map((_, i) => {
       const angle = (i / numNodes) * 2 * Math.PI;
-      const radius = i === 0 ? 0 : Math.random() * Math.min(center.x, center.y) * 0.8 + 50;
+      const radius = i === 0 ? 0 : Math.random() * Math.min(center.x, center.y) * 0.4 + 50;
       return {
         id: i,
         x: center.x + radius * Math.cos(angle),
         y: center.y + radius * Math.sin(angle),
-        size: i === 0 ? 20 : Math.random() * 5 + 2,
+        size: i === 0 ? 25 : Math.random() * 8 + 3,
         color:
           i === 0
             ? '#FFD700'
@@ -79,7 +79,7 @@ const SkillTreeBackground = () => {
   return (
     <div
       className="absolute inset-0 z-0 overflow-hidden"
-      style={{ opacity: 0.3 }}
+      style={{ opacity: 0.2 }}
     >
       <svg
         width="100%"
@@ -96,8 +96,8 @@ const SkillTreeBackground = () => {
               y2={line.y2}
               stroke="#A78BFA"
               strokeWidth="0.5"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
               transition={{ duration: 2, delay: 1 }}
             />
           ))}
@@ -107,9 +107,9 @@ const SkillTreeBackground = () => {
                 ? Math.hypot(node.x - x, node.y - y)
                 : -1;
             const attraction =
-              distance !== -1 ? Math.max(0, 50 - distance / 2) : 0;
+              distance !== -1 ? Math.max(0, 20 - distance / 10) : 0;
             const scale =
-              distance !== -1 ? Math.max(1, 1.2 - distance / 400) : 1;
+              distance !== -1 ? Math.max(1, 1.1 - distance / 500) : 1;
             const angle =
               x !== null && y !== null ? Math.atan2(y - node.y, x - node.x) : 0;
 
@@ -120,6 +120,7 @@ const SkillTreeBackground = () => {
                 cy={node.y}
                 r={node.size}
                 fill={node.color}
+                initial={{ scale: 0 }}
                 animate={{
                   scale: scale,
                   translateX: attraction * Math.cos(angle),
@@ -127,8 +128,8 @@ const SkillTreeBackground = () => {
                 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 150,
-                  damping: 15,
+                  stiffness: 200,
+                  damping: 20,
                 }}
               />
             );
