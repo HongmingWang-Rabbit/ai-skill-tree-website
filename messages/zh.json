@@ -20,7 +20,7 @@
   "home": {
     "title": "个人技能地图",
     "subtitle": "使用AI驱动的技能地图发现你的职业道路。可视化你需要掌握的技能，实现梦想职业。",
-    "searchPlaceholder": "输入职业（例如：软件工程师）",
+    "searchPlaceholder": "试试「软件工程师」或「我想远程工作」",
     "popularCareers": "热门职业探索",
     "howItWorks": "工作原理",
     "search": {
@@ -42,6 +42,10 @@
       "description": "我们由AI生成的技能地图为您的职业发展提供了清晰直观的路线图。查看技能之间的联系，了解接下来要学习什么。",
       "coreSkill": "核心技能",
       "relatedSkill": "相关技能"
+    },
+    "suggestions": {
+      "title": "职业推荐",
+      "subtitle": "根据你的偏好，以下是一些你可能喜欢的职业："
     }
   },
   "career": {

@@ -277,3 +277,104 @@ export async function suggestCareerSearches(query: string): Promise<string[]> {
   const parsed = JSON.parse(content);
   return parsed.suggestions || [];
 }
+
+// Career suggestion with description and icon
+export interface CareerSuggestion {
+  title: string;
+  description: string;
+  icon: string;
+  canonicalKey: string;
+}
+
+// Query analysis result
+export type QueryAnalysisResult =
+  | { type: 'specific'; career: CareerSuggestion }
+  | { type: 'suggestions'; suggestions: CareerSuggestion[] };
+
+const LOCALE_ANALYZE_INSTRUCTIONS: Record<Locale, string> = {
+  en: 'Respond in English.',
+  zh: 'Respond in Simplified Chinese (简体中文). Career titles and descriptions must be in Chinese.',
+  ja: 'Respond in Japanese (日本語). Career titles and descriptions must be in Japanese.',
+};
+
+/**
+ * Analyzes a user query to determine if it's a specific career or needs suggestions.
+ * - Specific career queries (e.g., "Software Engineer") → returns the career directly
+ * - Vague/lifestyle queries (e.g., "I want to work alone") → returns career suggestions
+ */
+export async function analyzeCareerQuery(
+  query: string,
+  locale: Locale = 'en'
+): Promise<QueryAnalysisResult> {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `You analyze career-related queries and determine the best response.
+
+${LOCALE_ANALYZE_INSTRUCTIONS[locale]}
+
+If the query is a SPECIFIC career name or job title (e.g., "Software Engineer", "Data Scientist", "UX Designer"):
+- Return type "specific" with that career's details
+
+If the query is VAGUE, describes a LIFESTYLE preference, or asks about career traits (e.g., "I want to work from home", "careers that don't require talking to people", "high paying jobs"):
+- Return type "suggestions" with 4-6 relevant career suggestions
+
+Return valid JSON only.`
+      },
+      {
+        role: 'user',
+        content: `Analyze this query: "${query}"
+
+Return JSON in this format:
+
+For SPECIFIC career queries:
+{
+  "type": "specific",
+  "career": {
+    "title": "Career Title",
+    "description": "Brief 1 sentence description",
+    "icon": "relevant emoji",
+    "canonicalKey": "lowercase-hyphenated-english-key"
+  }
+}
+
+For VAGUE/lifestyle queries:
+{
+  "type": "suggestions",
+  "suggestions": [
+    {
+      "title": "Career Title",
+      "description": "Why this matches their query",
+      "icon": "relevant emoji",
+      "canonicalKey": "lowercase-hyphenated-english-key"
+    }
+  ]
+}`
+      }
+    ],
+    temperature: 0.5,
+    max_tokens: 800,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) {
+    throw new Error('No content in AI response');
+  }
+
+  const parsed = JSON.parse(content);
+
+  if (parsed.type === 'specific' && parsed.career) {
+    return {
+      type: 'specific',
+      career: parsed.career,
+    };
+  }
+
+  return {
+    type: 'suggestions',
+    suggestions: parsed.suggestions || [],
+  };
+}

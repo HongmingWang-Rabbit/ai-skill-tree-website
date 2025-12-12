@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { GlassPanel } from "@/components/ui/GlassPanel";
-import { normalizeCareerKey } from "@/lib/normalize-career";
+import { CloseIcon, ChevronRightIcon } from "@/components/ui/Icons";
 import { useRouter } from "@/i18n/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import SkillTreeBackground from "@/components/layout/SkillTreeBackground";
 import { ASSETS, HERO_ICON_ROTATION_DURATION } from "@/lib/constants";
+import { normalizeCareerKey } from "@/lib/normalize-career";
+import type { CareerSuggestion } from "@/lib/ai";
 
 const FEATURED_CAREERS = [
   { titleKey: "frontendDeveloper", icon: "💻", key: "frontend-developer" },
@@ -20,13 +22,81 @@ const FEATURED_CAREERS = [
   { titleKey: "mlEngineer", icon: "🤖", key: "machine-learning-engineer" },
 ];
 
+// Suggestions modal component
+const SuggestionsModal = ({
+  suggestions,
+  onSelect,
+  onClose,
+  t,
+}: {
+  suggestions: CareerSuggestion[];
+  onSelect: (suggestion: CareerSuggestion) => void;
+  onClose: () => void;
+  t: ReturnType<typeof useTranslations>;
+}) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+    onClick={onClose}
+  >
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <GlassPanel className="max-w-2xl w-full p-6 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-white">
+            {t("home.suggestions.title")}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            <CloseIcon className="h-5 w-5 text-slate-400" />
+          </button>
+        </div>
+        <p className="text-slate-400 mb-6">{t("home.suggestions.subtitle")}</p>
+        <div className="grid gap-3">
+          {suggestions.map((suggestion, index) => (
+            <motion.button
+              key={suggestion.canonicalKey}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => onSelect(suggestion)}
+              className="w-full p-4 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-cyan-400/50 rounded-xl text-left transition-all group"
+            >
+              <div className="flex items-start gap-4">
+                <span className="text-3xl">{suggestion.icon}</span>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white group-hover:text-cyan-400 transition-colors">
+                    {suggestion.title}
+                  </h3>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {suggestion.description}
+                  </p>
+                </div>
+                <ChevronRightIcon className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors mt-1" />
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </GlassPanel>
+    </motion.div>
+  </motion.div>
+);
+
 const Hero = ({
   t,
   handleSearch,
   isLoading,
   handleFeaturedClick,
 }: {
-  t: any;
+  t: ReturnType<typeof useTranslations>;
   handleSearch: (query: string) => void;
   isLoading: boolean;
   handleFeaturedClick: (key: string) => void;
@@ -128,16 +198,49 @@ const Hero = ({
 export default function HomePage() {
   const router = useRouter();
   const t = useTranslations();
+  const locale = useLocale();
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<CareerSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleSearch = async (query: string) => {
     setIsLoading(true);
-    const key = normalizeCareerKey(query);
-    router.push(`/career/${key}`);
+    try {
+      const response = await fetch("/api/ai/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, locale }),
+      });
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        if (result.data.type === "specific") {
+          // Specific career - navigate directly
+          router.push(`/career/${result.data.career.canonicalKey}`);
+        } else if (result.data.type === "suggestions") {
+          // Vague query - show suggestions
+          setSuggestions(result.data.suggestions);
+          setShowSuggestions(true);
+          setIsLoading(false);
+        }
+      } else {
+        // Fallback: treat as direct career search
+        router.push(`/career/${normalizeCareerKey(query)}`);
+      }
+    } catch {
+      // Fallback on error: treat as direct career search
+      router.push(`/career/${normalizeCareerKey(query)}`);
+    }
   };
 
   const handleFeaturedClick = (key: string) => {
     router.push(`/career/${key}`);
+  };
+
+  const handleSuggestionSelect = (suggestion: CareerSuggestion) => {
+    setShowSuggestions(false);
+    setIsLoading(true);
+    router.push(`/career/${suggestion.canonicalKey}`);
   };
 
   return (
@@ -155,6 +258,17 @@ export default function HomePage() {
           isLoading={isLoading}
           handleFeaturedClick={handleFeaturedClick}
         />
+        {/* Suggestions Modal */}
+        <AnimatePresence>
+          {showSuggestions && suggestions.length > 0 && (
+            <SuggestionsModal
+              suggestions={suggestions}
+              onSelect={handleSuggestionSelect}
+              onClose={() => setShowSuggestions(false)}
+              t={t}
+            />
+          )}
+        </AnimatePresence>
         {/* Features Section */}
         <motion.section
           initial={{ opacity: 0, y: 50 }}

@@ -20,7 +20,7 @@
   "home": {
     "title": "Personal Skill Map",
     "subtitle": "Discover your career path with AI-powered skill maps. Visualize the skills you need to master your dream career.",
-    "searchPlaceholder": "Enter a career (e.g., Software Engineer)",
+    "searchPlaceholder": "Try \"Software Engineer\" or \"I want to work remotely\"",
     "popularCareers": "Popular careers to explore",
     "howItWorks": "How It Works",
     "search": {
@@ -42,6 +42,10 @@
       "description": "Our AI-generated skill maps provide a clear and intuitive roadmap for your career growth. See the connections between skills and understand what to learn next.",
       "coreSkill": "Core Skill",
       "relatedSkill": "Related Skill"
+    },
+    "suggestions": {
+      "title": "Career Suggestions",
+      "subtitle": "Based on your preferences, here are some careers you might enjoy:"
     }
   },
   "career": {

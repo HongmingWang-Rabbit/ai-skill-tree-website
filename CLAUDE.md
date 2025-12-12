@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`
    - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
-   - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`
+   - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, Web3 providers
    - `lib/db/index.ts` - Database connection, exports all schema types
    - `lib/constants.ts` - App constants:
@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Hero: `HERO_ICON_ROTATION_DURATION`
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`, `ChevronRightIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - Authentication components
@@ -66,20 +66,22 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 
 ### Core Data Flow
 
-1. User enters a career query → `POST /api/ai/generate` → OpenAI GPT-4o generates skill map JSON
-2. Generated data is cached in Upstash Redis and persisted to Neon PostgreSQL
-3. Skill map is rendered as an interactive graph using React Flow (@xyflow/react)
-4. Landing page displays animated network background with spinning logo behind search
+1. User enters a query on the landing page → `POST /api/ai/analyze` analyzes if it's a specific career or vague preference
+2. Specific career (e.g., "Software Engineer") → redirects to `/career/{canonicalKey}`
+3. Vague query (e.g., "I want to work remotely") → shows career suggestions modal with AI recommendations
+4. Career page → `POST /api/ai/generate` → OpenAI GPT-4o generates skill map JSON
+5. Generated data is cached in Upstash Redis and persisted to Neon PostgreSQL
+6. Skill map is rendered as an interactive graph using React Flow (@xyflow/react)
 
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/progress`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/progress`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
 - `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress
-- `lib/ai.ts` - OpenAI integration: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`
+- `lib/ai.ts` - OpenAI integration: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `analyzeCareerQuery()`, types: `CareerSuggestion`, `QueryAnalysisResult`
 
 ### Internationalization (i18n)
 
