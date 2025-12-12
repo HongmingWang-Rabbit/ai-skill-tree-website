@@ -2,6 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Before You Start
+
+**Always check existing utilities before implementing new code:**
+
+1. **Check `lib/` first** - Contains reusable utilities:
+   - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`
+   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`
+   - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`
+   - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`
+   - `lib/auth.ts` - NextAuth config with Google, Twitter, Web3 providers
+   - `lib/db/index.ts` - Database connection, exports all schema types
+   - `lib/constants.ts` - App constants (e.g., `SKILL_PASS_THRESHOLD`)
+
+2. **Check `components/` for existing UI**:
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`
+   - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
+   - `components/auth/` - Authentication components
+   - `components/providers/` - Context providers
+
+3. **Check `hooks/`** - Custom React hooks:
+   - `useShareScreenshot` - Screenshot/share functionality
+
 ## Commands
 
 ```bash
