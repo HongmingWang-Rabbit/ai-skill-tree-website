@@ -11,32 +11,54 @@ const SkillTreeBackground = () => {
 
   useEffect(() => {
     const numNodes = 20;
-    const newNodes = Array.from({ length: numNodes }).map((_, i) => ({
-      id: i,
-      x: Math.random() * 2000,
-      y: Math.random() * 2000,
-      size: i < 5 ? Math.random() * 10 + 10 : Math.random() * 3 + 2,
-      color: i < 5 ? '#FFD700' : ['#FFFFFF', '#00FF00', '#FFFF00'][Math.floor(Math.random() * 3)],
-    }));
+    const center = { x: 1000, y: 1000 };
+    const newNodes = Array.from({ length: numNodes }).map((_, i) => {
+      const angle = (i / numNodes) * 2 * Math.PI;
+      const radius = i === 0 ? 0 : Math.random() * 400 + 100;
+      return {
+        id: i,
+        x: center.x + radius * Math.cos(angle),
+        y: center.y + radius * Math.sin(angle),
+        size: i === 0 ? 20 : Math.random() * 5 + 2,
+        color:
+          i === 0
+            ? '#FFD700'
+            : ['#FFFFFF', '#00FF00', '#FFFF00'][
+                Math.floor(Math.random() * 3)
+              ],
+      };
+    });
     setNodes(newNodes);
 
     const newLines = newNodes.flatMap((node1) => {
+      if (node1.id === 0) return [];
       const neighbors = newNodes
-        .filter((node2) => node1.id !== node2.id)
+        .filter((node2) => node1.id !== node2.id && node2.id !== 0)
         .sort((a, b) => {
           const distA = Math.hypot(a.x - node1.x, a.y - node1.y);
           const distB = Math.hypot(b.x - node1.x, b.y - node1.y);
           return distA - distB;
         })
-        .slice(0, 2);
+        .slice(0, 1);
 
-      return neighbors.map((node2) => ({
-        id: `${node1.id}-${node2.id}`,
+      const centralLine = {
+        id: `${node1.id}-0`,
         x1: node1.x,
         y1: node1.y,
-        x2: node2.x,
-        y2: node2.y,
-      }));
+        x2: newNodes[0].x,
+        y2: newNodes[0].y,
+      };
+
+      return [
+        centralLine,
+        ...neighbors.map((node2) => ({
+          id: `${node1.id}-${node2.id}`,
+          x1: node1.x,
+          y1: node1.y,
+          x2: node2.x,
+          y2: node2.y,
+        })),
+      ];
     });
     setLines(newLines);
   }, []);
@@ -67,8 +89,13 @@ const SkillTreeBackground = () => {
               x !== null && y !== null
                 ? Math.hypot(node.x - x, node.y - y)
                 : -1;
+            const attraction =
+              distance !== -1 ? Math.max(0, 100 - distance) : 0;
             const scale =
-              distance !== -1 ? Math.max(1, 2 - distance / 200) : 1;
+              distance !== -1 ? Math.max(1, 1.5 - distance / 300) : 1;
+            const angle =
+              x !== null && y !== null ? Math.atan2(y - node.y, x - node.x) : 0;
+
             return (
               <motion.circle
                 key={node.id}
@@ -78,8 +105,8 @@ const SkillTreeBackground = () => {
                 fill={node.color}
                 animate={{
                   scale: scale,
-                  translateX: (x || 0) / 20,
-                  translateY: (y || 0) / 20,
+                  translateX: attraction * Math.cos(angle),
+                  translateY: attraction * Math.sin(angle),
                 }}
                 transition={{
                   type: 'spring',
@@ -96,3 +123,4 @@ const SkillTreeBackground = () => {
 };
 
 export default SkillTreeBackground;
+
