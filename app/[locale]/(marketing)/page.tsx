@@ -130,12 +130,6 @@ export default function HomePage() {
           isLoading={isLoading}
           handleFeaturedClick={handleFeaturedClick}
         />
-        <Hero
-          t={t}
-          handleSearch={handleSearch}
-          isLoading={isLoading}
-          handleFeaturedClick={handleFeaturedClick}
-        />
         {/* Features Section */}
         <motion.section
           initial={{ opacity: 0, y: 50 }}
