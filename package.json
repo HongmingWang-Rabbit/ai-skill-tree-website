@@ -21,6 +21,7 @@
     "@xyflow/react": "^12.9.3",
     "dagre": "^0.8.5",
     "drizzle-orm": "^0.44.7",
+    "framer-motion": "^12.23.26",
     "html2canvas": "^1.4.1",
     "modern-screenshot": "^4.6.7",
     "next": "15.5.7",
