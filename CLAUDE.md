@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`
    - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
-   - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
+   - `lib/ai.ts` - OpenAI functions (using gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
    - `lib/wechat-provider.ts` - Custom WeChat OAuth provider: `WeChatProvider()`, `WeChatMPProvider()`, `isWeChatBrowser()`
    - `lib/db/index.ts` - Database connection, exports all schema types
@@ -27,6 +27,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Hero: `HERO_ICON_ROTATION_DURATION`
      - Auth: `PROVIDER_COLORS` (brand colors for OAuth providers)
      - SEO: `SITE_URL`, `APP_DESCRIPTION` (used across metadata and JSON-LD)
+     - Master Graph: `MASTER_GRAPH_CONFIG` (node sizes, radii, edge colors for skill universe visualization)
 
 2. **Check `components/` for existing UI**:
    - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`)
@@ -35,6 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - Context providers
+   - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph` (React Flow visualization of user's skill universe)
 
 3. **Check `hooks/`** - Custom React hooks:
    - `useShareScreenshot` - Screenshot/share functionality
@@ -51,7 +53,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `seo`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`
 
 ## Commands
 
@@ -77,19 +79,19 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 1. User enters a query on the landing page → `POST /api/ai/analyze` analyzes if it's a specific career or vague preference
 2. Specific career (e.g., "Software Engineer") → redirects to `/career/{canonicalKey}`
 3. Vague query (e.g., "I want to work remotely") → shows career suggestions modal with AI recommendations
-4. Career page → `POST /api/ai/generate` → OpenAI GPT-4o generates skill map JSON
+4. Career page → `POST /api/ai/generate` → OpenAI gpt-4o-mini generates skill map JSON
 5. Generated data is cached in Upstash Redis and persisted to Neon PostgreSQL
 6. Skill map is rendered as an interactive graph using React Flow (@xyflow/react)
 
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/progress`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
 - `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress
-- `lib/ai.ts` - OpenAI integration: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `analyzeCareerQuery()`, types: `CareerSuggestion`, `QueryAnalysisResult`
+- `lib/ai.ts` - OpenAI integration (gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `analyzeCareerQuery()`, types: `CareerSuggestion`, `QueryAnalysisResult`
 
 ### Internationalization (i18n)
 
@@ -179,6 +181,31 @@ The app supports user-owned skill maps with sharing capabilities:
   - `shareSlug` - 6-char alphanumeric slug for short URLs
   - `copiedFromId` - UUID of source map if copied from another user
 - `userSkillProgress` - Per-skill progress tracking
+
+### Master Skill Map (Dashboard)
+
+The dashboard displays a "Skill Universe" visualization showing all user's careers and skills in a unified graph:
+
+**Data Flow:**
+1. User visits dashboard → `GET /api/user/master-map` fetches all career graphs with skills
+2. Data returned directly from database (no AI processing)
+3. `MasterSkillGraph` component renders React Flow graph with radial layout
+
+**Graph Structure:**
+- Center node: User name with overall mastery percentage
+- Secondary nodes: Each career path (clickable to navigate)
+- Tertiary nodes: Skills from each career (color-coded by progress)
+
+**Layout Configuration** (`MASTER_GRAPH_CONFIG` in constants):
+- `centerNodeSize`: 140px
+- `careerRadius`: 250px from center
+- `skillRadius`: 120px from career
+- `maxDisplayedSkillsPerCareer`: 12 (for performance)
+- `edgeColors`: mastered (green), inProgress (amber), notStarted (gray)
+
+**Components:**
+- `MasterSkillMap` - Container with stats header and graph
+- `MasterSkillGraph` - React Flow visualization with custom node types
 
 ### SEO & Multi-locale Support
 

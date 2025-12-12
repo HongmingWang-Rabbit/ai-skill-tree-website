@@ -71,3 +71,21 @@ export const PROVIDER_COLORS = {
     hover: "#06AD56",
   },
 } as const;
+
+// Master Skill Graph Layout
+export const MASTER_GRAPH_CONFIG = {
+  centerNodeSize: 140,
+  careerRadius: 250,
+  careerNodeWidth: 140,
+  careerNodeHeight: 50,
+  skillRadius: 120,
+  skillNodeWidth: 100,
+  skillNodeHeight: 24,
+  maxDisplayedSkillsPerCareer: 12,
+  edgeColors: {
+    default: '#475569',
+    mastered: '#10b981',
+    inProgress: '#f59e0b',
+    notStarted: '#334155',
+  },
+} as const;

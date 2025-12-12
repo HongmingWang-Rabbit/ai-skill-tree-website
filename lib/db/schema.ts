@@ -115,6 +115,22 @@ export const userCareerGraphs = pgTable('user_career_graphs', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// User's master skill map (cached merged view of all careers)
+export const userMasterMaps = pgTable('user_master_maps', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  locale: text('locale').notNull().default('en'),
+  // Merged skills from all careers
+  mergedSkills: jsonb('merged_skills').notNull().$type<MergedSkill[]>(),
+  // Mapping from merged skill ID to original skill IDs
+  skillMapping: jsonb('skill_mapping').notNull().$type<Record<string, string[]>>(),
+  // Source graph IDs used to generate this map (for invalidation)
+  sourceGraphIds: text('source_graph_ids').array().notNull(),
+  generatedAt: timestamp('generated_at').defaultNow(),
+}, (table) => ({
+  uniqueUserLocale: unique('user_master_maps_user_locale').on(table.userId, table.locale),
+}));
+
 // User skill progress tracking (for detailed per-skill tracking)
 export const userSkillProgress = pgTable('user_skill_progress', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -135,6 +151,25 @@ export interface UserNodeData {
   position?: { x: number; y: number };
 }
 
+// Types for merged master skill map
+export interface MergedSkill {
+  id: string;                    // Generated merged skill ID
+  name: string;                  // Canonical skill name
+  description: string;           // Best description from sources
+  icon: string;                  // Emoji icon
+  level: number;                 // Average level across sources
+  category: string;              // Primary category
+  progress: number;              // Max progress across all careers
+  sourceSkills: SourceSkillRef[];// Original skills that merged into this
+}
+
+export interface SourceSkillRef {
+  skillId: string;
+  careerId: string;
+  careerTitle: string;
+  originalName: string;          // Original name before merge
+}
+
 // Infer types from schema
 export type Career = typeof careers.$inferSelect;
 export type NewCareer = typeof careers.$inferInsert;
@@ -152,3 +187,5 @@ export type UserSkillProgress = typeof userSkillProgress.$inferSelect;
 export type NewUserSkillProgress = typeof userSkillProgress.$inferInsert;
 export type UserCareerGraph = typeof userCareerGraphs.$inferSelect;
 export type NewUserCareerGraph = typeof userCareerGraphs.$inferInsert;
+export type UserMasterMap = typeof userMasterMaps.$inferSelect;
+export type NewUserMasterMap = typeof userMasterMaps.$inferInsert;

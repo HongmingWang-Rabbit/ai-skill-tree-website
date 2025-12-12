@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
+import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
 
 interface SavedGraph {
   id: string;
@@ -142,6 +143,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Master Skill Map Hero Section */}
+        <MasterSkillMap />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

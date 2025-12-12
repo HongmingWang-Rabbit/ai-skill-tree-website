@@ -79,7 +79,7 @@ Return a JSON object with this exact structure:
 Generate at least 15-20 skills organized into a logical skill tree. Skills at the top should have no prerequisites (entry level), and more advanced skills should list their prerequisites.`;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     response_format: { type: 'json_object' },
     messages: [
       { role: 'system', content: getSystemPrompt(locale) },
@@ -127,7 +127,7 @@ export async function generateSkillTestQuestions(
   careerTitle: string
 ): Promise<TestQuestion[]> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -188,7 +188,7 @@ export async function gradeSkillTestAnswers(
   }>
 ): Promise<GradingResponse> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -253,7 +253,7 @@ Return JSON:
 
 export async function suggestCareerSearches(query: string): Promise<string[]> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -307,7 +307,7 @@ export async function analyzeCareerQuery(
   locale: Locale = 'en'
 ): Promise<QueryAnalysisResult> {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -378,3 +378,4 @@ For VAGUE/lifestyle queries:
     suggestions: parsed.suggestions || [],
   };
 }
+
