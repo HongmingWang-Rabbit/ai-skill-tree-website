@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "AI スキルツリー",
+    "appName": "パーソナルスキルマップ",
     "home": "ホーム",
     "dashboard": "ダッシュボード",
     "explore": "探索",
@@ -14,11 +14,11 @@
     "saving": "保存中..."
   },
   "header": {
-    "brandName": "AI スキルツリー"
+    "brandName": "パーソナルスキルマップ"
   },
   "home": {
-    "title": "キャリアビルダー",
-    "subtitle": "AIを活用したスキルツリーでキャリアパスを発見。夢のキャリアに必要なスキルを可視化します。",
+    "title": "パーソナルスキルマップ",
+    "subtitle": "AIを活用したスキルマップでキャリアパスを発見。夢のキャリアに必要なスキルを可視化します。",
     "searchPlaceholder": "キャリアを入力（例：ソフトウェアエンジニア）",
     "popularCareers": "人気のキャリア",
     "howItWorks": "仕組み",
@@ -28,36 +28,36 @@
     },
     "generate": {
       "title": "生成",
-      "description": "AIが習得すべきすべてのスキルを含む包括的なスキルツリーを生成します。"
+      "description": "AIが習得すべきすべてのスキルを含む包括的なスキルマップを生成します。"
     },
     "track": {
       "title": "追跡",
       "description": "スキルをアンロックしてキャリアをレベルアップする進捗を可視化します。"
     },
     "footer": "Next.js、React Flow、OpenAIで構築。",
-    "footerPowered": "AIスキルツリー生成技術で駆動。",
+    "footerPowered": "AIスキルマップ生成技術で駆動。",
     "skillTreePreview": {
       "title": "習得への道を視覚化",
-      "description": "AIが生成するスキルツリーは、あなたのキャリア成長のための明確で直感的なロードマップを提供します。スキルの関連性を確認し、次に何を学ぶべきかを理解しましょう。",
+      "description": "AIが生成するスキルマップは、あなたのキャリア成長のための明確で直感的なロードマップを提供します。スキルの関連性を確認し、次に何を学ぶべきかを理解しましょう。",
       "coreSkill": "コアスキル",
       "relatedSkill": "関連スキル"
     }
   },
   "career": {
     "loading": "キャリアを読み込み中...",
-    "generating": "AIでスキルツリーを生成中...",
+    "generating": "AIでスキルマップを生成中...",
     "generatingSubtext": "数秒かかる場合があります",
     "loadingProgress": "進捗を読み込み中...",
     "totalSkills": "総スキル数",
     "unlocked": "アンロック済み",
     "mastered": "マスター済み",
     "saveProgress": "進捗を保存",
-    "saveDescription": "ログインしてスキルツリーの進捗を保存し、どこからでもアクセスできます。ログインしないと、このページを離れると進捗が失われます。",
+    "saveDescription": "ログインしてスキルマップの進捗を保存し、どこからでもアクセスできます。ログインしないと、このページを離れると進捗が失われます。",
     "signInToSave": "ログインして保存",
     "continueWithoutSaving": "保存せずに続ける",
     "oops": "おっと！",
     "failedToLoad": "キャリアの読み込みに失敗しました",
-    "notFound": "スキルツリーが見つかりません",
+    "notFound": "スキルマップが見つかりません",
     "share": "進捗を共有",
     "by": "作成者:",
     "anonymous": "匿名",

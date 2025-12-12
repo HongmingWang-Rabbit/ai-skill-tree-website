@@ -1,13 +1,15 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
-import { Link } from '@/i18n/navigation';
-import { UserMenu } from '../auth/UserMenu';
-import { AuthModal } from '../auth/AuthModal';
-import { LanguageSwitcher } from '../ui/LanguageSwitcher';
-import { motion, useScroll } from 'framer-motion';
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
+import { Link } from "@/i18n/navigation";
+import { UserMenu } from "../auth/UserMenu";
+import { AuthModal } from "../auth/AuthModal";
+import { LanguageSwitcher } from "../ui/LanguageSwitcher";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { ASSETS, HEADER_SCROLL_THRESHOLD, APP_NAME } from "@/lib/constants";
 
 export function Header() {
   const { data: session, status } = useSession();
@@ -17,11 +19,11 @@ export function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > HEADER_SCROLL_THRESHOLD);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -30,24 +32,32 @@ export function Header() {
       <motion.header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-slate-900/80 backdrop-blur-md border-b border-slate-800'
-            : 'bg-transparent'
+            ? "bg-slate-900/80 backdrop-blur-md border-b border-slate-800"
+            : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
             className={`flex items-center justify-between transition-all duration-300 ${
-              isScrolled ? 'h-16' : 'h-20'
+              isScrolled ? "h-16" : "h-20"
             }`}
           >
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <span className="text-2xl">🌳</span>
-              <span className="font-bold text-lg hidden sm:block">
-                {t('header.brandName')}
+              <div className="w-9 h-9 rounded-full bg-white p-1 flex items-center justify-center">
+                <Image
+                  src={ASSETS.ICON}
+                  alt={APP_NAME}
+                  width={100}
+                  height={100}
+                  className="w-7 h-7 scale-200"
+                />
+              </div>
+              <span className="font-bold text-lg hidden sm:block text-white">
+                {t("header.brandName")}
               </span>
             </Link>
 
@@ -57,26 +67,26 @@ export function Header() {
                 href="/"
                 className="text-slate-300 hover:text-white transition-colors text-sm"
               >
-                {t('common.home')}
+                {t("common.home")}
               </Link>
               <Link
                 href="/dashboard"
                 className="text-slate-300 hover:text-white transition-colors text-sm"
               >
-                {t('common.dashboard')}
+                {t("common.dashboard")}
               </Link>
               <Link
                 href="/"
                 className="text-slate-300 hover:text-white transition-colors text-sm"
               >
-                {t('common.explore')}
+                {t("common.explore")}
               </Link>
             </nav>
 
             {/* Auth Section & Language Switcher */}
             <div className="flex items-center gap-4">
               <LanguageSwitcher />
-              {status === 'loading' ? (
+              {status === "loading" ? (
                 <div className="w-8 h-8 rounded-full bg-slate-700 animate-pulse" />
               ) : session ? (
                 <UserMenu />
@@ -85,7 +95,7 @@ export function Header() {
                   onClick={() => setIsAuthModalOpen(true)}
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm"
                 >
-                  {t('common.signIn')}
+                  {t("common.signIn")}
                 </button>
               )}
             </div>
@@ -100,4 +110,3 @@ export function Header() {
     </>
   );
 }
-

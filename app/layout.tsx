@@ -2,9 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Career Builder - AI-Powered Skill Trees",
-  description: "Discover and visualize your career path with AI-generated skill trees. Explore the skills you need to master your dream career.",
-  keywords: ["career", "skills", "skill tree", "career path", "AI", "learning"],
+  title: "Personal Skill Map - AI-Powered Career Skill Maps",
+  description: "Discover and visualize your career path with AI-generated skill maps. Explore the skills you need to master your dream career.",
+  keywords: ["career", "skills", "skill map", "career path", "AI", "learning", "personal development"],
+  icons: {
+    icon: [
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({

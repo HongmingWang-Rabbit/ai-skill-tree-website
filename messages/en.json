@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "AI Skill Tree",
+    "appName": "Personal Skill Map",
     "home": "Home",
     "dashboard": "Dashboard",
     "explore": "Explore",
@@ -14,11 +14,11 @@
     "saving": "Saving..."
   },
   "header": {
-    "brandName": "AI Skill Tree"
+    "brandName": "Personal Skill Map"
   },
   "home": {
-    "title": "Career Builder",
-    "subtitle": "Discover your career path with AI-powered skill trees. Visualize the skills you need to master your dream career.",
+    "title": "Personal Skill Map",
+    "subtitle": "Discover your career path with AI-powered skill maps. Visualize the skills you need to master your dream career.",
     "searchPlaceholder": "Enter a career (e.g., Software Engineer)",
     "popularCareers": "Popular careers to explore",
     "howItWorks": "How It Works",
@@ -28,36 +28,36 @@
     },
     "generate": {
       "title": "Generate",
-      "description": "AI generates a comprehensive skill tree with all the skills you need to master."
+      "description": "AI generates a comprehensive skill map with all the skills you need to master."
     },
     "track": {
       "title": "Track",
       "description": "Visualize your progress as you unlock skills and level up your career."
     },
     "footer": "Built with Next.js, React Flow, and OpenAI.",
-    "footerPowered": "Powered by AI skill tree generation.",
+    "footerPowered": "Powered by AI skill map generation.",
     "skillTreePreview": {
       "title": "Visualize Your Path to Mastery",
-      "description": "Our AI-generated skill trees provide a clear and intuitive roadmap for your career growth. See the connections between skills and understand what to learn next.",
+      "description": "Our AI-generated skill maps provide a clear and intuitive roadmap for your career growth. See the connections between skills and understand what to learn next.",
       "coreSkill": "Core Skill",
       "relatedSkill": "Related Skill"
     }
   },
   "career": {
     "loading": "Loading career...",
-    "generating": "Generating skill tree with AI...",
+    "generating": "Generating skill map with AI...",
     "generatingSubtext": "This may take a few seconds",
     "loadingProgress": "Loading your progress...",
     "totalSkills": "Total Skills",
     "unlocked": "Unlocked",
     "mastered": "Mastered",
     "saveProgress": "Save Your Progress",
-    "saveDescription": "Sign in to save your skill tree progress and access it from anywhere. Without signing in, your progress will be lost when you leave this page.",
+    "saveDescription": "Sign in to save your skill map progress and access it from anywhere. Without signing in, your progress will be lost when you leave this page.",
     "signInToSave": "Sign In to Save",
     "continueWithoutSaving": "Continue Without Saving",
     "oops": "Oops!",
     "failedToLoad": "Failed to load career",
-    "notFound": "Skill tree not found",
+    "notFound": "Skill map not found",
     "share": "Share your progress",
     "by": "by",
     "anonymous": "Anonymous",

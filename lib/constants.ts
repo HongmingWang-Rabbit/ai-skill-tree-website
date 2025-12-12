@@ -14,3 +14,33 @@ export const MAP_TITLE_MAX_LENGTH = 100;
 // UI timing constants (in milliseconds)
 export const SIGN_IN_PROMPT_DELAY_MS = 2000;
 export const AUTO_SAVE_DEBOUNCE_MS = 1000;
+
+// Asset paths
+export const ASSETS = {
+  ICON: '/icon-transparent-bg.png',
+  ICON_LARGE: '/large-icon-transparent-bg.png',
+} as const;
+
+// App branding
+export const APP_NAME = 'Personal Skill Map';
+
+// Header constants
+export const HEADER_SCROLL_THRESHOLD = 10;
+export const HEADER_HEIGHT_DEFAULT = 80; // h-20 in pixels
+export const HEADER_HEIGHT_SCROLLED = 64; // h-16 in pixels
+
+// Background animation constants
+export const BACKGROUND_CONFIG = {
+  GRID_CELL_SIZE: 200,
+  NODE_SKIP_RATE: 0.4,
+  CENTER_CLUSTER_COUNT: 6,
+  MAX_CONNECTION_DISTANCE: 200,
+  MAX_CONNECTIONS_PER_NODE: 2,
+  MOUSE_INTERACTION_RADIUS: 200,
+  MOUSE_ATTRACTION_STRENGTH: 8,
+  MOUSE_SCALE_FACTOR: 0.3,
+  COLORS: ['#A78BFA', '#34D399', '#60A5FA', '#FBBF24', '#F472B6'],
+} as const;
+
+// Hero section constants
+export const HERO_ICON_ROTATION_DURATION = 30; // seconds

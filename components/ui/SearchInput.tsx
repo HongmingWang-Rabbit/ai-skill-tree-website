@@ -6,12 +6,14 @@ interface SearchInputProps {
   onSearch: (query: string) => void;
   placeholder?: string;
   isLoading?: boolean;
+  className?: string;
 }
 
 export function SearchInput({
   onSearch,
   placeholder = 'Search for a career...',
   isLoading = false,
+  className = '',
 }: SearchInputProps) {
   const [query, setQuery] = useState('');
 
@@ -26,7 +28,7 @@ export function SearchInput({
   );
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl">
+    <form onSubmit={handleSubmit} className={`w-full max-w-2xl ${className}`}>
       <div className="relative">
         <input
           type="text"

@@ -13,10 +13,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, Web3 providers
    - `lib/db/index.ts` - Database connection, exports all schema types
-   - `lib/constants.ts` - App constants: `SKILL_PASS_THRESHOLD`, `SKILL_PROGRESS_MAX`, `SKILL_SCORE_EXCELLENT_THRESHOLD`, `SHARE_SLUG_LENGTH`, `SHARE_SLUG_CHARS`, `SHARE_SLUG_GENERATION_MAX_RETRIES`, `MAP_TITLE_MAX_LENGTH`, `SIGN_IN_PROMPT_DELAY_MS`, `AUTO_SAVE_DEBOUNCE_MS`
+   - `lib/constants.ts` - App constants:
+     - Skill: `SKILL_PASS_THRESHOLD`, `SKILL_PROGRESS_MAX`, `SKILL_SCORE_EXCELLENT_THRESHOLD`
+     - Share: `SHARE_SLUG_LENGTH`, `SHARE_SLUG_CHARS`, `SHARE_SLUG_GENERATION_MAX_RETRIES`
+     - Map: `MAP_TITLE_MAX_LENGTH`
+     - Timing: `SIGN_IN_PROMPT_DELAY_MS`, `AUTO_SAVE_DEBOUNCE_MS`
+     - Assets: `ASSETS.ICON`, `ASSETS.ICON_LARGE`
+     - Branding: `APP_NAME`
+     - Header: `HEADER_SCROLL_THRESHOLD`, `HEADER_HEIGHT_DEFAULT`, `HEADER_HEIGHT_SCROLLED`
+     - Background: `BACKGROUND_CONFIG` (grid, colors, mouse interaction settings)
+     - Hero: `HERO_ICON_ROTATION_DURATION`
 
 2. **Check `components/` for existing UI**:
    - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`
+   - `components/layout/` - `Header` (site navigation), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - Authentication components
    - `components/providers/` - Context providers
@@ -52,13 +62,14 @@ pnpm db:studio        # Open Drizzle Studio GUI
 
 ## Architecture
 
-This is a Next.js 15 App Router application for generating AI-powered career skill trees.
+This is a Next.js 15 App Router application called **Personal Skill Map** for generating AI-powered career skill maps.
 
 ### Core Data Flow
 
-1. User enters a career query → `POST /api/ai/generate` → OpenAI GPT-4o generates skill tree JSON
+1. User enters a career query → `POST /api/ai/generate` → OpenAI GPT-4o generates skill map JSON
 2. Generated data is cached in Upstash Redis and persisted to Neon PostgreSQL
-3. Skill tree is rendered as an interactive graph using React Flow (@xyflow/react)
+3. Skill map is rendered as an interactive graph using React Flow (@xyflow/react)
+4. Landing page displays animated network background with spinning logo behind search
 
 ### Key Directories
 
@@ -112,7 +123,7 @@ Session strategy is JWT. Auth config in `lib/auth.ts`.
 
 ### User Maps & Sharing
 
-The app supports user-owned skill tree maps with sharing capabilities:
+The app supports user-owned skill maps with sharing capabilities:
 
 **URL Routing:**
 - `/career/{canonicalKey}` - Base career template (auto-forks on page load for logged-in users)
@@ -147,6 +158,16 @@ The app supports user-owned skill tree maps with sharing capabilities:
 ### Path Aliases
 
 `@/*` maps to project root (e.g., `@/lib/db`, `@/components/ui`)
+
+### Assets & Icons
+
+- `public/icon-transparent-bg.png` - Standard app icon (used in header)
+- `public/large-icon-transparent-bg.png` - Large icon (used in hero spinning animation)
+- `app/icon.png` - Next.js auto-served app icon (192x192)
+- `app/apple-icon.png` - Apple touch icon (180x180)
+- `app/favicon.ico` - Browser favicon
+
+Always use constants from `lib/constants.ts` (`ASSETS.ICON`, `ASSETS.ICON_LARGE`) instead of hardcoding paths.
 
 ## Before Completing Any Task
 

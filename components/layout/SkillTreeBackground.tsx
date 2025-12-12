@@ -1,8 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useState, useEffect, useMemo } from 'react';
-import { useMouse } from '@/hooks/useMouse';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { BACKGROUND_CONFIG } from '@/lib/constants';
 
 interface Node {
   id: number;
@@ -10,9 +9,8 @@ interface Node {
   y: number;
   size: number;
   color: string;
-  layer: number;
-  floatOffset: number;
-  floatSpeed: number;
+  opacity: number;
+  animationDelay: number;
 }
 
 interface Line {
@@ -32,7 +30,10 @@ const seededRandom = (seed: number) => {
 
 const SkillTreeBackground = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const { x: mouseX, y: mouseY } = useMouse();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const nodesRef = useRef<SVGGElement>(null);
+  const mousePos = useRef({ x: -1000, y: -1000 });
+  const animationFrameRef = useRef<number>();
 
   useEffect(() => {
     const handleResize = () => {
@@ -43,6 +44,56 @@ const SkillTreeBackground = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Throttled mouse handler using RAF
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Animation loop for mouse interaction
+  useEffect(() => {
+    if (!nodesRef.current) return;
+
+    const animate = () => {
+      const nodeElements = nodesRef.current?.querySelectorAll('.interactive-node');
+      if (nodeElements) {
+        nodeElements.forEach((node) => {
+          const el = node as SVGCircleElement;
+          const baseX = parseFloat(el.dataset.x || '0');
+          const baseY = parseFloat(el.dataset.y || '0');
+          const { x: mx, y: my } = mousePos.current;
+
+          const distance = Math.hypot(baseX - mx, baseY - my);
+          const maxDist = BACKGROUND_CONFIG.MOUSE_INTERACTION_RADIUS;
+
+          if (distance < maxDist) {
+            const strength = (1 - distance / maxDist) * BACKGROUND_CONFIG.MOUSE_ATTRACTION_STRENGTH;
+            const angle = Math.atan2(my - baseY, mx - baseX);
+            const offsetX = Math.cos(angle) * strength;
+            const offsetY = Math.sin(angle) * strength;
+            const scale = 1 + (1 - distance / maxDist) * BACKGROUND_CONFIG.MOUSE_SCALE_FACTOR;
+
+            el.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+          } else {
+            el.style.transform = 'translate(0, 0) scale(1)';
+          }
+        });
+      }
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [dimensions]);
+
   const { nodes, lines } = useMemo(() => {
     if (dimensions.width === 0 || dimensions.height === 0) {
       return { nodes: [], lines: [] };
@@ -52,109 +103,91 @@ const SkillTreeBackground = () => {
     const centerX = width / 2;
     const centerY = height / 2;
 
-    // Create grid-based distribution with organic variation
-    const gridCols = Math.ceil(width / 150);
-    const gridRows = Math.ceil(height / 150);
+    // Sparser grid for better performance
+    const gridCols = Math.ceil(width / BACKGROUND_CONFIG.GRID_CELL_SIZE);
+    const gridRows = Math.ceil(height / BACKGROUND_CONFIG.GRID_CELL_SIZE);
     const cellWidth = width / gridCols;
     const cellHeight = height / gridRows;
 
     const generatedNodes: Node[] = [];
     let nodeId = 0;
 
-    // Color palette matching the dark theme
-    const colors = [
-      '#A78BFA', // Purple (primary)
-      '#34D399', // Emerald
-      '#60A5FA', // Blue
-      '#FBBF24', // Amber
-      '#F472B6', // Pink
-    ];
+    // Color palette from config
+    const colors = BACKGROUND_CONFIG.COLORS;
 
-    // Generate main center node (focal point)
+    // Center node
     generatedNodes.push({
       id: nodeId++,
       x: centerX,
       y: centerY,
-      size: 6,
+      size: 5,
       color: '#A78BFA',
-      layer: 3,
-      floatOffset: 0,
-      floatSpeed: 0.5,
+      opacity: 0.7,
+      animationDelay: 0,
     });
 
-    // Generate nodes in a grid pattern with organic variation
+    // Grid nodes with organic variation
     for (let row = 0; row < gridRows; row++) {
       for (let col = 0; col < gridCols; col++) {
         const seed = row * gridCols + col + 1;
 
-        // Skip some cells for organic feel (30% skip rate)
-        if (seededRandom(seed * 7) < 0.3) continue;
+        // Skip nodes for sparser look
+        if (seededRandom(seed * 7) < BACKGROUND_CONFIG.NODE_SKIP_RATE) continue;
 
-        // Base position with random offset
         const baseX = col * cellWidth + cellWidth / 2;
         const baseY = row * cellHeight + cellHeight / 2;
-        const offsetX = (seededRandom(seed * 3) - 0.5) * cellWidth * 0.7;
-        const offsetY = (seededRandom(seed * 5) - 0.5) * cellHeight * 0.7;
+        const offsetX = (seededRandom(seed * 3) - 0.5) * cellWidth * 0.6;
+        const offsetY = (seededRandom(seed * 5) - 0.5) * cellHeight * 0.6;
 
         const x = baseX + offsetX;
         const y = baseY + offsetY;
 
-        // Distance from center affects properties
         const distFromCenter = Math.hypot(x - centerX, y - centerY);
         const maxDist = Math.hypot(width / 2, height / 2);
         const normalizedDist = distFromCenter / maxDist;
 
-        // Determine layer (depth) based on distance and randomness
-        const layerRandom = seededRandom(seed * 11);
-        const layer = normalizedDist < 0.3 ? 3 : normalizedDist < 0.6 ? (layerRandom > 0.5 ? 2 : 3) : (layerRandom > 0.7 ? 2 : 1);
-
-        // Size based on layer
-        const baseSize = layer === 3 ? 4 : layer === 2 ? 3 : 2;
-        const sizeVariation = seededRandom(seed * 13) * 2;
+        // Opacity based on distance from center
+        const opacity = Math.max(0.15, 0.6 - normalizedDist * 0.5);
+        const size = 2 + seededRandom(seed * 13) * 3;
 
         generatedNodes.push({
           id: nodeId++,
           x,
           y,
-          size: baseSize + sizeVariation,
+          size,
           color: colors[Math.floor(seededRandom(seed * 17) * colors.length)],
-          layer,
-          floatOffset: seededRandom(seed * 19) * Math.PI * 2,
-          floatSpeed: 0.3 + seededRandom(seed * 23) * 0.4,
+          opacity,
+          animationDelay: seededRandom(seed * 19) * 2,
         });
       }
     }
 
-    // Add some extra nodes near the center for density
-    const centerNodeCount = 8;
-    for (let i = 0; i < centerNodeCount; i++) {
+    // Extra center cluster
+    for (let i = 0; i < BACKGROUND_CONFIG.CENTER_CLUSTER_COUNT; i++) {
       const seed = 1000 + i;
-      const angle = (i / centerNodeCount) * Math.PI * 2;
-      const radius = 80 + seededRandom(seed * 29) * 120;
+      const angle = (i / BACKGROUND_CONFIG.CENTER_CLUSTER_COUNT) * Math.PI * 2;
+      const radius = 60 + seededRandom(seed * 29) * 100;
 
       generatedNodes.push({
         id: nodeId++,
         x: centerX + Math.cos(angle) * radius,
         y: centerY + Math.sin(angle) * radius,
-        size: 3 + seededRandom(seed * 31) * 3,
+        size: 3 + seededRandom(seed * 31) * 2,
         color: colors[Math.floor(seededRandom(seed * 37) * colors.length)],
-        layer: 3,
-        floatOffset: seededRandom(seed * 41) * Math.PI * 2,
-        floatSpeed: 0.4 + seededRandom(seed * 43) * 0.3,
+        opacity: 0.5,
+        animationDelay: seededRandom(seed * 41) * 2,
       });
     }
 
-    // Generate connections between nearby nodes
+    // Generate connections
     const generatedLines: Line[] = [];
-    const maxConnectionDist = 180;
+    const maxConnectionDist = BACKGROUND_CONFIG.MAX_CONNECTION_DISTANCE;
 
     for (let i = 0; i < generatedNodes.length; i++) {
       const node1 = generatedNodes[i];
-
-      // Find nearby nodes
       const nearbyNodes = generatedNodes
         .filter((node2, j) => {
-          if (i >= j) return false; // Avoid duplicate lines
+          if (i >= j) return false;
           const dist = Math.hypot(node1.x - node2.x, node1.y - node2.y);
           return dist < maxConnectionDist;
         })
@@ -163,12 +196,11 @@ const SkillTreeBackground = () => {
           const distB = Math.hypot(node1.x - b.x, node1.y - b.y);
           return distA - distB;
         })
-        .slice(0, 3); // Max 3 connections per node
+        .slice(0, BACKGROUND_CONFIG.MAX_CONNECTIONS_PER_NODE);
 
       nearbyNodes.forEach((node2) => {
         const dist = Math.hypot(node1.x - node2.x, node1.y - node2.y);
-        // Opacity based on distance (closer = more visible)
-        const opacity = Math.max(0.1, 1 - dist / maxConnectionDist) * 0.6;
+        const opacity = Math.max(0.05, (1 - dist / maxConnectionDist) * 0.3);
 
         generatedLines.push({
           id: `${node1.id}-${node2.id}`,
@@ -189,19 +221,15 @@ const SkillTreeBackground = () => {
   }
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       <svg
+        ref={svgRef}
         width="100%"
         height="100%"
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-        className="absolute inset-0"
+        style={{ position: 'absolute', top: 0, left: 0 }}
       >
-        {/* Gradient definitions for glow effects */}
         <defs>
-          <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </radialGradient>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2" result="coloredBlur" />
             <feMerge>
@@ -211,10 +239,10 @@ const SkillTreeBackground = () => {
           </filter>
         </defs>
 
-        {/* Connection lines */}
-        <g opacity="0.3">
-          {lines.map((line, index) => (
-            <motion.line
+        {/* Static lines */}
+        <g className="lines">
+          {lines.map((line) => (
+            <line
               key={line.id}
               x1={line.x1}
               y1={line.y1}
@@ -223,101 +251,57 @@ const SkillTreeBackground = () => {
               stroke="#A78BFA"
               strokeWidth="0.5"
               opacity={line.opacity}
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: line.opacity }}
-              transition={{
-                duration: 1.5,
-                delay: index * 0.01,
-                ease: 'easeOut',
-              }}
+              className="animate-fade-in"
             />
           ))}
         </g>
 
-        {/* Nodes by layer (back to front) */}
-        {[1, 2, 3].map((layer) => (
-          <g key={layer} opacity={layer === 1 ? 0.2 : layer === 2 ? 0.4 : 0.6}>
-            {nodes
-              .filter((node) => node.layer === layer)
-              .map((node) => {
-                // Calculate mouse interaction
-                const hasMousePos = mouseX !== null && mouseY !== null;
-                const distance = hasMousePos
-                  ? Math.hypot(node.x - mouseX!, node.y - mouseY!)
-                  : Infinity;
-
-                // Subtle attraction effect (max 10px when very close)
-                const attractionStrength = Math.max(0, 1 - distance / 300);
-                const angle = hasMousePos
-                  ? Math.atan2(mouseY! - node.y, mouseX! - node.x)
-                  : 0;
-                const attractX = attractionStrength * 10 * Math.cos(angle);
-                const attractY = attractionStrength * 10 * Math.sin(angle);
-
-                // Scale up slightly when mouse is near
-                const scale = 1 + attractionStrength * 0.3;
-
-                return (
-                  <motion.g key={node.id}>
-                    {/* Glow effect */}
-                    <motion.circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={node.size * 3}
-                      fill={node.color}
-                      opacity={0.1}
-                      initial={{ scale: 0 }}
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        translateX: attractX,
-                        translateY: attractY,
-                      }}
-                      transition={{
-                        scale: {
-                          duration: 3 + node.floatSpeed,
-                          repeat: Infinity,
-                          ease: 'easeInOut',
-                          delay: node.floatOffset,
-                        },
-                        translateX: { type: 'spring', stiffness: 100, damping: 15 },
-                        translateY: { type: 'spring', stiffness: 100, damping: 15 },
-                      }}
-                    />
-                    {/* Main node */}
-                    <motion.circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={node.size}
-                      fill={node.color}
-                      filter={layer === 3 ? 'url(#glow)' : undefined}
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{
-                        scale: scale,
-                        opacity: 1,
-                        translateX: attractX,
-                        translateY: attractY,
-                      }}
-                      transition={{
-                        scale: { type: 'spring', stiffness: 150, damping: 15 },
-                        opacity: { duration: 0.5, delay: node.id * 0.02 },
-                        translateX: { type: 'spring', stiffness: 100, damping: 15 },
-                        translateY: { type: 'spring', stiffness: 100, damping: 15 },
-                      }}
-                    />
-                  </motion.g>
-                );
-              })}
-          </g>
-        ))}
+        {/* Nodes with CSS animations */}
+        <g ref={nodesRef} className="nodes">
+          {nodes.map((node) => (
+            <circle
+              key={node.id}
+              className="interactive-node"
+              cx={node.x}
+              cy={node.y}
+              r={node.size}
+              fill={node.color}
+              opacity={node.opacity}
+              filter={node.opacity > 0.4 ? 'url(#glow)' : undefined}
+              data-x={node.x}
+              data-y={node.y}
+              style={{
+                transformOrigin: `${node.x}px ${node.y}px`,
+                transition: 'transform 0.15s ease-out',
+                animation: `pulse ${3 + node.animationDelay}s ease-in-out infinite`,
+                animationDelay: `${node.animationDelay}s`,
+              }}
+            />
+          ))}
+        </g>
       </svg>
 
-      {/* Subtle radial gradient overlay for depth */}
+      {/* Depth gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse at center, transparent 0%, rgba(15, 23, 42, 0.3) 70%, rgba(15, 23, 42, 0.6) 100%)`,
+          background: `radial-gradient(ellipse at center, transparent 0%, rgba(15, 23, 42, 0.4) 70%, rgba(15, 23, 42, 0.7) 100%)`,
         }}
       />
+
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: var(--base-opacity, 0.5); }
+          50% { opacity: calc(var(--base-opacity, 0.5) * 1.3); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 1s ease-out forwards;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: var(--line-opacity, 0.2); }
+        }
+      `}</style>
     </div>
   );
 };
