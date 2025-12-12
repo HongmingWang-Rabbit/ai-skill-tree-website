@@ -42,6 +42,11 @@ interface ShareModalProps {
   onNativeShare: (slideType: ShareSlideType) => Promise<boolean>;
   onSlideChange: (slideType: ShareSlideType) => void;
   currentSlide: ShareSlideType;
+  // Link sharing props (for user maps)
+  mapId?: string;
+  shareSlug?: string | null;
+  isPublic?: boolean;
+  isOwner?: boolean;
 }
 
 type ViewMode = 'main' | 'social';

@@ -1,4 +1,24 @@
 import { z } from 'zod';
+import { SKILL_PROGRESS_MAX, MAP_TITLE_MAX_LENGTH } from './constants';
+
+// User node data schema (for saved map progress)
+export const UserNodeDataSchema = z.object({
+  skillId: z.string(),
+  progress: z.number().min(0).max(SKILL_PROGRESS_MAX),
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+  }).optional(),
+});
+
+export type UserNodeDataInput = z.infer<typeof UserNodeDataSchema>;
+
+// Map update schema
+export const MapUpdateSchema = z.object({
+  title: z.string().min(1).max(MAP_TITLE_MAX_LENGTH).optional(),
+  isPublic: z.boolean().optional(),
+  nodeData: z.array(UserNodeDataSchema).optional(),
+});
 
 export const SkillNodeSchema = z.object({
   id: z.string(),

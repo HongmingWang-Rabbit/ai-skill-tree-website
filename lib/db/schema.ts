@@ -1,8 +1,6 @@
-import { pgTable, text, timestamp, uuid, integer, jsonb, primaryKey, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, integer, jsonb, primaryKey, unique, boolean } from 'drizzle-orm/pg-core';
 
-// Supported locales for i18n
-export const SUPPORTED_LOCALES = ['en', 'zh', 'ja'] as const;
-export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
+// Note: For locale types, use `Locale` from '@/i18n/routing' as the canonical source
 
 export const careers = pgTable('careers', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -99,13 +97,20 @@ export const verificationTokens = pgTable('verification_tokens', {
   pk: primaryKey({ columns: [table.identifier, table.token] }),
 }));
 
-// User's saved career graphs
+// User's saved career graphs (personal maps)
 export const userCareerGraphs = pgTable('user_career_graphs', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   careerId: uuid('career_id').notNull().references(() => careers.id, { onDelete: 'cascade' }),
+  // Custom title for user's map (defaults to career title)
+  title: text('title'),
   // Store node positions and progress as JSONB for flexibility
   nodeData: jsonb('node_data').notNull().$type<UserNodeData[]>(),
+  // Sharing settings
+  isPublic: boolean('is_public').notNull().default(false),
+  shareSlug: text('share_slug').unique(),
+  // Track lineage when copied from another user's map (soft reference, no FK constraint to avoid circular type)
+  copiedFromId: uuid('copied_from_id'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

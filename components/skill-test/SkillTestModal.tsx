@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import type { SkillNodeData } from '@/components/skill-graph/SkillNode';
 import type { TestQuestion, GradingResult } from '@/lib/ai';
-import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import { SKILL_PASS_THRESHOLD, SKILL_SCORE_EXCELLENT_THRESHOLD } from '@/lib/constants';
 
 interface SkillTestModalProps {
   skill: SkillNodeData;
@@ -196,7 +196,7 @@ export function SkillTestModal({
                   <div key={result.questionId} className="bg-slate-800/50 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-slate-300 font-medium">Question {index + 1}</span>
-                      <span className={`px-2 py-1 rounded text-sm ${result.score >= 80 ? 'bg-emerald-500/20 text-emerald-400' : result.score >= 60 ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'}`}>
+                      <span className={`px-2 py-1 rounded text-sm ${result.score >= SKILL_SCORE_EXCELLENT_THRESHOLD ? 'bg-emerald-500/20 text-emerald-400' : result.score >= SKILL_PASS_THRESHOLD ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'}`}>
                         {result.score}%
                       </span>
                     </div>
@@ -226,12 +226,14 @@ export function SkillTestModal({
 
           {state === 'results' && (
             <div className="flex gap-3">
-              <button
-                onClick={onClose}
-                className="flex-1 py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
-              >
-                Close
-              </button>
+              {!passed && (
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              )}
               <button
                 onClick={() => onComplete(totalScore)}
                 className={`flex-1 py-3 px-4 font-semibold rounded-lg transition-colors ${

@@ -8,12 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 1. **Check `lib/` first** - Contains reusable utilities:
    - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`
-   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`
-   - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`
+   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`
+   - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
    - `lib/ai.ts` - OpenAI functions: `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, Web3 providers
    - `lib/db/index.ts` - Database connection, exports all schema types
-   - `lib/constants.ts` - App constants (e.g., `SKILL_PASS_THRESHOLD`)
+   - `lib/constants.ts` - App constants: `SKILL_PASS_THRESHOLD`, `SKILL_PROGRESS_MAX`, `SKILL_SCORE_EXCELLENT_THRESHOLD`, `SHARE_SLUG_LENGTH`, `SHARE_SLUG_CHARS`, `SHARE_SLUG_GENERATION_MAX_RETRIES`, `MAP_TITLE_MAX_LENGTH`, `SIGN_IN_PROMPT_DELAY_MS`, `AUTO_SAVE_DEBOUNCE_MS`
 
 2. **Check `components/` for existing UI**:
    - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`
@@ -63,7 +63,7 @@ This is a Next.js 15 App Router application for generating AI-powered career ski
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/progress`
+- `app/api/` - API routes: `/ai/generate`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/progress`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
@@ -110,11 +110,38 @@ NextAuth.js with three providers:
 
 Session strategy is JWT. Auth config in `lib/auth.ts`.
 
+### User Maps & Sharing
+
+The app supports user-owned skill tree maps with sharing capabilities:
+
+**URL Routing:**
+- `/career/{canonicalKey}` - Base career template (auto-forks on page load for logged-in users)
+- `/career/{uuid}` - User's own map (full edit access, auto-saves changes)
+- `/career/{shareSlug}` - Shared map view (read-only for non-owners, copy button available)
+
+**Map Flow:**
+1. Logged-in user visits base career → auto-creates personal map (fork) and redirects
+2. User can customize title, track progress, reposition nodes (auto-saved)
+3. User can make map public → generates 6-char share slug
+4. Others can view public maps and copy to their account
+
+**API Routes:**
+- `GET /api/map/[mapId]` - Fetch map by UUID or shareSlug
+- `PATCH /api/map/[mapId]` - Update map settings (owner only)
+- `DELETE /api/map/[mapId]` - Delete map (owner only)
+- `POST /api/map/fork` - Create map from career or another map
+- `POST /api/map/[mapId]/copy` - Copy public map to own account
+
 ### Database Schema (lib/db/schema.ts)
 
 - `careers` - Generated careers with canonicalKey (unique slug)
 - `skillGraphs` - JSONB nodes/edges for each career
-- `userCareerGraphs` - User's saved progress per career
+- `userCareerGraphs` - User's saved skill tree maps with:
+  - `title` - Custom title for the map
+  - `nodeData` - JSONB array of skill progress and positions
+  - `isPublic` - Whether the map can be viewed by others
+  - `shareSlug` - 6-char alphanumeric slug for short URLs
+  - `copiedFromId` - UUID of source map if copied from another user
 - `userSkillProgress` - Per-skill progress tracking
 
 ### Path Aliases

@@ -57,7 +57,15 @@
     "continueWithoutSaving": "保存せずに続ける",
     "oops": "おっと！",
     "failedToLoad": "キャリアの読み込みに失敗しました",
-    "share": "進捗を共有"
+    "notFound": "スキルツリーが見つかりません",
+    "share": "進捗を共有",
+    "by": "作成者:",
+    "anonymous": "匿名",
+    "viewOnly": "閲覧のみ",
+    "copyToMyMaps": "マイマップにコピー",
+    "copying": "コピー中...",
+    "saveToMyMaps": "マイマップに保存",
+    "saving": "保存中..."
   },
   "dashboard": {
     "signInRequired": "ログインが必要です",

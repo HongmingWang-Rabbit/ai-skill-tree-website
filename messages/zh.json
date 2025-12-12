@@ -57,7 +57,15 @@
     "continueWithoutSaving": "继续不保存",
     "oops": "哎呀！",
     "failedToLoad": "加载职业失败",
-    "share": "分享你的进度"
+    "notFound": "未找到技能树",
+    "share": "分享你的进度",
+    "by": "来自",
+    "anonymous": "匿名用户",
+    "viewOnly": "仅查看",
+    "copyToMyMaps": "复制到我的地图",
+    "copying": "复制中...",
+    "saveToMyMaps": "保存到我的地图",
+    "saving": "保存中..."
   },
   "dashboard": {
     "signInRequired": "需要登录",

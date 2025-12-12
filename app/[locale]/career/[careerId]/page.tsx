@@ -8,7 +8,8 @@ import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
 import { ShareModal } from '@/components/ui/ShareModal';
 import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
-import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import { SKILL_PASS_THRESHOLD, SIGN_IN_PROMPT_DELAY_MS, AUTO_SAVE_DEBOUNCE_MS } from '@/lib/constants';
+import { isUUID, isShareSlug } from '@/lib/normalize-career';
 import { useRouter } from '@/i18n/navigation';
 import type { Node, Edge } from '@xyflow/react';
 import type { SkillNodeData } from '@/components/skill-graph/SkillNode';
@@ -25,11 +26,12 @@ interface Career {
   canonicalKey: string;
   title: string;
   description: string | null;
+  locale?: string;
 }
 
 interface SkillGraphData {
   id: string;
-  careerId: string | null;
+  careerId?: string | null;
   nodes: SkillNodeData[];
   edges: SkillEdgeData[];
 }
@@ -45,6 +47,23 @@ interface UserNodeData {
   position?: { x: number; y: number };
 }
 
+interface UserMapData {
+  id: string;
+  title: string;
+  nodeData: UserNodeData[];
+  isPublic: boolean;
+  shareSlug: string | null;
+}
+
+interface MapOwner {
+  id: string;
+  name: string | null;
+  image: string | null;
+}
+
+// View modes for the page
+type ViewMode = 'base' | 'own-map' | 'other-map';
+
 export default function CareerPage({ params }: { params: Promise<{ careerId: string; locale: string }> }) {
   const resolvedParams = use(params);
   const careerId = resolvedParams.careerId;
@@ -52,15 +71,22 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const t = useTranslations();
   const locale = useLocale();
   const { data: session, status: authStatus } = useSession();
+
+  // Core state
   const [data, setData] = useState<CareerData | null>(null);
+  const [userMap, setUserMap] = useState<UserMapData | null>(null);
+  const [mapOwner, setMapOwner] = useState<MapOwner | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('base');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // UI state
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [userNodeData, setUserNodeData] = useState<UserNodeData[] | null>(null);
-  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
+  const [isForking, setIsForking] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [currentSlide, setCurrentSlide] = useState<ShareSlideType>('full');
   const [slidePreviews, setSlidePreviews] = useState<Record<ShareSlideType, string | null>>({
@@ -68,30 +94,75 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     completed: null,
     summary: null,
   });
+
+  // Refs
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasShownPromptRef = useRef(false);
   const graphContainerRef = useRef<HTMLDivElement>(null);
   const skillGraphRef = useRef<SkillGraphHandle>(null);
   const { isCapturing, capturePreview, downloadFromDataUrl, copyFromDataUrl, shareFromDataUrl } = useShareScreenshot();
 
-  // Fetch career data
+  // Determine what type of ID we're dealing with and fetch accordingly
   useEffect(() => {
-    async function fetchOrGenerateCareer() {
+    async function fetchData() {
       setIsLoading(true);
       setError(null);
 
       try {
-        // First try to fetch existing career (with locale for cache lookup)
+        // Check if this is a user map (UUID or share slug)
+        if (isUUID(careerId) || isShareSlug(careerId)) {
+          // Try to fetch as a user map first
+          const mapResponse = await fetch(`/api/map/${careerId}`);
+
+          if (mapResponse.ok) {
+            const mapResult = await mapResponse.json();
+
+            if (mapResult.success) {
+              // It's a user map
+              setData({
+                career: mapResult.data.career,
+                skillGraph: mapResult.data.skillGraph,
+              });
+              setUserMap(mapResult.data.map);
+              setMapOwner(mapResult.data.owner);
+              setViewMode(mapResult.data.isOwner ? 'own-map' : 'other-map');
+              setIsSaved(true);
+              setIsLoading(false);
+              return;
+            }
+          }
+
+          // If it's a UUID but not a user map, try as career ID
+          if (isUUID(careerId)) {
+            const careerResponse = await fetch(`/api/career/${careerId}?locale=${locale}`);
+            const careerResult = await careerResponse.json();
+
+            if (careerResult.success) {
+              setData(careerResult.data);
+              setViewMode('base');
+              setIsLoading(false);
+              return;
+            }
+          }
+
+          // Not found as either
+          setError(t('career.notFound'));
+          setIsLoading(false);
+          return;
+        }
+
+        // It's a canonical key - fetch or generate career
         const fetchResponse = await fetch(`/api/career/${careerId}?locale=${locale}`);
         const fetchResult = await fetchResponse.json();
 
         if (fetchResult.success) {
           setData(fetchResult.data);
+          setViewMode('base');
           setIsLoading(false);
           return;
         }
 
-        // If not found, generate new career in the current locale
+        // Generate new career
         setIsGenerating(true);
         const generateResponse = await fetch('/api/ai/generate', {
           method: 'POST',
@@ -103,102 +174,133 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
 
         if (generateResult.success) {
           setData(generateResult.data);
+          setViewMode('base');
         } else {
           setError(generateResult.error || t('career.failedToLoad'));
         }
-      } catch (err) {
+      } catch {
         setError(t('career.failedToLoad'));
-        console.error(err);
       } finally {
         setIsLoading(false);
         setIsGenerating(false);
       }
     }
 
-    fetchOrGenerateCareer();
+    fetchData();
   }, [careerId, locale, t]);
 
-  // Load user's saved progress if signed in
+  // Show sign-in prompt for unauthenticated users on base career (only once)
   useEffect(() => {
-    async function loadUserProgress() {
-      if (!session?.user?.id || !data?.career?.id) {
-        setIsLoadingUserData(false);
-        return;
-      }
-
-      setIsLoadingUserData(true);
-      try {
-        const response = await fetch(`/api/user/graph/${data.career.id}`);
-        const result = await response.json();
-
-        if (result.saved && result.graph) {
-          setUserNodeData(result.graph.nodeData);
-          setIsSaved(true);
-        }
-      } catch (err) {
-        console.error('Failed to load user progress:', err);
-      } finally {
-        setIsLoadingUserData(false);
-      }
-    }
-
-    // Set loading state immediately if user is signed in
-    if (session?.user?.id && data?.career?.id) {
-      setIsLoadingUserData(true);
-    }
-    loadUserProgress();
-  }, [session?.user?.id, data?.career?.id]);
-
-  // Show sign-in prompt after graph loads (only once)
-  useEffect(() => {
-    if (!isLoading && data && authStatus === 'unauthenticated' && !hasShownPromptRef.current) {
-      // Small delay to let user see the graph first
+    if (!isLoading && data && viewMode === 'base' && authStatus === 'unauthenticated' && !hasShownPromptRef.current) {
       const timeout = setTimeout(() => {
         setShowSignInPrompt(true);
         hasShownPromptRef.current = true;
-      }, 2000);
+      }, SIGN_IN_PROMPT_DELAY_MS);
       return () => clearTimeout(timeout);
     }
-  }, [isLoading, data, authStatus]);
+  }, [isLoading, data, viewMode, authStatus]);
 
-  // Save function
+  // Fork a base career to create user's own map
+  const forkCareer = useCallback(async () => {
+    if (!session?.user?.id || !data?.career?.id) return null;
+
+    setIsForking(true);
+    try {
+      const response = await fetch('/api/map/fork', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ careerId: data.career.id }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.map?.id) {
+        // Redirect to the new map URL
+        router.replace(`/career/${result.map.id}`);
+        return result.map.id;
+      }
+    } catch {
+      // Fork failed silently - user can retry
+    } finally {
+      setIsForking(false);
+    }
+    return null;
+  }, [session?.user?.id, data?.career?.id, router]);
+
+  // Auto-fork for logged-in users viewing a base career
+  const hasAutoForkedRef = useRef(false);
+  useEffect(() => {
+    if (
+      !isLoading &&
+      data?.career?.id &&
+      viewMode === 'base' &&
+      authStatus === 'authenticated' &&
+      session?.user?.id &&
+      !hasAutoForkedRef.current &&
+      !isForking
+    ) {
+      hasAutoForkedRef.current = true;
+      forkCareer();
+    }
+  }, [isLoading, data?.career?.id, viewMode, authStatus, session?.user?.id, isForking, forkCareer]);
+
+  // Copy someone else's public map
+  const copyMap = useCallback(async () => {
+    if (!session?.user?.id || !userMap?.id) return;
+
+    setIsCopying(true);
+    try {
+      const response = await fetch(`/api/map/${userMap.id}/copy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        router.push(`/career/${result.map.id}`);
+      }
+    } catch {
+      // Copy failed silently - user can retry
+    } finally {
+      setIsCopying(false);
+    }
+  }, [session?.user?.id, userMap?.id, router]);
+
+  // Save changes to user's own map
   const saveGraph = useCallback(async (nodeData: UserNodeData[]) => {
-    if (!session?.user?.id || !data?.career?.id) return;
+    if (!session?.user?.id || !userMap?.id) return;
 
     setIsSaving(true);
     try {
-      const response = await fetch('/api/user/graph', {
-        method: 'POST',
+      const response = await fetch(`/api/map/${userMap.id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          careerId: data.career.id,
-          nodeData,
-        }),
+        body: JSON.stringify({ nodeData }),
       });
 
       if (response.ok) {
         setIsSaved(true);
-        setUserNodeData(nodeData);
+        setUserMap(prev => prev ? { ...prev, nodeData } : null);
       }
-    } catch (err) {
-      console.error('Failed to save graph:', err);
+    } catch {
+      // Save failed silently - will retry on next change
     } finally {
       setIsSaving(false);
     }
-  }, [session?.user?.id, data?.career?.id]);
+  }, [session?.user?.id, userMap?.id]);
 
-  // Debounced save on changes
-  const handleGraphChange = useCallback((nodes: Node[]) => {
-    if (!session?.user?.id) {
-      // Show sign-in prompt if not shown yet
-      if (!hasShownPromptRef.current) {
-        setShowSignInPrompt(true);
-        hasShownPromptRef.current = true;
-      }
-      return;
-    }
+  // Handle graph changes
+  const handleGraphChange = useCallback(async (nodes: Node[]) => {
+    // If viewing someone else's map or base career, do nothing
+    // (base career auto-forks on page load, so changes won't persist until redirected)
+    if (viewMode !== 'own-map') return;
 
-    // Extract node data for saving
+    // If not signed in, do nothing
+    if (!session?.user?.id) return;
+
+    // Save to existing map
     const nodeData: UserNodeData[] = nodes
       .filter(n => n.type === 'skill')
       .map(n => ({
@@ -207,14 +309,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         position: n.position,
       }));
 
-    // Debounce saves
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
     saveTimeoutRef.current = setTimeout(() => {
       saveGraph(nodeData);
-    }, 1000);
-  }, [session?.user?.id, saveGraph]);
+    }, AUTO_SAVE_DEBOUNCE_MS);
+  }, [viewMode, session?.user?.id, saveGraph]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -225,13 +326,12 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     };
   }, []);
 
-  // Convert skill data to React Flow format, applying user's saved data if available
+  // Convert skill data to React Flow format
   const convertToReactFlowFormat = (
     nodes: SkillNodeData[],
     edges: SkillEdgeData[],
     savedData?: UserNodeData[] | null
   ): { nodes: Node[]; edges: Edge[] } => {
-    // Create a map of saved data for quick lookup
     const savedMap = new Map<string, UserNodeData>();
     if (savedData) {
       savedData.forEach((item) => savedMap.set(item.skillId, item));
@@ -242,10 +342,10 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       return {
         id: skill.id,
         type: 'skill',
-        position: saved?.position || { x: 0, y: 0 }, // Use saved position or default
+        position: saved?.position || { x: 0, y: 0 },
         data: {
           ...skill,
-          progress: saved?.progress ?? skill.progress, // Use saved progress if available
+          progress: saved?.progress ?? skill.progress,
         },
       };
     });
@@ -268,20 +368,14 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     return Math.round(totalProgress / nodes.length);
   };
 
-  // Loading state - wait for career data and user progress (if signed in)
-  const shouldShowLoading = isLoading || (session?.user?.id && isLoadingUserData);
-
-  if (shouldShowLoading) {
+  // Loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="spinner mx-auto mb-4"></div>
           <p className="text-slate-400">
-            {isGenerating
-              ? t('career.generating')
-              : isLoadingUserData
-                ? t('career.loadingProgress')
-                : t('career.loading')}
+            {isGenerating ? t('career.generating') : t('career.loading')}
           </p>
           {isGenerating && (
             <p className="text-sm text-slate-500 mt-2">
@@ -315,29 +409,26 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const { career, skillGraph } = data;
   const skillNodes = skillGraph.nodes as SkillNodeData[];
   const skillEdges = skillGraph.edges as SkillEdgeData[];
-  const { nodes, edges } = convertToReactFlowFormat(skillNodes, skillEdges, userNodeData);
+  const nodeData = userMap?.nodeData || null;
+  const { nodes, edges } = convertToReactFlowFormat(skillNodes, skillEdges, nodeData);
 
-  // Calculate progress from nodes (which may include saved progress)
-  const nodesWithProgress = userNodeData
+  // Calculate progress
+  const nodesWithProgress = nodeData
     ? skillNodes.map((n) => {
-        const saved = userNodeData.find((s) => s.skillId === n.id);
+        const saved = nodeData.find((s) => s.skillId === n.id);
         return { ...n, progress: saved?.progress ?? n.progress };
       })
     : skillNodes;
   const overallProgress = calculateProgress(nodesWithProgress);
 
-  // Get completed skills for summary slide
   const completedSkills = nodesWithProgress
     .filter((n) => n.progress >= SKILL_PASS_THRESHOLD)
     .map((n) => n.name);
 
-  // Capture preview for a specific slide type
   const captureSlidePreview = async (slideType: ShareSlideType) => {
-    // Get node positions from SkillGraph ref
     const nodePositions = skillGraphRef.current?.getNodePositions() || [];
-
     const preview = await capturePreview(graphContainerRef.current, {
-      careerTitle: career.title,
+      careerTitle: userMap?.title || career.title,
       progress: overallProgress,
       slideType,
       completedSkills,
@@ -348,14 +439,15 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     return preview;
   };
 
-  // Handle slide change
   const handleSlideChange = async (slideType: ShareSlideType) => {
     setCurrentSlide(slideType);
-    // Capture if not already captured
     if (!slidePreviews[slideType]) {
       await captureSlidePreview(slideType);
     }
   };
+
+  const displayTitle = userMap?.title || career.title;
+  const isReadOnly = viewMode === 'other-map';
 
   return (
     <div className="min-h-screen flex flex-col pt-16">
@@ -383,13 +475,51 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
               </svg>
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">{career.title}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold text-white">{displayTitle}</h1>
+                {viewMode === 'other-map' && mapOwner && (
+                  <span className="text-sm text-slate-400">
+                    {t('career.by')} {mapOwner.name || t('career.anonymous')}
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-slate-400">{career.description}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            {/* Save status indicator */}
-            {session?.user && (
+            {/* View mode indicators and actions */}
+            {viewMode === 'other-map' && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+                  {t('career.viewOnly')}
+                </span>
+                {session?.user && (
+                  <button
+                    onClick={copyMap}
+                    disabled={isCopying}
+                    className="px-3 py-1.5 text-sm bg-amber-500 hover:bg-amber-400 disabled:bg-slate-600 text-slate-900 font-medium rounded-lg transition-colors flex items-center gap-1"
+                  >
+                    {isCopying ? (
+                      <>
+                        <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                        {t('career.copying')}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        {t('career.copyToMyMaps')}
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
+
+
+            {/* Save status for own map */}
+            {viewMode === 'own-map' && session?.user && (
               <div className="flex items-center gap-2 text-sm">
                 {isSaving ? (
                   <span className="text-slate-400 flex items-center gap-1">
@@ -406,13 +536,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                 ) : null}
               </div>
             )}
+
             {/* Share Button */}
             <button
               onClick={async () => {
                 setShowShareModal(true);
                 setCurrentSlide('full');
                 setSlidePreviews({ full: null, completed: null, summary: null });
-                // Capture first slide
                 await captureSlidePreview('full');
               }}
               className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
@@ -465,12 +595,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         <div ref={graphContainerRef} className="absolute inset-0">
           <SkillGraph
             ref={skillGraphRef}
-            key={userNodeData ? 'loaded' : 'initial'}
+            key={userMap?.id || 'base'}
             initialNodes={nodes}
             initialEdges={edges}
-            careerTitle={career.title}
+            careerTitle={displayTitle}
             careerDescription={career.description || ''}
-            onNodesChange={handleGraphChange}
+            onNodesChange={isReadOnly ? undefined : handleGraphChange}
+            readOnly={isReadOnly}
           />
         </div>
       </main>
@@ -516,15 +647,15 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         }}
         previews={slidePreviews}
         isCapturing={isCapturing}
-        careerTitle={career.title}
+        careerTitle={displayTitle}
         progress={overallProgress}
-        filename={`${career.title.toLowerCase().replace(/\s+/g, '-')}-${currentSlide}.png`}
+        filename={`${displayTitle.toLowerCase().replace(/\s+/g, '-')}-${currentSlide}.png`}
         currentSlide={currentSlide}
         onSlideChange={handleSlideChange}
         onDownload={(slideType) => {
           const preview = slidePreviews[slideType];
           if (preview) {
-            downloadFromDataUrl(preview, `${career.title.toLowerCase().replace(/\s+/g, '-')}-${slideType}.png`);
+            downloadFromDataUrl(preview, `${displayTitle.toLowerCase().replace(/\s+/g, '-')}-${slideType}.png`);
           }
         }}
         onCopy={(slideType) => {
@@ -536,11 +667,16 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
           return preview
             ? shareFromDataUrl(
                 preview,
-                `My ${career.title} Skill Tree`,
-                `Check out my ${career.title} skill tree progress - ${overallProgress}% complete!`
+                `My ${displayTitle} Skill Tree`,
+                `Check out my ${displayTitle} skill tree progress - ${overallProgress}% complete!`
               )
             : Promise.resolve(false);
         }}
+        // New props for link sharing (will be added to ShareModal)
+        mapId={userMap?.id}
+        shareSlug={userMap?.shareSlug}
+        isPublic={userMap?.isPublic}
+        isOwner={viewMode === 'own-map'}
       />
     </div>
   );

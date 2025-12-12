@@ -58,6 +58,7 @@ interface SkillGraphProps {
   careerDescription?: string;
   onNodeClick?: (node: Node) => void;
   onNodesChange?: (nodes: Node[]) => void;
+  readOnly?: boolean;
 }
 
 export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function SkillGraphInner({
@@ -67,6 +68,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
   careerDescription = '',
   onNodeClick,
   onNodesChange: onNodesChangeProp,
+  readOnly = false,
 }, ref) {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [testingSkill, setTestingSkill] = useState<SkillNodeData | null>(null);
@@ -215,6 +217,15 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
     [onNodeClick]
   );
 
+  // Handle test button click - blocked if readOnly
+  const handleTakeTest = useCallback(
+    (skill: SkillNodeData) => {
+      if (readOnly) return;
+      setTestingSkill(skill);
+    },
+    [readOnly]
+  );
+
   const handlePaneClick = useCallback(() => {
     setSelectedNode(null);
   }, []);
@@ -257,6 +268,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
         }}
         minZoom={0.1}
         maxZoom={1.5}
+        nodesDraggable={!readOnly}
         proOptions={{ hideAttribution: true }}
       >
         <Background
@@ -338,7 +350,8 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
           <GlassPanel className="p-4">
             <SelectedNodeDetails
               node={selectedNode}
-              onTakeTest={(skill) => setTestingSkill(skill)}
+              onTakeTest={handleTakeTest}
+              readOnly={readOnly}
             />
           </GlassPanel>
         </div>
@@ -425,9 +438,10 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
 interface SelectedNodeDetailsProps {
   node: Node;
   onTakeTest: (skill: SkillNodeData) => void;
+  readOnly?: boolean;
 }
 
-function SelectedNodeDetails({ node, onTakeTest }: SelectedNodeDetailsProps) {
+function SelectedNodeDetails({ node, onTakeTest, readOnly = false }: SelectedNodeDetailsProps) {
   const data = node.data as unknown as SkillNodeData;
   const status = data.status || 'locked';
   const isCompleted = status === 'completed';
@@ -491,8 +505,8 @@ function SelectedNodeDetails({ node, onTakeTest }: SelectedNodeDetailsProps) {
         </div>
       )}
 
-      {/* Action buttons - only show for available nodes */}
-      {isAvailable && !isCompleted && (
+      {/* Action buttons - only show for available nodes (hide in readOnly mode) */}
+      {!readOnly && isAvailable && !isCompleted && (
         <div className="mt-4 pt-3 border-t border-slate-700 space-y-2">
           <button className="w-full py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm">
             Start Learning
@@ -514,12 +528,14 @@ function SelectedNodeDetails({ node, onTakeTest }: SelectedNodeDetailsProps) {
             </svg>
             <span className="font-semibold">Skill Mastered!</span>
           </div>
-          <button
-            onClick={() => onTakeTest(data)}
-            className="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium rounded-lg transition-colors text-sm"
-          >
-            Retake Test to Improve Score
-          </button>
+          {!readOnly && (
+            <button
+              onClick={() => onTakeTest(data)}
+              className="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium rounded-lg transition-colors text-sm"
+            >
+              Retake Test to Improve Score
+            </button>
+          )}
         </div>
       )}
 

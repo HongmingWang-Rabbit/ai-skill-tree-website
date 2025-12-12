@@ -57,7 +57,15 @@
     "continueWithoutSaving": "Continue Without Saving",
     "oops": "Oops!",
     "failedToLoad": "Failed to load career",
-    "share": "Share your progress"
+    "notFound": "Skill tree not found",
+    "share": "Share your progress",
+    "by": "by",
+    "anonymous": "Anonymous",
+    "viewOnly": "View Only",
+    "copyToMyMaps": "Copy to My Maps",
+    "copying": "Copying...",
+    "saveToMyMaps": "Save to My Maps",
+    "saving": "Saving..."
   },
   "dashboard": {
     "signInRequired": "Sign In Required",
