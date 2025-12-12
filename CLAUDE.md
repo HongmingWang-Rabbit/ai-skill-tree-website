@@ -25,28 +25,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Background: `BACKGROUND_CONFIG` (grid, colors, mouse interaction settings)
      - Hero: `HERO_ICON_ROTATION_DURATION`
      - Auth: `AUTH_CALLBACK_URL`, `PROVIDER_COLORS` (brand colors for OAuth providers)
+     - SEO: `SITE_URL`, `APP_DESCRIPTION` (used across metadata and JSON-LD)
 
 2. **Check `components/` for existing UI**:
    - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
+   - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - Context providers
 
 3. **Check `hooks/`** - Custom React hooks:
    - `useShareScreenshot` - Screenshot/share functionality
 
 4. **Check `i18n/` for internationalization**:
-   - `i18n/routing.ts` - Locale configuration: `locales`, `Locale` type, `defaultLocale`, `routing`
+   - `i18n/routing.ts` - Locale configuration: `locales`, `Locale` type, `defaultLocale`, `routing`, `ogLocaleMap`, `getOgLocale()`
    - `i18n/request.ts` - Server-side request configuration for next-intl
    - `i18n/navigation.ts` - Locale-aware navigation: `Link`, `useRouter`, `usePathname`, `redirect`
    - **Important**: Always import `locales` and `Locale` type from `@/i18n/routing` - never define locale arrays elsewhere
+   - **Important**: Use `getOgLocale()` for Open Graph locale codes - add new locales to `ogLocaleMap`
 
 5. **Check `messages/` for translations**:
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `seo`
 
 ## Commands
 
@@ -168,6 +171,41 @@ The app supports user-owned skill maps with sharing capabilities:
   - `shareSlug` - 6-char alphanumeric slug for short URLs
   - `copiedFromId` - UUID of source map if copied from another user
 - `userSkillProgress` - Per-skill progress tracking
+
+### SEO & Multi-locale Support
+
+The app has comprehensive SEO with multi-locale support:
+
+**Key files:**
+- `app/layout.tsx` - Root metadata (Open Graph, Twitter cards, robots directives)
+- `app/[locale]/layout.tsx` - Locale-specific metadata with `generateMetadata()`, hreflang alternates
+- `app/sitemap.ts` - Dynamic sitemap with all locales and career pages
+- `app/robots.ts` - Robots.txt configuration
+- `components/seo/JsonLd.tsx` - JSON-LD structured data components
+
+**Features:**
+- Locale-aware canonical URLs and hreflang tags
+- Dynamic sitemap with alternate language links per page
+- JSON-LD structured data (Website, Organization, Course schemas)
+- Open Graph and Twitter Card meta tags
+- Locale-specific titles and descriptions via `seo` translation namespace
+
+**Adding SEO to new pages:**
+```tsx
+// In page.tsx or layout.tsx
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'seo' });
+  return {
+    title: t('pageTitle'),
+    description: t('pageDescription'),
+    alternates: {
+      canonical: `${siteUrl}/${locale}/page`,
+      languages: Object.fromEntries(locales.map(l => [l, `${siteUrl}/${l}/page`])),
+    },
+  };
+}
+```
 
 ### Path Aliases
 

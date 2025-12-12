@@ -109,5 +109,14 @@
     "continueWithGoogle": "Continue with Google",
     "continueWithWeChat": "Continue with WeChat",
     "termsNotice": "By signing in, you agree to our Terms of Service and Privacy Policy"
+  },
+  "seo": {
+    "title": "Personal Skill Map - AI-Powered Career Skill Maps",
+    "description": "Discover and visualize your career path with AI-generated skill maps. Explore the skills you need to master your dream career.",
+    "keywords": "career skills, skill map, career path, AI learning, personal development, career growth, skill tree",
+    "dashboardTitle": "Dashboard - Personal Skill Map",
+    "dashboardDescription": "Track your skill progress and manage your career paths. View your personalized skill maps and learning journey.",
+    "careerTitle": "{career} Skill Map - Personal Skill Map",
+    "careerDescription": "Explore the complete skill map for {career}. Discover the skills you need to master and track your progress."
   }
 }

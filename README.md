@@ -13,6 +13,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **Multi-Language Support**: Full internationalization with English, Chinese, and Japanese
+- **SEO Optimized**: Dynamic sitemap, robots.txt, hreflang tags, Open Graph/Twitter cards, JSON-LD structured data
 - **Smart Caching**: Redis caching prevents redundant API calls and speeds up repeat queries
 - **Persistent Storage**: Generated skill maps are saved to PostgreSQL for future access
 
@@ -116,6 +117,8 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   ├── career/             # Career CRUD operations
 │   │   └── map/                # User map operations
 │   ├── globals.css             # Tailwind CSS with custom theme
+│   ├── sitemap.ts              # Dynamic sitemap with all locales
+│   ├── robots.ts               # Robots.txt configuration
 │   ├── icon.png                # App icon (192x192)
 │   ├── apple-icon.png          # Apple touch icon (180x180)
 │   └── favicon.ico             # Browser favicon
@@ -127,6 +130,8 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   ├── SkillNode.tsx       # Custom skill node component
 │   │   ├── SkillEdge.tsx       # Custom animated edge
 │   │   └── SkillGraph.tsx      # Main graph component
+│   ├── seo/
+│   │   └── JsonLd.tsx          # JSON-LD structured data components
 │   └── ui/
 │       ├── GlassPanel.tsx      # Glassmorphism container
 │       ├── Icons.tsx           # Reusable SVG icons (MenuIcon, CloseIcon)
@@ -198,6 +203,10 @@ BACKGROUND_CONFIG.MOUSE_INTERACTION_RADIUS
 
 // Hero animation
 HERO_ICON_ROTATION_DURATION  // Seconds per rotation
+
+// SEO
+SITE_URL                     // Base site URL
+APP_DESCRIPTION              // Meta description
 ```
 
 ## API Routes

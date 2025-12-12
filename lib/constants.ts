@@ -5,7 +5,7 @@ export const SKILL_SCORE_EXCELLENT_THRESHOLD = 80; // Score threshold for excell
 
 // Share slug constants
 export const SHARE_SLUG_LENGTH = 6;
-export const SHARE_SLUG_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+export const SHARE_SLUG_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
 export const SHARE_SLUG_GENERATION_MAX_RETRIES = 5;
 
 // Map title constraints
@@ -17,12 +17,16 @@ export const AUTO_SAVE_DEBOUNCE_MS = 1000;
 
 // Asset paths
 export const ASSETS = {
-  ICON: '/icon-transparent-bg.png',
-  ICON_LARGE: '/large-icon-transparent-bg.png',
+  ICON: "/icon-transparent-bg.png",
+  ICON_LARGE: "/large-icon-transparent-bg.png",
 } as const;
 
 // App branding
-export const APP_NAME = 'Personal Skill Map';
+export const APP_NAME = "Personal Skill Map";
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_APP_URL || "https://www.personalskillmap.com/";
+export const APP_DESCRIPTION =
+  "Discover and visualize your career path with AI-generated skill maps. Explore the skills you need to master your dream career.";
 
 // Header constants
 export const HEADER_SCROLL_THRESHOLD = 10;
@@ -31,9 +35,9 @@ export const HEADER_HEIGHT_SCROLLED = 64; // h-16 in pixels
 
 // Navigation links (used in Header for both desktop and mobile)
 export const NAV_LINKS = [
-  { href: '/', labelKey: 'common.home' },
-  { href: '/dashboard', labelKey: 'common.dashboard' },
-  { href: '/', labelKey: 'common.explore' },
+  { href: "/", labelKey: "common.home" },
+  { href: "/dashboard", labelKey: "common.dashboard" },
+  { href: "/", labelKey: "common.explore" },
 ] as const;
 
 // Background animation constants
@@ -46,19 +50,19 @@ export const BACKGROUND_CONFIG = {
   MOUSE_INTERACTION_RADIUS: 200,
   MOUSE_ATTRACTION_STRENGTH: 8,
   MOUSE_SCALE_FACTOR: 0.3,
-  COLORS: ['#A78BFA', '#34D399', '#60A5FA', '#FBBF24', '#F472B6'],
+  COLORS: ["#A78BFA", "#34D399", "#60A5FA", "#FBBF24", "#F472B6"],
 } as const;
 
 // Hero section constants
 export const HERO_ICON_ROTATION_DURATION = 30; // seconds
 
 // Auth constants
-export const AUTH_CALLBACK_URL = '/dashboard';
+export const AUTH_CALLBACK_URL = "/dashboard";
 
 // Provider brand colors
 export const PROVIDER_COLORS = {
   WECHAT: {
-    bg: '#07C160',
-    hover: '#06AD56',
+    bg: "#07C160",
+    hover: "#06AD56",
   },
 } as const;
