@@ -1,27 +1,56 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 const SkillTreeBackground = () => {
-  const nodes = useMemo(() => {
-    return Array.from({ length: 50 }).map((_, i) => ({
+  const [nodes, setNodes] = useState<any[]>([]);
+  const [lines, setLines] = useState<any[]>([]);
+
+  useEffect(() => {
+    const newNodes = Array.from({ length: 100 }).map((_, i) => ({
       id: i,
       x: Math.random() * 2000,
       y: Math.random() * 2000,
       size: Math.random() * 5 + 1,
     }));
+    setNodes(newNodes);
+
+    const newLines = newNodes.map((node, i) => {
+      if (i === 0) return null;
+      const prevNode = newNodes[i - 1];
+      return {
+        id: i,
+        x1: prevNode.x,
+        y1: prevNode.y,
+        x2: node.x,
+        y2: node.y,
+      };
+    }).filter(Boolean);
+    setLines(newLines as any[]);
   }, []);
 
   return (
-    <motion.div
+    <div
       className="absolute inset-0 z-0 overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 0.3 }}
-      transition={{ duration: 2 }}
+      style={{ opacity: 0.5 }}
     >
       <svg width="2000" height="2000" className="absolute top-0 left-0">
         <g>
+          {lines.map((line) => (
+            <motion.line
+              key={line.id}
+              x1={line.x1}
+              y1={line.y1}
+              x2={line.x2}
+              y2={line.y2}
+              stroke="#A78BFA"
+              strokeWidth="1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 2 }}
+            />
+          ))}
           {nodes.map((node) => (
             <motion.circle
               key={node.id}
@@ -43,7 +72,7 @@ const SkillTreeBackground = () => {
           ))}
         </g>
       </svg>
-    </motion.div>
+    </div>
   );
 };
 
