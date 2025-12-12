@@ -35,7 +35,13 @@
       "description": "スキルをアンロックしてキャリアをレベルアップする進捗を可視化します。"
     },
     "footer": "Next.js、React Flow、OpenAIで構築。",
-    "footerPowered": "AIスキルツリー生成技術で駆動。"
+    "footerPowered": "AIスキルツリー生成技術で駆動。",
+    "skillTreePreview": {
+      "title": "習得への道を視覚化",
+      "description": "AIが生成するスキルツリーは、あなたのキャリア成長のための明確で直感的なロードマップを提供します。スキルの関連性を確認し、次に何を学ぶべきかを理解しましょう。",
+      "coreSkill": "コアスキル",
+      "relatedSkill": "関連スキル"
+    }
   },
   "career": {
     "loading": "キャリアを読み込み中...",

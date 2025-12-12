@@ -163,6 +163,65 @@ export default function HomePage() {
                   </div>
                 </div>
               </motion.section>
+      {/* Skill Tree Preview Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.6 }}
+        className="py-20 px-4"
+      >
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4 text-white">
+            {t('home.skillTreePreview.title')}
+          </h2>
+          <p className="text-slate-400 mb-12 max-w-2xl mx-auto">
+            {t('home.skillTreePreview.description')}
+          </p>
+          <GlassPanel className="p-8">
+            <div className="flex items-center justify-center">
+              <div className="relative">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="w-32 h-32 bg-cyan-500/20 rounded-full flex items-center justify-center text-center p-4"
+                >
+                  <span className="font-bold text-white">
+                    {t('home.skillTreePreview.coreSkill')}
+                  </span>
+                </motion.div>
+                {[...Array(5)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.4 + i * 0.1,
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: `translate(-50%, -50%) rotate(${
+                        (i / 5) * 360
+                      }deg) translate(12rem) rotate(-${
+                        (i / 5) * 360
+                      }deg)`,
+                    }}
+                    className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center text-center p-2"
+                  >
+                    <span className="text-sm text-white">
+                      {t('home.skillTreePreview.relatedSkill')}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </GlassPanel>
+        </div>
+      </motion.section>
               {/* Footer */}
               <motion.footer
                 initial={{ opacity: 0 }}

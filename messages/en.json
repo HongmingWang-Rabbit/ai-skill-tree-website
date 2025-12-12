@@ -35,7 +35,13 @@
       "description": "Visualize your progress as you unlock skills and level up your career."
     },
     "footer": "Built with Next.js, React Flow, and OpenAI.",
-    "footerPowered": "Powered by AI skill tree generation."
+    "footerPowered": "Powered by AI skill tree generation.",
+    "skillTreePreview": {
+      "title": "Visualize Your Path to Mastery",
+      "description": "Our AI-generated skill trees provide a clear and intuitive roadmap for your career growth. See the connections between skills and understand what to learn next.",
+      "coreSkill": "Core Skill",
+      "relatedSkill": "Related Skill"
+    }
   },
   "career": {
     "loading": "Loading career...",

@@ -35,7 +35,13 @@
       "description": "在解锁技能和提升职业等级的过程中可视化你的进度。"
     },
     "footer": "基于 Next.js、React Flow 和 OpenAI 构建。",
-    "footerPowered": "由AI技能树生成技术驱动。"
+    "footerPowered": "由AI技能树生成技术驱动。",
+    "skillTreePreview": {
+      "title": "可视化你的精通之路",
+      "description": "我们由AI生成的技能树为您的职业发展提供了清晰直观的路线图。查看技能之间的联系，了解接下来要学习什么。",
+      "coreSkill": "核心技能",
+      "relatedSkill": "相关技能"
+    }
   },
   "career": {
     "loading": "加载职业中...",
