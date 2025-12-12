@@ -33,7 +33,7 @@ const SkillTreeBackground = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const nodesRef = useRef<SVGGElement>(null);
   const mousePos = useRef({ x: -1000, y: -1000 });
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const handleResize = () => {

@@ -680,8 +680,6 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         // Link sharing props
         mapId={userMap?.id}
         shareSlug={userMap?.shareSlug}
-        isPublic={userMap?.isPublic}
-        isOwner={viewMode === 'own-map'}
         locale={locale}
       />
     </div>

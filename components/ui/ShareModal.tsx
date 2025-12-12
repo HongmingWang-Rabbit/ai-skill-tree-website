@@ -9,6 +9,7 @@ import {
   type ShareSlideType,
   type SocialPlatform,
 } from '@/lib/screenshot-constants';
+import { defaultLocale } from '@/i18n/routing';
 
 // Social platform icons
 const SocialIcons: Record<SocialPlatform, React.ReactNode> = {
@@ -42,11 +43,9 @@ interface ShareModalProps {
   onNativeShare: (slideType: ShareSlideType) => Promise<boolean>;
   onSlideChange: (slideType: ShareSlideType) => void;
   currentSlide: ShareSlideType;
-  // Link sharing props (for user maps)
+  // Link sharing props (for generating shareable URLs)
   mapId?: string;
   shareSlug?: string | null;
-  isPublic?: boolean;
-  isOwner?: boolean;
   locale?: string;
 }
 
@@ -67,7 +66,7 @@ export function ShareModal({
   currentSlide,
   mapId,
   shareSlug,
-  locale = 'en',
+  locale = defaultLocale,
 }: ShareModalProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('main');
