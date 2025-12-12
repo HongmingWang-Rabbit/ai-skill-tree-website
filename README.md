@@ -112,6 +112,7 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   └── SkillGraph.tsx      # Main graph component
 │   └── ui/
 │       ├── GlassPanel.tsx      # Glassmorphism container
+│       ├── Icons.tsx           # Reusable SVG icons (MenuIcon, CloseIcon)
 │       ├── SearchInput.tsx     # Search input with customizable width
 │       └── LanguageSwitcher.tsx # Language dropdown selector
 ├── i18n/                       # Internationalization config
@@ -142,7 +143,8 @@ An animated SVG background with:
 
 Fixed navigation header with:
 - App logo with white circular background
-- Responsive navigation links
+- Responsive navigation links (configured via `NAV_LINKS` constant)
+- Mobile hamburger menu with animated slide-down panel
 - Language switcher
 - User authentication menu
 - Scroll-aware styling (transparent to blur backdrop)
@@ -168,6 +170,7 @@ APP_NAME                 // "Personal Skill Map"
 
 // Header behavior
 HEADER_SCROLL_THRESHOLD  // Pixels before header style changes
+NAV_LINKS                // Navigation links array for header
 
 // Background animation
 BACKGROUND_CONFIG.GRID_CELL_SIZE

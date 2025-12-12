@@ -20,13 +20,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Timing: `SIGN_IN_PROMPT_DELAY_MS`, `AUTO_SAVE_DEBOUNCE_MS`
      - Assets: `ASSETS.ICON`, `ASSETS.ICON_LARGE`
      - Branding: `APP_NAME`
-     - Header: `HEADER_SCROLL_THRESHOLD`, `HEADER_HEIGHT_DEFAULT`, `HEADER_HEIGHT_SCROLLED`
+     - Header: `HEADER_SCROLL_THRESHOLD`, `HEADER_HEIGHT_DEFAULT`, `HEADER_HEIGHT_SCROLLED`, `NAV_LINKS`
      - Background: `BACKGROUND_CONFIG` (grid, colors, mouse interaction settings)
      - Hero: `HERO_ICON_ROTATION_DURATION`
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`
-   - `components/layout/` - `Header` (site navigation), `SkillTreeBackground` (animated network background)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`)
+   - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - Authentication components
    - `components/providers/` - Context providers

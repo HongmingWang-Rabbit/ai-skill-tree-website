@@ -29,6 +29,13 @@ export const HEADER_SCROLL_THRESHOLD = 10;
 export const HEADER_HEIGHT_DEFAULT = 80; // h-20 in pixels
 export const HEADER_HEIGHT_SCROLLED = 64; // h-16 in pixels
 
+// Navigation links (used in Header for both desktop and mobile)
+export const NAV_LINKS = [
+  { href: '/', labelKey: 'common.home' },
+  { href: '/dashboard', labelKey: 'common.dashboard' },
+  { href: '/', labelKey: 'common.explore' },
+] as const;
+
 // Background animation constants
 export const BACKGROUND_CONFIG = {
   GRID_CELL_SIZE: 200,

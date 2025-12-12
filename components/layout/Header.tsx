@@ -7,9 +7,15 @@ import { Link } from "@/i18n/navigation";
 import { UserMenu } from "../auth/UserMenu";
 import { AuthModal } from "../auth/AuthModal";
 import { LanguageSwitcher } from "../ui/LanguageSwitcher";
-import { motion } from "framer-motion";
+import { MenuIcon, CloseIcon } from "../ui/Icons";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { ASSETS, HEADER_SCROLL_THRESHOLD, APP_NAME } from "@/lib/constants";
+import {
+  ASSETS,
+  HEADER_SCROLL_THRESHOLD,
+  APP_NAME,
+  NAV_LINKS,
+} from "@/lib/constants";
 
 export function Header() {
   const { data: session, status } = useSession();
@@ -27,6 +33,8 @@ export function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <>
@@ -62,26 +70,17 @@ export function Header() {
               </span>
             </Link>
 
-            {/* Navigation */}
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
-              <Link
-                href="/"
-                className="text-slate-300 hover:text-white transition-colors text-sm"
-              >
-                {t("common.home")}
-              </Link>
-              <Link
-                href="/dashboard"
-                className="text-slate-300 hover:text-white transition-colors text-sm"
-              >
-                {t("common.dashboard")}
-              </Link>
-              <Link
-                href="/"
-                className="text-slate-300 hover:text-white transition-colors text-sm"
-              >
-                {t("common.explore")}
-              </Link>
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.labelKey}
+                  href={link.href}
+                  className="text-slate-300 hover:text-white transition-colors text-sm"
+                >
+                  {t(link.labelKey)}
+                </Link>
+              ))}
             </nav>
 
             {/* Auth Section & Language Switcher */}
@@ -104,37 +103,9 @@ export function Header() {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-slate-300 hover:text-white transition-colors"
-                aria-label="Toggle menu"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
-                {isMobileMenuOpen ? (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                )}
+                {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
               </button>
             </div>
           </div>
@@ -142,49 +113,41 @@ export function Header() {
       </motion.header>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="fixed top-16 left-0 right-0 z-40 md:hidden bg-slate-900/95 backdrop-blur-md border-b border-slate-800"
-        >
-          <nav className="flex flex-col p-4 gap-2">
-            <Link
-              href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-slate-300 hover:text-white hover:bg-slate-800 transition-colors text-sm px-4 py-3 rounded-lg"
-            >
-              {t("common.home")}
-            </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-slate-300 hover:text-white hover:bg-slate-800 transition-colors text-sm px-4 py-3 rounded-lg"
-            >
-              {t("common.dashboard")}
-            </Link>
-            <Link
-              href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-slate-300 hover:text-white hover:bg-slate-800 transition-colors text-sm px-4 py-3 rounded-lg"
-            >
-              {t("common.explore")}
-            </Link>
-            {!session && status !== "loading" && (
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setIsAuthModalOpen(true);
-                }}
-                className="mt-2 px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm"
-              >
-                {t("common.signIn")}
-              </button>
-            )}
-          </nav>
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-16 left-0 right-0 z-40 md:hidden bg-slate-900/95 backdrop-blur-md border-b border-slate-800"
+          >
+            <nav className="flex flex-col p-4 gap-2">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.labelKey}
+                  href={link.href}
+                  onClick={closeMobileMenu}
+                  className="text-slate-300 hover:text-white hover:bg-slate-800 transition-colors text-sm px-4 py-3 rounded-lg"
+                >
+                  {t(link.labelKey)}
+                </Link>
+              ))}
+              {!session && status !== "loading" && (
+                <button
+                  onClick={() => {
+                    closeMobileMenu();
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="mt-2 px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm"
+                >
+                  {t("common.signIn")}
+                </button>
+              )}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AuthModal
         isOpen={isAuthModalOpen}
