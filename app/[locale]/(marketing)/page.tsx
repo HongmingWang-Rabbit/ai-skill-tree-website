@@ -7,6 +7,7 @@ import { GlassPanel } from '@/components/ui/GlassPanel';
 import { normalizeCareerKey } from '@/lib/normalize-career';
 import { useRouter } from '@/i18n/navigation';
 import { motion } from 'framer-motion';
+import SkillTreeBackground from '@/components/layout/SkillTreeBackground';
 
 const FEATURED_CAREERS = [
   { titleKey: 'frontendDeveloper', icon: '💻', key: 'frontend-developer' },
@@ -16,6 +17,88 @@ const FEATURED_CAREERS = [
   { titleKey: 'productManager', icon: '📋', key: 'product-manager' },
   { titleKey: 'mlEngineer', icon: '🤖', key: 'machine-learning-engineer' },
 ];
+
+const Hero = ({
+  t,
+  handleSearch,
+  isLoading,
+  handleFeaturedClick,
+}: {
+  t: any;
+  handleSearch: (query: string) => void;
+  isLoading: boolean;
+  handleFeaturedClick: (key: string) => void;
+}) => (
+  <section className="flex-1 flex flex-col items-center justify-center px-4 py-20">
+    <div className="max-w-4xl mx-auto text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.2 }}
+        className="mb-8"
+      >
+        <span className="text-6xl">🎯</span>
+      </motion.div>
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="text-5xl md:text-6xl font-bold mb-6"
+      >
+        <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          {t('home.title')}
+        </span>
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto"
+      >
+        {t('home.subtitle')}
+      </motion.p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="flex justify-center mb-16"
+      >
+        <SearchInput
+          onSearch={handleSearch}
+          placeholder={t('home.searchPlaceholder')}
+          isLoading={isLoading}
+        />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 1 }}
+      >
+        <p className="text-sm text-slate-500 mb-4">
+          {t('home.popularCareers')}
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          {FEATURED_CAREERS.map((career, index) => (
+            <motion.button
+              key={career.key}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                duration: 0.3,
+                delay: 1.2 + index * 0.1,
+              }}
+              onClick={() => handleFeaturedClick(career.key)}
+              className="px-4 py-2 rounded-full bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-cyan-400/50 text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2"
+            >
+              <span>{career.icon}</span>
+              <span>{t(`featuredCareers.${career.titleKey}`)}</span>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>{' '}
+    </div>
+  </section>
+);
 
 export default function HomePage() {
   const router = useRouter();
@@ -34,135 +117,77 @@ export default function HomePage() {
 
   return (
     <motion.main
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen flex flex-col relative overflow-hidden"
+      className="min-h-screen flex flex-col relative overflow-hidden bg-slate-900"
     >
-      {/* Background Gradient */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 0.5 }}
-        className="absolute inset-0 z-0 bg-gradient-to-br from-purple-900 via-zinc-900 to-blue-900 opacity-30"
-      ></motion.div>
+      <SkillTreeBackground />
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Hero Section */}
-        <section className="flex-1 flex flex-col items-center justify-center px-4 py-20">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Logo/Brand */}
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.2 }}
-                          className="mb-8"
-                        >
-                          <span className="text-6xl">🎯</span>
-                        </motion.div>
-            {/* Headline */}
-                        <motion.h1
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: 0.4 }}
-                          className="text-5xl md:text-6xl font-bold mb-6"
-                        >
-                          <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            {t('home.title')}
-                          </span>
-                        </motion.h1>
-            {/* Subheadline */}
-                        <motion.p
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: 0.6 }}
-                          className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto"
-                        >
-                          {t('home.subtitle')}
-                        </motion.p>
-            {/* Search */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: 0.8 }}
-                          className="flex justify-center mb-16"
-                        >
-                          <SearchInput
-                            onSearch={handleSearch}
-                            placeholder={t('home.searchPlaceholder')}
-                            isLoading={isLoading}
-                          />
-                        </motion.div>
-            {/* Featured Careers */}
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: 1 }}
-                        >
-                          <p className="text-sm text-slate-500 mb-4">{t('home.popularCareers')}</p>
-                          <div className="flex flex-wrap justify-center gap-3">
-                            {FEATURED_CAREERS.map((career, index) => (
-                              <motion.button
-                                key={career.key}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.3, delay: 1.2 + index * 0.1 }}
-                                onClick={() => handleFeaturedClick(career.key)}
-                                className="
-                                  px-4 py-2 rounded-full
-                                  bg-slate-800/50 hover:bg-slate-700/50
-                                  border border-slate-700 hover:border-cyan-400/50
-                                  text-slate-300 hover:text-white
-                                  transition-all duration-200
-                                  flex items-center gap-2
-                                "
-                              >
-                                <span>{career.icon}</span>
-                                <span>{t(`featuredCareers.${career.titleKey}`)}</span>
-                              </motion.button>
-                            ))}
-                          </div>
-                        </motion.div>          </div>
-        </section>
+        <Hero
+          t={t}
+          handleSearch={handleSearch}
+          isLoading={isLoading}
+          handleFeaturedClick={handleFeaturedClick}
+        />
+        <Hero
+          t={t}
+          handleSearch={handleSearch}
+          isLoading={isLoading}
+          handleFeaturedClick={handleFeaturedClick}
+        />
+        {/* Features Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6 }}
+          className="py-20 px-4 bg-slate-900/50"
+        >
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12 text-white">
+              {t('home.howItWorks')}
+            </h2>
 
-              {/* Features Section */}
-              <motion.section
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6 }}
-                className="py-20 px-4 bg-slate-900/50"
-              >
-                <div className="max-w-6xl mx-auto">
-                  <h2 className="text-3xl font-bold text-center mb-12 text-white">
-                    {t('home.howItWorks')}
-                  </h2>
-        
-                  <div className="grid md:grid-cols-3 gap-8">
-                    {[
-                      { icon: '🔍', titleKey: 'home.search.title', descriptionKey: 'home.search.description' },
-                      { icon: '🤖', titleKey: 'home.generate.title', descriptionKey: 'home.generate.description' },
-                      { icon: '📈', titleKey: 'home.track.title', descriptionKey: 'home.track.description' },
-                    ].map((feature, index) => (
-                      <motion.div
-                        key={feature.titleKey}
-                        initial={{ opacity: 0, y: 50 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.6, delay: index * 0.2 }}
-                      >
-                        <GlassPanel className="p-6 text-center">
-                          <div className="text-4xl mb-4">{feature.icon}</div>
-                          <h3 className="text-xl font-semibold mb-2 text-white">{t(feature.titleKey)}</h3>
-                          <p className="text-slate-400">
-                            {t(feature.descriptionKey)}
-                          </p>
-                        </GlassPanel>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </motion.section>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: '🔍',
+                  titleKey: 'home.search.title',
+                  descriptionKey: 'home.search.description',
+                },
+                {
+                  icon: '🤖',
+                  titleKey: 'home.generate.title',
+                  descriptionKey: 'home.generate.description',
+                },
+                {
+                  icon: '📈',
+                  titleKey: 'home.track.title',
+                  descriptionKey: 'home.track.description',
+                },
+              ].map((feature, index) => (
+                <motion.div
+                  key={feature.titleKey}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                >
+                  <GlassPanel className="p-6 text-center">
+                    <div className="text-4xl mb-4">{feature.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2 text-white">
+                      {t(feature.titleKey)}
+                    </h3>
+                    <p className="text-slate-400">
+                      {t(feature.descriptionKey)}
+                    </p>
+                  </GlassPanel>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
       {/* Skill Tree Preview Section */}
       <motion.section
         initial={{ opacity: 0, y: 50 }}
