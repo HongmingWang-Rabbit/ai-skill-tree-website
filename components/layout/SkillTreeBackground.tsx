@@ -8,13 +8,26 @@ const SkillTreeBackground = () => {
   const [nodes, setNodes] = useState<any[]>([]);
   const [lines, setLines] = useState<any[]>([]);
   const { x, y } = useMouse();
+  const [viewBox, setViewBox] = useState('0 0 0 0');
+  const [center, setCenter] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    const handleResize = () => {
+      setViewBox(`0 0 ${window.innerWidth} ${window.innerHeight}`);
+      setCenter({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (center.x === 0 && center.y === 0) return;
+
     const numNodes = 20;
-    const center = { x: 1000, y: 1000 };
     const newNodes = Array.from({ length: numNodes }).map((_, i) => {
       const angle = (i / numNodes) * 2 * Math.PI;
-      const radius = i === 0 ? 0 : Math.random() * 400 + 100;
+      const radius = i === 0 ? 0 : Math.random() * Math.min(center.x, center.y) * 0.8 + 50;
       return {
         id: i,
         x: center.x + radius * Math.cos(angle),
@@ -61,14 +74,18 @@ const SkillTreeBackground = () => {
       ];
     });
     setLines(newLines);
-  }, []);
+  }, [center]);
 
   return (
     <div
       className="absolute inset-0 z-0 overflow-hidden"
       style={{ opacity: 0.3 }}
     >
-      <svg width="2000" height="2000" className="absolute top-0 left-0">
+      <svg
+        width="100%"
+        height="100%"
+        viewBox={viewBox}
+      >
         <g>
           {lines.map((line) => (
             <motion.line
@@ -90,9 +107,9 @@ const SkillTreeBackground = () => {
                 ? Math.hypot(node.x - x, node.y - y)
                 : -1;
             const attraction =
-              distance !== -1 ? Math.max(0, 100 - distance) : 0;
+              distance !== -1 ? Math.max(0, 50 - distance / 2) : 0;
             const scale =
-              distance !== -1 ? Math.max(1, 1.5 - distance / 300) : 1;
+              distance !== -1 ? Math.max(1, 1.2 - distance / 400) : 1;
             const angle =
               x !== null && y !== null ? Math.atan2(y - node.y, x - node.x) : 0;
 
@@ -110,8 +127,8 @@ const SkillTreeBackground = () => {
                 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 100,
-                  damping: 10,
+                  stiffness: 150,
+                  damping: 15,
                 }}
               />
             );
@@ -123,4 +140,3 @@ const SkillTreeBackground = () => {
 };
 
 export default SkillTreeBackground;
-
