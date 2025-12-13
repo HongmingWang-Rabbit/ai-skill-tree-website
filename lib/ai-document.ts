@@ -52,6 +52,8 @@ export async function extractSkillsFromDocument(
 
 ${LOCALE_INSTRUCTIONS[locale]}
 
+IMPORTANT: These are skills the user ALREADY HAS (from their resume/portfolio). All skills should be marked as learned with progress: ${aiExtraction.importedSkillProgress}.
+
 Guidelines for skill extraction:
 1. Identify both technical skills and soft skills mentioned or implied
 2. Infer skill levels based on context (experience, achievements, certifications)
@@ -78,7 +80,7 @@ Return valid JSON only.`;
       "icon": "emoji",
       "level": 1-10,
       "category": "Category Name in ${LOCALE_LANGUAGE_NAMES[locale]}",
-      "progress": 0,
+      "progress": ${aiExtraction.importedSkillProgress},
       "prerequisites": ["prerequisite-skill-id"] or []
     }
   ],

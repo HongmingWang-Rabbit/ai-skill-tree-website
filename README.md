@@ -16,7 +16,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
-- **Document Import**: Extract skills from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI
+- **Document Import**: Extract skills from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI - imported skills are automatically marked as learned
 - **Smart Map Merging**: AI-powered merge combining two skill maps with intelligent deduplication
 - **Draggable Nodes**: Reposition skills to your preference - positions auto-save and persist
 - **Organize Button**: Re-arrange nodes in a neat radial layout with max 6 nodes per ring (auto-triggers after merge)

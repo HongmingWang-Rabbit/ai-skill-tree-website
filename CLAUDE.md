@@ -329,6 +329,7 @@ Users can import skills from resumes, portfolios, or web profiles to create or u
   - `maxInputTokens`: 6000 tokens for text truncation
   - `minSkills`: 10 minimum skills to extract
   - `maxSkills`: 25 maximum skills to extract
+  - `importedSkillProgress`: 100 (skills from resumes are marked as learned)
   - `existingSkillsLimit`: 20 max existing skills in context
   - `mergeSkillsLimit`: 30 max skills per map in merge
   - `mergeEdgesLimit`: 50 max edges per map in merge

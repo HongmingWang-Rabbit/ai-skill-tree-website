@@ -183,6 +183,7 @@ export const DOCUMENT_IMPORT_CONFIG = {
     maxInputTokens: 6000, // For truncating text content
     minSkills: 10, // Minimum skills to extract
     maxSkills: 25, // Maximum skills to extract
+    importedSkillProgress: 100, // Progress value for imported skills (100 = learned/mastered)
     // Context limits for AI prompts
     existingSkillsLimit: 20, // Max existing skills to include in context
     mergeSkillsLimit: 30, // Max skills per map in merge
