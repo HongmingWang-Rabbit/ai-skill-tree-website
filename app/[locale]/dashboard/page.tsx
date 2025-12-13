@@ -4,13 +4,12 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useQueryClient } from '@tanstack/react-query';
 import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH, RESUME_CONFIG } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 import dynamic from 'next/dynamic';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
 import { ExperienceEditor } from '@/components/dashboard/ExperienceEditor';
-import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon } from '@/components/ui';
+import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon, SaveIcon } from '@/components/ui';
 import type { ImportResult } from '@/components/import';
 
 // Lazy load heavy modals to reduce initial bundle size
@@ -24,7 +23,7 @@ const ResumeExportModal = dynamic(
 );
 import { type Locale } from '@/i18n/routing';
 import { type WorkExperience } from '@/lib/schemas';
-import { useUserGraphs, useUserProfile, useDeleteMap, useUpdateProfile, queryKeys } from '@/hooks/useQueryHooks';
+import { useUserGraphs, useUserProfile, useDeleteMap } from '@/hooks/useQueryHooks';
 
 interface SavedGraph {
   id: string;
@@ -59,25 +58,28 @@ export default function DashboardPage() {
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale() as Locale;
-  const queryClient = useQueryClient();
 
-  // React Query hooks for data fetching (replaces manual useEffect)
+  // React Query hooks for data fetching
   const { data: savedCareers = [], isLoading: isLoadingCareers } = useUserGraphs(!!session?.user?.id);
-  const { data: profile } = useUserProfile(!!session?.user?.id);
+  const { data: profile, isLoading: isLoadingProfile } = useUserProfile(!!session?.user?.id);
   const deleteMapMutation = useDeleteMap();
-  const updateProfileMutation = useUpdateProfile();
 
   // Local state synced with profile query
   const [bio, setBio] = useState('');
+  const [originalBio, setOriginalBio] = useState('');
   const [experience, setExperience] = useState<WorkExperience[]>([]);
 
   // Sync local state when profile data loads
   useEffect(() => {
     if (profile) {
       setBio(profile.bio || '');
+      setOriginalBio(profile.bio || '');
       setExperience(profile.experience || []);
     }
   }, [profile]);
+
+  // Track if bio has unsaved changes
+  const hasBioChanges = bio !== originalBio;
 
   // UI state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -93,42 +95,36 @@ export default function DashboardPage() {
   const [isSavingBio, setIsSavingBio] = useState(false);
   const [showExperienceEditor, setShowExperienceEditor] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
-  const bioSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Save bio with debouncing
-  const saveBio = useCallback(async (newBio: string) => {
-    // Clear any pending save
-    if (bioSaveTimeoutRef.current) {
-      clearTimeout(bioSaveTimeoutRef.current);
-    }
+  // Save bio explicitly
+  const handleSaveBio = useCallback(async () => {
+    if (!hasBioChanges) return;
 
-    // Debounce the save
-    bioSaveTimeoutRef.current = setTimeout(async () => {
-      setIsSavingBio(true);
-      try {
-        const response = await fetch(API_ROUTES.USER_PROFILE, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bio: newBio }),
-        });
+    setIsSavingBio(true);
+    try {
+      const response = await fetch(API_ROUTES.USER_PROFILE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bio }),
+      });
 
-        if (!response.ok) {
-          showToast.error(t('dashboard.bioSaveFailed'));
-        }
-      } catch {
+      if (response.ok) {
+        setOriginalBio(bio);
+        showToast.success(t('dashboard.bioSaved'));
+      } else {
         showToast.error(t('dashboard.bioSaveFailed'));
-      } finally {
-        setIsSavingBio(false);
       }
-    }, 1000);
-  }, [t]);
+    } catch {
+      showToast.error(t('dashboard.bioSaveFailed'));
+    } finally {
+      setIsSavingBio(false);
+    }
+  }, [bio, hasBioChanges, t]);
 
-  // Handle bio change with auto-save
+  // Handle bio change (no auto-save)
   const handleBioChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newBio = e.target.value;
-    setBio(newBio);
-    saveBio(newBio);
-  }, [saveBio]);
+    setBio(e.target.value);
+  }, []);
 
   // Save experience
   const handleSaveExperience = useCallback(async (newExperience: WorkExperience[]) => {
@@ -436,44 +432,78 @@ export default function DashboardPage() {
           <div className="mt-4 pt-4 border-t border-slate-700">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-slate-400">{t('dashboard.bio')}</label>
-              {isSavingBio && (
-                <span className="text-xs text-slate-500">{t('dashboard.saving')}</span>
+              <div className="flex items-center gap-2">
+                {hasBioChanges && !isSavingBio && (
+                  <span className="text-xs text-amber-400">{t('dashboard.unsavedChanges')}</span>
+                )}
+                {isSavingBio && (
+                  <span className="text-xs text-slate-500">{t('dashboard.saving')}</span>
+                )}
+              </div>
+            </div>
+            {isLoadingProfile ? (
+              <div className="w-full h-[100px] bg-slate-800/50 border border-slate-700 rounded-lg animate-pulse" />
+            ) : (
+              <textarea
+                value={bio}
+                onChange={handleBioChange}
+                placeholder={t('dashboard.bioPlaceholder')}
+                maxLength={RESUME_CONFIG.bioMaxLength}
+                rows={4}
+                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+              />
+            )}
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-slate-500">
+                {bio.length}/{RESUME_CONFIG.bioMaxLength}
+              </p>
+              {hasBioChanges && (
+                <button
+                  onClick={handleSaveBio}
+                  disabled={isSavingBio}
+                  className="flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded transition-colors disabled:opacity-50"
+                >
+                  {isSavingBio ? (
+                    <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <SaveIcon className="w-3 h-3" />
+                  )}
+                  {t('dashboard.saveBio')}
+                </button>
               )}
             </div>
-            <textarea
-              value={bio}
-              onChange={handleBioChange}
-              placeholder={t('dashboard.bioPlaceholder')}
-              maxLength={RESUME_CONFIG.bioMaxLength}
-              rows={2}
-              className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              {bio.length}/{RESUME_CONFIG.bioMaxLength}
-            </p>
           </div>
 
           {/* Experience and Resume Actions */}
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              onClick={() => setShowExperienceEditor(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
-            >
-              <BriefcaseIcon className="w-4 h-4" />
-              <span>{t('dashboard.manageExperience')}</span>
-              {experience.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
-                  {experience.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setShowResumeModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-semibold rounded-lg transition-all"
-            >
-              <ResumeIcon className="w-4 h-4" />
-              <span>{t('dashboard.exportResume')}</span>
-            </button>
+            {isLoadingProfile ? (
+              <>
+                <div className="h-10 w-44 bg-slate-800 rounded-lg animate-pulse" />
+                <div className="h-10 w-36 bg-amber-500/30 rounded-lg animate-pulse" />
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowExperienceEditor(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                >
+                  <BriefcaseIcon className="w-4 h-4" />
+                  <span>{t('dashboard.manageExperience')}</span>
+                  {experience.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                      {experience.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowResumeModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-semibold rounded-lg transition-all"
+                >
+                  <ResumeIcon className="w-4 h-4" />
+                  <span>{t('dashboard.exportResume')}</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 

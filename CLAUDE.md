@@ -421,7 +421,7 @@ Users can generate professional PDF resumes based on their skill maps and work e
 - `ExperienceEditor` - Modal for managing work experience entries
 
 **Data Flow:**
-1. Dashboard shows bio textarea (auto-saves) and work experience management
+1. Dashboard shows bio textarea (with explicit Save button) and work experience management
 2. User clicks "Export Resume" → opens `ResumeExportModal`
 3. User optionally enters job title or job posting URL for tailored resume
 4. `POST /api/resume/generate` fetches user's skills from all career maps
