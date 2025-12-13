@@ -77,6 +77,11 @@ export async function GET(
       },
     });
 
+    // Use custom nodes/edges if available (from merge or AI modifications), otherwise use base skillGraph
+    const hasCustomGraph = !!(userMap.customNodes || userMap.customEdges);
+    const graphNodes = hasCustomGraph && userMap.customNodes ? userMap.customNodes : skillGraph?.nodes;
+    const graphEdges = hasCustomGraph && userMap.customEdges ? userMap.customEdges : skillGraph?.edges;
+
     return NextResponse.json({
       success: true,
       data: {
@@ -86,6 +91,7 @@ export async function GET(
           nodeData: userMap.nodeData,
           isPublic: userMap.isPublic,
           shareSlug: userMap.shareSlug,
+          hasCustomGraph,
           createdAt: userMap.createdAt,
           updatedAt: userMap.updatedAt,
         },
@@ -96,11 +102,11 @@ export async function GET(
           description: career.description,
           locale: career.locale,
         },
-        skillGraph: skillGraph ? {
-          id: skillGraph.id,
-          nodes: skillGraph.nodes,
-          edges: skillGraph.edges,
-        } : null,
+        skillGraph: {
+          id: skillGraph?.id || userMap.id,
+          nodes: graphNodes || [],
+          edges: graphEdges || [],
+        },
         owner: isOwner ? null : owner, // Only show owner info if not the owner
         isOwner,
       },
@@ -191,6 +197,14 @@ export async function PATCH(
       updateData.nodeData = updates.nodeData;
     }
 
+    if (updates.customNodes !== undefined) {
+      updateData.customNodes = updates.customNodes;
+    }
+
+    if (updates.customEdges !== undefined) {
+      updateData.customEdges = updates.customEdges;
+    }
+
     const updatedMaps = await db
       .update(userCareerGraphs)
       .set(updateData)
@@ -205,6 +219,18 @@ export async function PATCH(
     }
     const updatedMap = updatedMaps[0];
 
+    // Optionally delete the source map after merge
+    if (updates.deleteSourceMapId) {
+      const sourceMap = await db.query.userCareerGraphs.findFirst({
+        where: eq(userCareerGraphs.id, updates.deleteSourceMapId),
+      });
+
+      // Only delete if the user owns it and it's not the current map
+      if (sourceMap && sourceMap.userId === session.user.id && sourceMap.id !== mapId) {
+        await db.delete(userCareerGraphs).where(eq(userCareerGraphs.id, updates.deleteSourceMapId));
+      }
+    }
+
     return NextResponse.json({
       success: true,
       map: {
@@ -212,6 +238,7 @@ export async function PATCH(
         title: updatedMap.title,
         isPublic: updatedMap.isPublic,
         shareSlug: updatedMap.shareSlug,
+        hasCustomGraph: !!(updatedMap.customNodes || updatedMap.customEdges),
         updatedAt: updatedMap.updatedAt,
       },
     });

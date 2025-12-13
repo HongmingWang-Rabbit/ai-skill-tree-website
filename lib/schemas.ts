@@ -18,6 +18,11 @@ export const MapUpdateSchema = z.object({
   title: z.string().min(1).max(MAP_TITLE_MAX_LENGTH).optional(),
   isPublic: z.boolean().optional(),
   nodeData: z.array(UserNodeDataSchema).optional(),
+  // Custom nodes/edges for merged or AI-modified maps
+  customNodes: z.array(z.lazy(() => SkillNodeSchema)).optional(),
+  customEdges: z.array(z.lazy(() => SkillEdgeSchema)).optional(),
+  // ID of source map to delete after successful merge
+  deleteSourceMapId: z.string().uuid().optional(),
 });
 
 export const SkillNodeSchema = z.object({

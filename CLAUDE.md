@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
    - `lib/ai.ts` - OpenAI functions (using gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
+   - `lib/ai-chat.ts` - AI chat utilities: `processChatMessage()`, `generateModificationSummary()`, `applyModifications()`, `generateSmartMerge()`, types: `ChatModification`, `ChatContext`, `ChatMessage`
+   - `lib/mcp/tavily.ts` - Tavily web search integration: `searchTavily()`, `searchTrendingTech()`, `searchCareerSkills()`, `formatSearchResultsForAI()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
    - `lib/wechat-provider.ts` - Custom WeChat OAuth provider: `WeChatProvider()`, `WeChatMPProvider()`, `isWeChatBrowser()`
    - `lib/db/index.ts` - Database connection, exports all schema types
@@ -28,12 +30,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Auth: `PROVIDER_COLORS` (brand colors for OAuth providers)
      - SEO: `SITE_URL`, `APP_DESCRIPTION` (used across metadata and JSON-LD)
      - Master Graph: `MASTER_GRAPH_CONFIG` (node sizes, radii, edge colors for skill universe visualization)
+     - AI Chat: `AI_CHAT_CONFIG` (panel dimensions, API settings like model/temperature/maxTokens, animation timing, search keywords)
+     - Tavily: `TAVILY_CONFIG` (API URL, search depth defaults, domain filters for trending tech and career skills searches)
+     - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
+     - API Routes: `API_ROUTES` (centralized API endpoint paths for client-side fetching)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (`MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
+   - `components/ai-chat/` - `AIChatPanel` (floating chat panel), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - Context providers
    - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph` (React Flow visualization of user's skill universe)
@@ -53,7 +60,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`
+
+6. **Check `components/skill-graph/` for layout utilities**:
+   - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, ring spacing, max nodes per ring)
+   - `radial-layout.ts` - `getRadialLayout()` with `preservePositions` option for saved positions
+   - `layout-utils.ts` - Edge handle utilities, seeded random for consistent jitter
 
 ## Commands
 
@@ -86,7 +98,7 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
@@ -164,8 +176,11 @@ The app supports user-owned skill maps with sharing capabilities:
 4. Others can view public maps and copy to their account
 
 **API Routes:**
-- `GET /api/map/[mapId]` - Fetch map by UUID or shareSlug
-- `PATCH /api/map/[mapId]` - Update map settings (owner only)
+- `GET /api/map/[mapId]` - Fetch map by UUID or shareSlug (returns `customNodes`/`customEdges` if available)
+- `PATCH /api/map/[mapId]` - Update map settings (owner only):
+  - `title`, `isPublic`, `nodeData` (progress/positions)
+  - `customNodes`, `customEdges` (for merged/AI-modified graphs)
+  - `deleteSourceMapId` (delete another map after merge)
 - `DELETE /api/map/[mapId]` - Delete map (owner only)
 - `POST /api/map/fork` - Create map from career or another map
 - `POST /api/map/[mapId]/copy` - Copy public map to own account
@@ -173,14 +188,19 @@ The app supports user-owned skill maps with sharing capabilities:
 ### Database Schema (lib/db/schema.ts)
 
 - `careers` - Generated careers with canonicalKey (unique slug)
-- `skillGraphs` - JSONB nodes/edges for each career
+- `skillGraphs` - JSONB nodes/edges for each career (base template)
 - `userCareerGraphs` - User's saved skill tree maps with:
   - `title` - Custom title for the map
   - `nodeData` - JSONB array of skill progress and positions
+  - `customNodes` - JSONB array of custom nodes (from merge or AI modifications, overrides base skillGraph)
+  - `customEdges` - JSONB array of custom edges (from merge or AI modifications, overrides base skillGraph)
   - `isPublic` - Whether the map can be viewed by others
   - `shareSlug` - 6-char alphanumeric slug for short URLs
   - `copiedFromId` - UUID of source map if copied from another user
 - `userSkillProgress` - Per-skill progress tracking
+
+**Custom Graph Data:**
+When a user merges maps or applies AI modifications, the new nodes/edges are stored in `customNodes`/`customEdges`. The API returns custom data when available, falling back to the base `skillGraphs` data otherwise.
 
 ### Master Skill Map (Dashboard)
 
@@ -206,6 +226,72 @@ The dashboard displays a "Skill Universe" visualization showing all user's caree
 **Components:**
 - `MasterSkillMap` - Container with stats header and graph
 - `MasterSkillGraph` - React Flow visualization with custom node types
+
+### AI Chat Feature
+
+The career page includes an AI-powered chat panel for modifying skill maps via natural language:
+
+**Components:**
+- `AIChatPanel` - Floating collapsible chat panel (bottom-right corner)
+- `ChatMessage` - Individual message display with modification badges
+- `ChatInput` - Text input with auto-resize and send button
+- `ModificationPreview` - Modal showing changes before applying
+- `MergeMapModal` - UI for merging two skill maps
+
+**Data Flow:**
+1. User sends message → `POST /api/ai/chat` with skill map context
+2. API performs Tavily web search if trending tech keywords detected
+3. OpenAI generates JSON response with message and modifications
+4. Streaming response updates UI in real-time
+5. If modifications present, shows preview modal for confirmation
+6. User confirms → changes applied to skill graph
+7. Undo button restores previous state (single-level undo)
+
+**Merge Flow:**
+1. User clicks merge → `MergeMapModal` fetches user's other maps (similar maps highlighted)
+2. User selects map to merge → `POST /api/ai/merge` with both maps
+3. AI generates intelligent merge combining both skill sets
+4. Preview shows merged result → user confirms to apply
+5. Merged data saved to `customNodes`/`customEdges`, source map deleted
+
+**Configuration:**
+All AI chat settings are in `AI_CHAT_CONFIG` (lib/constants.ts):
+- `model`: OpenAI model to use (default: 'gpt-4o-mini')
+- `maxTokens`: Token limit for responses
+- `temperature`: Response randomness
+- `chatHistoryLimit`: Messages to include in context
+
+**Web Search Integration:**
+- Uses Tavily API for searching trending technologies
+- Configured via `TAVILY_API_KEY` environment variable (optional)
+- Auto-triggered when user mentions "trending", "latest", "2024/2025", etc.
+
+**Scope Guard:**
+AI is restricted to skill map related tasks only. Off-topic requests are declined gracefully with `isOffTopic: true` in response.
+
+### Skill Graph Layout
+
+The skill graph uses a radial layout algorithm with smart features:
+
+**Layout Configuration** (`LAYOUT_CONFIG` in `components/skill-graph/constants.ts`):
+- `MAX_NODES_PER_RING`: 6 - Maximum nodes per ring before creating sub-rings
+- `SUB_RING_SPACING`: 180 - Spacing between sub-rings at same depth
+- `RING_SPACING`: 280 - Spacing between depth levels
+- `MIN_RADIUS`: 300 - Minimum radius for first ring
+
+**Features:**
+- Nodes arranged in concentric rings around center career node
+- Max 6 nodes per ring to prevent overlap, overflow creates sub-rings
+- Saved positions persist across sessions (stored in `nodeData.position`)
+- "Organize" button resets all nodes to calculated layout
+- `preservePositions` option respects saved positions on load
+- Auto-organize on merge: when new nodes are added, layout automatically reorganizes
+
+**Position Persistence:**
+1. User drags node → position saved to `nodeData` via PATCH API
+2. Page reload → layout uses `preservePositions: true` to keep saved positions
+3. Merge/AI adds nodes → auto-detects new nodes and reorganizes entire layout
+4. Click "Organize" → all positions reset (uses `preservePositions: false`)
 
 ### SEO & Multi-locale Support
 

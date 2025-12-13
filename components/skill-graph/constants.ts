@@ -8,6 +8,8 @@ export const LAYOUT_CONFIG = {
   RING_SPACING: 280,
   MIN_RADIUS: 300,
   JITTER_AMOUNT: 20,
+  MAX_NODES_PER_RING: 6,
+  SUB_RING_SPACING: 180,
 } as const;
 
 // Special node identifiers

@@ -89,3 +89,74 @@ export const MASTER_GRAPH_CONFIG = {
     notStarted: '#334155',
   },
 } as const;
+
+// AI Chat Configuration
+export const AI_CHAT_CONFIG = {
+  // UI dimensions
+  panelWidth: 400,
+  panelHeight: 500,
+  panelMaxHeight: '70vh',
+  inputMaxHeight: 120,
+  // API settings
+  maxMessageLength: 2000,
+  maxTokens: 4000,
+  maxTokensMerge: 6000, // Merge needs more tokens for combining two maps
+  temperature: 0.7,
+  model: 'gpt-4o-mini' as const,
+  chatHistoryLimit: 10,
+  skillDisplayLimit: 30, // Max skills to show in system prompt
+  // Animation
+  springDamping: 25,
+  springStiffness: 300,
+  // Search intent detection keywords
+  searchKeywords: {
+    trending: ['trending', 'trend', 'latest', 'new', 'popular', 'hot', '2024', '2025', 'modern'],
+    search: ['search', 'find', 'look up', 'google', 'web', 'online', 'internet'],
+  },
+} as const;
+
+// Tavily Web Search Configuration
+export const TAVILY_CONFIG = {
+  apiUrl: 'https://api.tavily.com/search',
+  defaultSearchDepth: 'basic' as const,
+  defaultMaxResults: 5,
+  contentPreviewLength: 200,
+  trendingTech: {
+    searchDepth: 'advanced' as const,
+    maxResults: 8,
+    includeDomains: [
+      'github.com',
+      'stackoverflow.com',
+      'dev.to',
+      'medium.com',
+      'hackernews.com',
+      'techcrunch.com',
+    ],
+  },
+  careerSkills: {
+    searchDepth: 'advanced' as const,
+    maxResults: 8,
+    includeDomains: [
+      'linkedin.com',
+      'glassdoor.com',
+      'indeed.com',
+      'roadmap.sh',
+      'github.com',
+    ],
+  },
+} as const;
+
+// Merge Map Configuration
+export const MERGE_CONFIG = {
+  similarityThreshold: 0.3, // Minimum similarity score to highlight as "recommended"
+} as const;
+
+// API Routes (for client-side fetching)
+export const API_ROUTES = {
+  AI_CHAT: '/api/ai/chat',
+  AI_GENERATE: '/api/ai/generate',
+  AI_ANALYZE: '/api/ai/analyze',
+  AI_MERGE: '/api/ai/merge',
+  USER_GRAPH: '/api/user/graph',
+  MAP: '/api/map',
+} as const;

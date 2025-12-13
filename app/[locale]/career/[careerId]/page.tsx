@@ -7,12 +7,15 @@ import { SkillGraph, type SkillGraphHandle } from '@/components/skill-graph/Skil
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
 import { ShareModal } from '@/components/ui/ShareModal';
+import { AIChatPanel, MergeMapModal } from '@/components/ai-chat';
 import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
 import { SKILL_PASS_THRESHOLD, SIGN_IN_PROMPT_DELAY_MS, AUTO_SAVE_DEBOUNCE_MS } from '@/lib/constants';
 import { isUUID, isShareSlug } from '@/lib/normalize-career';
 import { useRouter } from '@/i18n/navigation';
 import type { Node, Edge } from '@xyflow/react';
 import type { SkillNodeData } from '@/components/skill-graph/SkillNode';
+import type { SkillNode, SkillEdge } from '@/lib/schemas';
+import type { Locale } from '@/i18n/routing';
 
 interface SkillEdgeData {
   id: string;
@@ -94,6 +97,15 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     completed: null,
     summary: null,
   });
+
+  // AI Chat state
+  const [chatModifiedNodes, setChatModifiedNodes] = useState<SkillNode[] | null>(null);
+  const [chatModifiedEdges, setChatModifiedEdges] = useState<SkillEdge[] | null>(null);
+  const [previousGraphState, setPreviousGraphState] = useState<{
+    nodes: SkillNode[];
+    edges: SkillEdge[];
+  } | null>(null);
+  const [showMergeModal, setShowMergeModal] = useState(false);
 
   // Refs
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -326,6 +338,92 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     };
   }, []);
 
+  // Handle AI chat modifications
+  const handleApplyModifications = useCallback((newNodes: SkillNode[], newEdges: SkillEdge[]) => {
+    if (!data) return;
+
+    // Store previous state for undo
+    const currentNodes = chatModifiedNodes || data.skillGraph.nodes as SkillNode[];
+    const currentEdges = chatModifiedEdges || data.skillGraph.edges as SkillEdge[];
+    setPreviousGraphState({ nodes: currentNodes, edges: currentEdges });
+
+    // Apply new state
+    setChatModifiedNodes(newNodes);
+    setChatModifiedEdges(newEdges);
+
+    // Mark as unsaved
+    setIsSaved(false);
+  }, [data, chatModifiedNodes, chatModifiedEdges]);
+
+  // Handle undo
+  const handleUndo = useCallback(() => {
+    if (previousGraphState) {
+      setChatModifiedNodes(previousGraphState.nodes);
+      setChatModifiedEdges(previousGraphState.edges);
+      setPreviousGraphState(null);
+      setIsSaved(false);
+    }
+  }, [previousGraphState]);
+
+  // Save merged graph to database
+  const saveMergedGraph = useCallback(async (
+    nodes: SkillNode[],
+    edges: SkillEdge[],
+    title: string,
+    sourceMapIdToDelete?: string
+  ) => {
+    if (!session?.user?.id || !userMap?.id) return false;
+
+    try {
+      const response = await fetch(`/api/map/${userMap.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          customNodes: nodes,
+          customEdges: edges,
+          deleteSourceMapId: sourceMapIdToDelete,
+        }),
+      });
+
+      if (response.ok) {
+        setIsSaved(true);
+        return true;
+      }
+    } catch {
+      // Save failed silently
+    }
+    return false;
+  }, [session?.user?.id, userMap?.id]);
+
+  // Handle merge complete
+  const handleMergeComplete = useCallback(async (
+    newNodes: SkillNode[],
+    newEdges: SkillEdge[],
+    newTitle: string,
+    sourceMapId: string
+  ) => {
+    // Store previous state for undo
+    if (data) {
+      const currentNodes = chatModifiedNodes || data.skillGraph.nodes as SkillNode[];
+      const currentEdges = chatModifiedEdges || data.skillGraph.edges as SkillEdge[];
+      setPreviousGraphState({ nodes: currentNodes, edges: currentEdges });
+    }
+
+    // Apply merged state locally
+    setChatModifiedNodes(newNodes);
+    setChatModifiedEdges(newEdges);
+
+    // Update user map title if we have one
+    if (userMap) {
+      setUserMap(prev => prev ? { ...prev, title: newTitle } : null);
+    }
+
+    // Save to database (including deleting source map)
+    const saved = await saveMergedGraph(newNodes, newEdges, newTitle, sourceMapId);
+    setIsSaved(saved);
+  }, [data, chatModifiedNodes, chatModifiedEdges, userMap, saveMergedGraph]);
+
   // Convert skill data to React Flow format
   const convertToReactFlowFormat = (
     nodes: SkillNodeData[],
@@ -407,8 +505,9 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   }
 
   const { career, skillGraph } = data;
-  const skillNodes = skillGraph.nodes as SkillNodeData[];
-  const skillEdges = skillGraph.edges as SkillEdgeData[];
+  // Use chat-modified nodes/edges if available, otherwise use original
+  const skillNodes = (chatModifiedNodes || skillGraph.nodes) as SkillNodeData[];
+  const skillEdges = (chatModifiedEdges || skillGraph.edges) as SkillEdgeData[];
   const nodeData = userMap?.nodeData || null;
   const { nodes, edges } = convertToReactFlowFormat(skillNodes, skillEdges, nodeData);
 
@@ -518,22 +617,41 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
             )}
 
 
-            {/* Save status for own map */}
+            {/* Save status and merge button for own map */}
             {viewMode === 'own-map' && session?.user && (
-              <div className="flex items-center gap-2 text-sm">
-                {isSaving ? (
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                    {t('common.saving')}
-                  </span>
-                ) : isSaved ? (
-                  <span className="text-emerald-400 flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    {t('common.saved')}
-                  </span>
-                ) : null}
+              <div className="flex items-center gap-3">
+                {/* Merge Button */}
+                <button
+                  onClick={() => setShowMergeModal(true)}
+                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
+                  title={t('aiChat.mergeButton')}
+                >
+                  <svg
+                    className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition-colors"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                </button>
+
+                {/* Save Status */}
+                <div className="flex items-center gap-2 text-sm">
+                  {isSaving ? (
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                      {t('common.saving')}
+                    </span>
+                  ) : isSaved ? (
+                    <span className="text-emerald-400 flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      {t('common.saved')}
+                    </span>
+                  ) : null}
+                </div>
               </div>
             )}
 
@@ -681,6 +799,31 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         mapId={userMap?.id}
         shareSlug={userMap?.shareSlug}
         locale={locale}
+      />
+
+      {/* AI Chat Panel */}
+      <AIChatPanel
+        careerTitle={displayTitle}
+        careerDescription={career.description || ''}
+        currentNodes={skillNodes as SkillNode[]}
+        currentEdges={skillEdges as SkillEdge[]}
+        onApplyModifications={handleApplyModifications}
+        onUndo={handleUndo}
+        canUndo={previousGraphState !== null}
+        locale={locale as Locale}
+        isReadOnly={isReadOnly}
+      />
+
+      {/* Merge Map Modal */}
+      <MergeMapModal
+        isOpen={showMergeModal}
+        onClose={() => setShowMergeModal(false)}
+        currentMapId={userMap?.id || ''}
+        currentMapTitle={displayTitle}
+        currentNodes={skillNodes as SkillNode[]}
+        currentEdges={skillEdges as SkillEdge[]}
+        locale={locale as Locale}
+        onMergeComplete={handleMergeComplete}
       />
     </div>
   );

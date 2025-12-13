@@ -11,6 +11,8 @@ const {
   RING_SPACING,
   MIN_RADIUS,
   JITTER_AMOUNT,
+  MAX_NODES_PER_RING,
+  SUB_RING_SPACING,
 } = LAYOUT_CONFIG;
 
 interface LayoutResult {
@@ -18,46 +20,24 @@ interface LayoutResult {
   edges: Edge[];
 }
 
+interface LayoutOptions {
+  preservePositions?: boolean;
+}
+
 /**
- * Build parent-child relationship maps from edges
+ * Build parent-child relationship map from edges
  */
-function buildAdjacencyMaps(edges: Edge[]) {
+function buildChildrenMap(edges: Edge[]): Map<string, string[]> {
   const childrenMap = new Map<string, string[]>();
-  const parentMap = new Map<string, string>();
 
   edges.forEach((edge) => {
     if (!childrenMap.has(edge.source)) {
       childrenMap.set(edge.source, []);
     }
     childrenMap.get(edge.source)!.push(edge.target);
-    parentMap.set(edge.target, edge.source);
   });
 
-  return { childrenMap, parentMap };
-}
-
-/**
- * Calculate subtree sizes for proportional angular space allocation
- */
-function calculateSubtreeSizes(
-  rootId: string,
-  childrenMap: Map<string, string[]>
-): Map<string, number> {
-  const sizes = new Map<string, number>();
-
-  function calculate(nodeId: string): number {
-    const children = childrenMap.get(nodeId) || [];
-    if (children.length === 0) {
-      sizes.set(nodeId, 1);
-      return 1;
-    }
-    const size = children.reduce((sum, childId) => sum + calculate(childId), 0);
-    sizes.set(nodeId, size);
-    return size;
-  }
-
-  calculate(rootId);
-  return sizes;
+  return childrenMap;
 }
 
 /**
@@ -88,50 +68,19 @@ function assignNodeDepths(
 }
 
 /**
- * Assign angular positions to nodes based on subtree sizes
- */
-function assignNodeAngles(
-  centerId: string,
-  childrenMap: Map<string, string[]>,
-  subtreeSizes: Map<string, number>
-): Map<string, number> {
-  const angles = new Map<string, number>();
-  angles.set(centerId, 0);
-
-  function assign(nodeId: string, startAngle: number, endAngle: number) {
-    const children = childrenMap.get(nodeId) || [];
-    if (children.length === 0) return;
-
-    const totalSize = children.reduce(
-      (sum, childId) => sum + (subtreeSizes.get(childId) || 1),
-      0
-    );
-
-    let currentAngle = startAngle;
-    children.forEach((childId) => {
-      const childSize = subtreeSizes.get(childId) || 1;
-      const angleSpan = ((endAngle - startAngle) * childSize) / totalSize;
-      const childAngle = currentAngle + angleSpan / 2;
-
-      angles.set(childId, childAngle);
-      assign(childId, currentAngle, currentAngle + angleSpan);
-
-      currentAngle += angleSpan;
-    });
-  }
-
-  assign(centerId, -Math.PI, Math.PI);
-  return angles;
-}
-
-/**
  * Calculate node position from polar coordinates
+ * @param depth - The depth level of the node
+ * @param angle - The angle in radians
+ * @param nodeId - The node ID for consistent jitter
+ * @param isCenter - Whether this is the center node
+ * @param subRingIndex - Which sub-ring within the depth level (0-based)
  */
 function calculateNodePosition(
   depth: number,
   angle: number,
   nodeId: string,
-  isCenter: boolean
+  isCenter: boolean,
+  subRingIndex: number = 0
 ): { x: number; y: number } {
   if (isCenter) {
     return {
@@ -140,7 +89,11 @@ function calculateNodePosition(
     };
   }
 
-  const radius = MIN_RADIUS + (depth - 1) * RING_SPACING;
+  // Base radius for this depth, plus offset for sub-ring
+  const baseRadius = MIN_RADIUS + (depth - 1) * RING_SPACING;
+  const subRingOffset = subRingIndex * SUB_RING_SPACING;
+  const radius = baseRadius + subRingOffset;
+
   const jitter = (seededRandom(nodeId) - 0.5) * JITTER_AMOUNT;
   const adjustedAngle = angle - Math.PI / 2; // Start from top
 
@@ -151,18 +104,81 @@ function calculateNodePosition(
 }
 
 /**
+ * Group nodes by depth and assign sub-ring indices
+ * Returns a map of nodeId -> { depth, subRingIndex, angleIndex, totalInSubRing }
+ */
+function assignSubRings(
+  nodes: Node[],
+  depths: Map<string, number>,
+  centerNodeId: string
+): Map<string, { depth: number; subRingIndex: number; angleIndex: number; totalInSubRing: number }> {
+  const result = new Map<string, { depth: number; subRingIndex: number; angleIndex: number; totalInSubRing: number }>();
+
+  // Group nodes by depth
+  const nodesByDepth = new Map<number, Node[]>();
+  nodes.forEach((node) => {
+    if (node.id === centerNodeId) {
+      result.set(node.id, { depth: 0, subRingIndex: 0, angleIndex: 0, totalInSubRing: 1 });
+      return;
+    }
+    const depth = depths.get(node.id);
+    if (depth === undefined) return;
+
+    if (!nodesByDepth.has(depth)) {
+      nodesByDepth.set(depth, []);
+    }
+    nodesByDepth.get(depth)!.push(node);
+  });
+
+  // For each depth level, assign sub-ring indices
+  nodesByDepth.forEach((nodesAtDepth, depth) => {
+    const numSubRings = Math.ceil(nodesAtDepth.length / MAX_NODES_PER_RING);
+
+    nodesAtDepth.forEach((node, index) => {
+      const subRingIndex = Math.floor(index / MAX_NODES_PER_RING);
+      const angleIndex = index % MAX_NODES_PER_RING;
+
+      // Calculate how many nodes are in this sub-ring
+      const startOfSubRing = subRingIndex * MAX_NODES_PER_RING;
+      const endOfSubRing = Math.min(startOfSubRing + MAX_NODES_PER_RING, nodesAtDepth.length);
+      const totalInSubRing = endOfSubRing - startOfSubRing;
+
+      result.set(node.id, {
+        depth,
+        subRingIndex: numSubRings > 1 ? subRingIndex : 0,
+        angleIndex,
+        totalInSubRing
+      });
+    });
+  });
+
+  return result;
+}
+
+/**
+ * Check if a position is a valid saved position (not the default {0,0})
+ */
+function hasSavedPosition(node: Node): boolean {
+  return node.position && (node.position.x !== 0 || node.position.y !== 0);
+}
+
+/**
  * Main layout function - arranges nodes in a radial tree pattern
+ * Limits nodes per ring to MAX_NODES_PER_RING, creating sub-rings for overflow
  * @param nodes - Array of nodes to layout
  * @param edges - Array of edges connecting nodes
  * @param _direction - Unused, kept for API compatibility
  * @param centerNodeId - ID of the center node
+ * @param options - Layout options (preservePositions: keep existing non-zero positions)
  */
 export function getRadialLayout(
   nodes: Node[],
   edges: Edge[],
   _direction: 'TB' | 'LR' = 'TB',
-  centerNodeId?: string
+  centerNodeId?: string,
+  options: LayoutOptions = {}
 ): LayoutResult {
+  const { preservePositions = false } = options;
   if (nodes.length === 0) {
     return { nodes: [], edges };
   }
@@ -171,30 +187,51 @@ export function getRadialLayout(
     return { nodes, edges };
   }
 
-  const { childrenMap } = buildAdjacencyMaps(edges);
-  const subtreeSizes = calculateSubtreeSizes(centerNodeId, childrenMap);
+  const childrenMap = buildChildrenMap(edges);
   const depths = assignNodeDepths(centerNodeId, childrenMap);
-  const angles = assignNodeAngles(centerNodeId, childrenMap, subtreeSizes);
+  const subRingAssignments = assignSubRings(nodes, depths, centerNodeId);
 
   // Position all nodes
   const nodeMap = new Map<string, Node>();
   const layoutedNodes = nodes.map((node) => {
-    const depth = depths.get(node.id);
-    const angle = angles.get(node.id);
     const isCenter = node.id === centerNodeId;
+    const assignment = subRingAssignments.get(node.id);
+
+    // If preservePositions is enabled and node has a saved position, keep it
+    if (preservePositions && !isCenter && hasSavedPosition(node)) {
+      nodeMap.set(node.id, node);
+      return node;
+    }
 
     let position: { x: number; y: number };
 
-    if (isCenter || (depth !== undefined && angle !== undefined)) {
-      position = calculateNodePosition(depth || 0, angle || 0, node.id, isCenter);
+    if (isCenter) {
+      position = calculateNodePosition(0, 0, node.id, true);
+    } else if (assignment) {
+      // Calculate angle based on position in sub-ring
+      // Evenly distribute nodes around the circle
+      const angleStep = (2 * Math.PI) / assignment.totalInSubRing;
+      // Offset odd sub-rings by half a step for better distribution
+      const angleOffset = assignment.subRingIndex % 2 === 1 ? angleStep / 2 : 0;
+      const angle = assignment.angleIndex * angleStep + angleOffset;
+
+      position = calculateNodePosition(
+        assignment.depth,
+        angle,
+        node.id,
+        false,
+        assignment.subRingIndex
+      );
     } else {
-      // Fallback for unconnected nodes
-      const fallbackIndex = nodes.indexOf(node);
-      const fallbackAngle = (fallbackIndex / nodes.length) * 2 * Math.PI;
+      // Fallback for unconnected nodes - place in outer ring
+      const unconnectedNodes = nodes.filter(n => !subRingAssignments.has(n.id) || subRingAssignments.get(n.id)?.depth === undefined);
+      const fallbackIndex = unconnectedNodes.indexOf(node);
+      const totalUnconnected = unconnectedNodes.length;
+      const fallbackAngle = (fallbackIndex / Math.max(totalUnconnected, 1)) * 2 * Math.PI;
       const fallbackRadius = MIN_RADIUS + 3 * RING_SPACING;
       position = {
-        x: CENTER_X + fallbackRadius * Math.cos(fallbackAngle) - NODE_WIDTH / 2,
-        y: CENTER_Y + fallbackRadius * Math.sin(fallbackAngle) - NODE_HEIGHT / 2,
+        x: CENTER_X + fallbackRadius * Math.cos(fallbackAngle - Math.PI / 2) - NODE_WIDTH / 2,
+        y: CENTER_Y + fallbackRadius * Math.sin(fallbackAngle - Math.PI / 2) - NODE_HEIGHT / 2,
       };
     }
 

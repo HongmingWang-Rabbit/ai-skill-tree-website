@@ -13,6 +13,10 @@ An interactive web application that generates and visualizes career skill maps u
 - **User-Owned Maps**: Logged-in users automatically get personalized copies of skill maps with custom titles and progress tracking
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
+- **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
+- **Smart Map Merging**: AI-powered merge combining two skill maps with intelligent deduplication
+- **Draggable Nodes**: Reposition skills to your preference - positions auto-save and persist
+- **Organize Button**: Re-arrange nodes in a neat radial layout with max 6 nodes per ring (auto-triggers after merge)
 - **Multi-Language Support**: Full internationalization with English, Chinese, and Japanese
 - **SEO Optimized**: Dynamic sitemap, robots.txt, hreflang tags, Open Graph/Twitter cards, JSON-LD structured data
 - **Smart Caching**: Redis caching prevents redundant API calls and speeds up repeat queries
@@ -86,6 +90,9 @@ An interactive web application that generates and visualizes career skill maps u
    # WeChat OAuth (optional - login disabled if not set)
    WECHAT_APP_ID="..."
    WECHAT_APP_SECRET="..."
+
+   # Tavily Web Search (optional - trending tech search disabled if not set)
+   TAVILY_API_KEY="tvly-..."
    ```
 
 5. Push the database schema:
@@ -114,7 +121,10 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   │   └── page.tsx        # User dashboard
 │   │   └── layout.tsx          # Locale layout with providers
 │   ├── api/
-│   │   ├── ai/generate/        # AI skill map generation
+│   │   ├── ai/
+│   │   │   ├── analyze/        # Query analysis (specific vs vague)
+│   │   │   ├── chat/           # AI chat for skill map modifications
+│   │   │   └── generate/       # AI skill map generation
 │   │   ├── career/             # Career CRUD operations
 │   │   └── map/                # User map operations
 │   ├── globals.css             # Tailwind CSS with custom theme
@@ -124,6 +134,12 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── apple-icon.png          # Apple touch icon (180x180)
 │   └── favicon.ico             # Browser favicon
 ├── components/
+│   ├── ai-chat/
+│   │   ├── AIChatPanel.tsx     # Floating AI chat panel
+│   │   ├── ChatMessage.tsx     # Chat message display
+│   │   ├── ChatInput.tsx       # Text input with send button
+│   │   ├── ModificationPreview.tsx # Changes confirmation modal
+│   │   └── MergeMapModal.tsx   # Map merge UI
 │   ├── layout/
 │   │   ├── Header.tsx              # Site header with navigation
 │   │   └── SkillTreeBackground.tsx # Animated network background
@@ -135,14 +151,17 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   └── JsonLd.tsx          # JSON-LD structured data components
 │   └── ui/
 │       ├── GlassPanel.tsx      # Glassmorphism container
-│       ├── Icons.tsx           # Reusable SVG icons (MenuIcon, CloseIcon)
+│       ├── Icons.tsx           # Reusable SVG icons
 │       ├── SearchInput.tsx     # Search input with customizable width
 │       └── LanguageSwitcher.tsx # Language dropdown selector
 ├── i18n/                       # Internationalization config
 ├── messages/                   # Translation files (en, zh, ja)
 ├── lib/
 │   ├── db/                     # Database connection & schema
-│   ├── ai.ts                   # OpenAI integration
+│   ├── mcp/
+│   │   └── tavily.ts           # Tavily web search integration
+│   ├── ai.ts                   # OpenAI integration (career generation)
+│   ├── ai-chat.ts              # AI chat utilities (modifications, merge)
 │   ├── cache.ts                # Redis cache utilities
 │   ├── constants.ts            # Centralized app constants
 │   └── schemas.ts              # Zod validation schemas
@@ -214,6 +233,27 @@ HERO_ICON_ROTATION_DURATION  // Seconds per rotation
 // SEO
 SITE_URL                     // Base site URL
 APP_DESCRIPTION              // Meta description
+
+// AI Chat
+AI_CHAT_CONFIG.model         // OpenAI model (gpt-4o-mini)
+AI_CHAT_CONFIG.maxTokens     // Token limit (4000)
+AI_CHAT_CONFIG.temperature   // Response randomness (0.7)
+AI_CHAT_CONFIG.chatHistoryLimit // Messages in context (10)
+
+// API Routes (for client-side)
+API_ROUTES.AI_CHAT           // /api/ai/chat
+API_ROUTES.AI_MERGE          // /api/ai/merge
+API_ROUTES.USER_GRAPH        // /api/user/graph
+API_ROUTES.MAP               // /api/map
+
+// Tavily Web Search
+TAVILY_CONFIG.apiUrl                    // API endpoint
+TAVILY_CONFIG.defaultSearchDepth        // 'basic' | 'advanced'
+TAVILY_CONFIG.trendingTech.includeDomains // Trusted domains for tech search
+TAVILY_CONFIG.careerSkills.includeDomains // Trusted domains for career search
+
+// Map Merge
+MERGE_CONFIG.similarityThreshold        // Threshold for "recommended" maps (0.3)
 ```
 
 ## API Routes
@@ -225,6 +265,18 @@ Analyze a user query to determine if it's a specific career or needs suggestions
 
 ### POST `/api/ai/generate`
 Generate a new skill map for a career.
+
+### POST `/api/ai/chat`
+AI-powered chat for skill map modifications. Supports streaming responses.
+- Accepts: message, skill map context, chat history, locale
+- Returns: AI response with optional skill modifications
+- Features: Tavily web search for trending tech, scope guard for off-topic requests
+
+### POST `/api/ai/merge`
+AI-powered smart merge of two skill maps.
+- Accepts: source/target nodes and edges, career titles, locale
+- Returns: Merged nodes, edges, and suggested title
+- Requires authentication
 
 ### GET `/api/career/[careerId]?locale=en`
 Fetch an existing career by its canonical key or UUID.

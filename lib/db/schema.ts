@@ -106,6 +106,9 @@ export const userCareerGraphs = pgTable('user_career_graphs', {
   title: text('title'),
   // Store node positions and progress as JSONB for flexibility
   nodeData: jsonb('node_data').notNull().$type<UserNodeData[]>(),
+  // Custom nodes/edges for merged or AI-modified maps (overrides base skillGraph when present)
+  customNodes: jsonb('custom_nodes').$type<SkillNodeData[]>(),
+  customEdges: jsonb('custom_edges').$type<SkillEdgeData[]>(),
   // Sharing settings
   isPublic: boolean('is_public').notNull().default(false),
   shareSlug: text('share_slug').unique(),
