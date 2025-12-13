@@ -24,7 +24,7 @@
     "framer-motion": "^12.23.26",
     "html2canvas": "^1.4.1",
     "modern-screenshot": "^4.6.7",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "next-auth": "^4.24.13",
     "next-intl": "^4.5.8",
     "openai": "^6.9.1",
