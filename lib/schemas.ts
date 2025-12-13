@@ -60,7 +60,25 @@ export const GenerateCareerSchema = z.object({
   locale: z.enum(['en', 'zh', 'ja']).optional().default('en'),
 });
 
+// Document import schemas
+export const DocumentImportSchema = z.object({
+  locale: z.enum(['en', 'zh', 'ja']).default('en'),
+  // For update mode, existing map context
+  existingNodes: z.array(z.lazy(() => SkillNodeSchema)).optional(),
+  existingEdges: z.array(z.lazy(() => SkillEdgeSchema)).optional(),
+});
+
+export const URLImportSchema = z.object({
+  url: z.string().url(),
+  locale: z.enum(['en', 'zh', 'ja']).default('en'),
+  // For update mode, existing map context
+  existingNodes: z.array(z.lazy(() => SkillNodeSchema)).optional(),
+  existingEdges: z.array(z.lazy(() => SkillEdgeSchema)).optional(),
+});
+
 // Types derived from schemas
 export type SkillNode = z.infer<typeof SkillNodeSchema>;
 export type SkillEdge = z.infer<typeof SkillEdgeSchema>;
 export type CareerResponse = z.infer<typeof CareerResponseSchema>;
+export type DocumentImportInput = z.infer<typeof DocumentImportSchema>;
+export type URLImportInput = z.infer<typeof URLImportSchema>;

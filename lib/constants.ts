@@ -154,6 +154,63 @@ export const MERGE_CONFIG = {
   similarityThreshold: 0.3, // Minimum similarity score to highlight as "recommended"
 } as const;
 
+// Document Import Configuration
+export const DOCUMENT_IMPORT_CONFIG = {
+  maxFileSizeBytes: 20 * 1024 * 1024, // 20MB (for images)
+  maxContentTokens: 8000,
+  minContentLength: 50, // Minimum characters for valid document content
+  minTextContentLength: 20, // Minimum characters for text files
+  charsPerToken: 4, // Average characters per token for truncation
+  // File type definitions - single source of truth
+  fileTypes: {
+    pdf: { extensions: ['pdf'], mimeTypes: ['application/pdf'] },
+    word: { extensions: ['doc', 'docx'], mimeTypes: ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'] },
+    text: { extensions: ['txt', 'md', 'markdown'], mimeTypes: ['text/plain', 'text/markdown'] },
+    image: { extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'], mimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/bmp'] },
+  },
+  urlTimeout: 30000, // 30 seconds
+  maxUrlContentLength: 100000, // characters
+  userAgent: 'Mozilla/5.0 (compatible; SkillMapBot/1.0)',
+  // Portfolio detection domains
+  portfolioDomains: ['behance.net', 'dribbble.com', 'portfolio.', 'about.me', 'carrd.co'],
+  // AI extraction settings
+  aiExtraction: {
+    textModel: 'gpt-4o-mini',
+    visionModel: 'gpt-4o',
+    maxTokens: 4000,
+    temperature: 0.5,
+    mergeTemperature: 0.3,
+    maxInputTokens: 6000, // For truncating text content
+    minSkills: 10, // Minimum skills to extract
+    maxSkills: 25, // Maximum skills to extract
+    // Context limits for AI prompts
+    existingSkillsLimit: 20, // Max existing skills to include in context
+    mergeSkillsLimit: 30, // Max skills per map in merge
+    mergeEdgesLimit: 50, // Max edges per map in merge
+  },
+  // Preview settings
+  preview: {
+    maxDisplayedSkillsPerCategory: 8,
+    maxDisplayedCategories: 5, // Max categories to show in summary
+    confidenceThresholds: {
+      high: 0.8,
+      medium: 0.5,
+    },
+  },
+} as const;
+
+// Derived values for convenience (computed from fileTypes)
+export const SUPPORTED_EXTENSIONS = Object.values(DOCUMENT_IMPORT_CONFIG.fileTypes)
+  .flatMap(t => t.extensions.map(e => `.${e}`));
+export const SUPPORTED_MIME_TYPES = Object.values(DOCUMENT_IMPORT_CONFIG.fileTypes)
+  .flatMap(t => t.mimeTypes);
+export const IMAGE_EXTENSIONS = DOCUMENT_IMPORT_CONFIG.fileTypes.image.extensions;
+export const EXTENSION_TO_MIME: Record<string, string> = Object.values(DOCUMENT_IMPORT_CONFIG.fileTypes)
+  .flatMap(t => t.extensions.map((ext, i) => ({ ext, mime: t.mimeTypes[Math.min(i, t.mimeTypes.length - 1)] })))
+  .reduce((acc, { ext, mime }) => ({ ...acc, [ext]: mime }), {});
+// For HTML file input accept attribute
+export const SUPPORTED_FILE_ACCEPT = SUPPORTED_EXTENSIONS.join(',');
+
 // API Routes (for client-side fetching)
 export const API_ROUTES = {
   AI_CHAT: '/api/ai/chat',
@@ -163,4 +220,6 @@ export const API_ROUTES = {
   USER_GRAPH: '/api/user/graph',
   USER_PROFILE: '/api/user/profile',
   MAP: '/api/map',
+  IMPORT_DOCUMENT: '/api/import/document',
+  IMPORT_URL: '/api/import/url',
 } as const;

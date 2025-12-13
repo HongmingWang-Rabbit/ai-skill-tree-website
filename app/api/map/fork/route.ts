@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { db, userCareerGraphs, careers, skillGraphs, type UserNodeData } from '@/lib/db';
-import { eq } from 'drizzle-orm';
+import { db, userCareerGraphs, careers, skillGraphs, type UserNodeData, type SkillNodeData, type SkillEdgeData } from '@/lib/db';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { generateShareSlug } from '@/lib/normalize-career';
+import { generateShareSlug, normalizeCareerKey } from '@/lib/normalize-career';
 import { MAP_TITLE_MAX_LENGTH, SHARE_SLUG_GENERATION_MAX_RETRIES } from '@/lib/constants';
+import { SkillNodeSchema, SkillEdgeSchema } from '@/lib/schemas';
 
 const ForkSchema = z.object({
   // Fork from a base career
@@ -14,9 +15,14 @@ const ForkSchema = z.object({
   mapId: z.string().uuid().optional(),
   // Custom title for the new map
   title: z.string().min(1).max(MAP_TITLE_MAX_LENGTH).optional(),
+  // For document import: custom nodes and edges (creates map without existing career)
+  customNodes: z.array(SkillNodeSchema).optional(),
+  customEdges: z.array(SkillEdgeSchema).optional(),
+  // Locale for document import
+  locale: z.enum(['en', 'zh', 'ja']).optional(),
 }).refine(
-  (data) => data.careerId || data.mapId,
-  { message: 'Either careerId or mapId must be provided' }
+  (data) => data.careerId || data.mapId || (data.customNodes && data.customNodes.length > 0),
+  { message: 'Either careerId, mapId, or customNodes must be provided' }
 );
 
 // POST: Create a fork of a career or another user's map
@@ -32,14 +38,68 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { careerId, mapId, title } = ForkSchema.parse(body);
+    const { careerId, mapId, title, customNodes, customEdges, locale = 'en' } = ForkSchema.parse(body);
 
     let baseCareerId: string;
     let baseNodeData: UserNodeData[] | null = null;
     let copiedFromId: string | null = null;
     let careerTitle: string;
+    let importedCustomNodes: SkillNodeData[] | undefined;
+    let importedCustomEdges: SkillEdgeData[] | undefined;
 
-    if (mapId) {
+    // Handle document import: create or get placeholder career
+    if (customNodes && customNodes.length > 0) {
+      const importTitle = title || 'Imported Skills';
+      const canonicalKey = normalizeCareerKey(importTitle);
+
+      // Try to find existing career with this key and locale, or create new
+      let existingCareer = await db.query.careers.findFirst({
+        where: and(
+          eq(careers.canonicalKey, canonicalKey),
+          eq(careers.locale, locale)
+        ),
+      });
+
+      if (!existingCareer) {
+        // Create a new career for this import
+        const newCareers = await db
+          .insert(careers)
+          .values({
+            canonicalKey,
+            locale,
+            title: importTitle,
+            description: `Skills imported from document`,
+          })
+          .returning();
+
+        if (!newCareers.length) {
+          return NextResponse.json(
+            { error: 'Failed to create career for import' },
+            { status: 500 }
+          );
+        }
+        existingCareer = newCareers[0];
+
+        // Create a skill graph for this career
+        await db.insert(skillGraphs).values({
+          careerId: existingCareer.id,
+          locale,
+          nodes: customNodes as SkillNodeData[],
+          edges: (customEdges || []) as SkillEdgeData[],
+        });
+      }
+
+      baseCareerId = existingCareer.id;
+      careerTitle = importTitle;
+      // Store custom nodes/edges to override the base career's graph
+      importedCustomNodes = customNodes as SkillNodeData[];
+      importedCustomEdges = (customEdges || []) as SkillEdgeData[];
+      // Initialize nodeData from custom nodes
+      baseNodeData = customNodes.map((node) => ({
+        skillId: node.id,
+        progress: node.progress || 0,
+      }));
+    } else if (mapId) {
       // Forking from another user's map
       const sourceMap = await db.query.userCareerGraphs.findFirst({
         where: eq(userCareerGraphs.id, mapId),
@@ -122,6 +182,8 @@ export async function POST(request: NextRequest) {
         careerId: baseCareerId,
         title: title || careerTitle,
         nodeData: baseNodeData || [],
+        customNodes: importedCustomNodes,
+        customEdges: importedCustomEdges,
         isPublic: false,
         shareSlug,
         copiedFromId,
@@ -138,6 +200,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      mapId: newMap.id, // For dashboard import flow
       map: {
         id: newMap.id,
         title: newMap.title,

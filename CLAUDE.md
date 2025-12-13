@@ -12,6 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
    - `lib/ai.ts` - OpenAI functions (using gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
    - `lib/ai-chat.ts` - AI chat utilities: `processChatMessage()`, `generateModificationSummary()`, `applyModifications()`, `generateSmartMerge()`, types: `ChatModification`, `ChatContext`, `ChatMessage`
+   - `lib/ai-document.ts` - Document skill extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()`, `generateExtractionSummary()`, types: `DocumentImportResult`
+   - `lib/document-parser.ts` - Document parsing utilities: `parsePDF()`, `parseWord()`, `parseImage()`, `parseText()`, `parseURL()`, `detectURLType()`, `truncateForAI()`, `isSupportedFileType()`, `isImageFile()`, `getMimeType()`, types: `ParsedDocument`, `DocumentParseError`
    - `lib/mcp/tavily.ts` - Tavily web search integration: `searchTavily()`, `searchTrendingTech()`, `searchCareerSkills()`, `formatSearchResultsForAI()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
    - `lib/wechat-provider.ts` - Custom WeChat OAuth provider: `WeChatProvider()`, `WeChatMPProvider()`, `isWeChatBrowser()`
@@ -34,14 +36,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - AI Chat: `AI_CHAT_CONFIG` (panel dimensions, API settings like model/temperature/maxTokens, animation timing, search keywords)
      - Tavily: `TAVILY_CONFIG` (API URL, search depth defaults, domain filters for trending tech and career skills searches)
      - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
+     - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
      - API Routes: `API_ROUTES` (centralized API endpoint paths for client-side fetching)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
-   - `components/ai-chat/` - `AIChatPanel` (floating chat panel), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
+   - `components/ai-chat/` - `AIChatPanel` (floating chat panel with document import), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
+   - `components/import/` - `DocumentImportModal` (modal for importing skills from documents/URLs), `ImportPreview` (preview extracted skills before confirmation)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - Context providers
    - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph` (React Flow visualization of user's skill universe)
@@ -61,7 +65,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`
 
 6. **Check `components/skill-graph/` for layout utilities**:
    - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, ring spacing, max nodes per ring)
@@ -99,7 +103,7 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (update user name), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (update user name), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`, `/import/document` (file upload), `/import/url` (URL import)
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
@@ -269,6 +273,80 @@ All AI chat settings are in `AI_CHAT_CONFIG` (lib/constants.ts):
 
 **Scope Guard:**
 AI is restricted to skill map related tasks only. Off-topic requests are declined gracefully with `isOffTopic: true` in response.
+
+### Document Import Feature
+
+Users can import skills from resumes, portfolios, or web profiles to create or update skill maps:
+
+**Supported Input Types:**
+- PDF files (resumes, CVs)
+- Word documents (.doc, .docx)
+- Images (.png, .jpg, .gif, .webp) - uses GPT-4o vision
+- Text/Markdown files
+- URLs (LinkedIn profiles, GitHub, personal websites)
+
+**Entry Points:**
+1. Dashboard: Import button creates new skill maps from documents
+2. AI Chat: "Import from document" suggestion updates existing maps
+
+**Data Flow:**
+1. User uploads file or enters URL
+2. `POST /api/import/document` or `POST /api/import/url` parses content
+3. `lib/document-parser.ts` extracts text (pdf-parse for PDFs, cheerio + @extractus/article-extractor for URLs)
+4. `lib/ai-document.ts` uses OpenAI to extract skills with categories and confidence scores
+5. For LinkedIn/login-walled sites, Tavily API provides fallback content extraction
+6. Preview modal shows extracted skills grouped by category with confidence indicators
+7. User confirms → skills converted to SkillNodes and saved via `/api/map/fork`
+
+**Components:**
+- `DocumentImportModal` - Tab-based modal for file upload or URL input
+- `ImportPreview` - Shows extracted skills grouped by category before confirmation
+- `FileDropzone` - Drag-and-drop file upload with validation
+
+**API Routes:**
+- `POST /api/import/document` - Multipart form upload for files (uses nodejs runtime)
+- `POST /api/import/url` - JSON body with URL to import
+
+**Configuration:**
+`DOCUMENT_IMPORT_CONFIG` in `lib/constants.ts`:
+- `maxFileSizeBytes`: 20MB limit
+- `maxContentTokens`: 8000 tokens for content processing
+- `minContentLength`: 50 chars minimum for valid document
+- `minTextContentLength`: 20 chars minimum for text files
+- `charsPerToken`: 4 chars per token for truncation calculation
+- `fileTypes`: Single source of truth for all supported file types (pdf, word, text, image)
+- `urlTimeout`: 30 seconds for URL fetching
+- `maxUrlContentLength`: 100000 characters for URL content
+- `userAgent`: Bot user agent string for URL fetching
+- `portfolioDomains`: Domains to detect as portfolio sites
+- `aiExtraction`:
+  - `textModel`: gpt-4o-mini for text documents
+  - `visionModel`: GPT-4o for image analysis
+  - `maxTokens`: 4000 tokens for AI responses
+  - `temperature`: 0.5 for extraction
+  - `mergeTemperature`: 0.3 for merge operations
+  - `maxInputTokens`: 6000 tokens for text truncation
+  - `minSkills`: 10 minimum skills to extract
+  - `maxSkills`: 25 maximum skills to extract
+  - `existingSkillsLimit`: 20 max existing skills in context
+  - `mergeSkillsLimit`: 30 max skills per map in merge
+  - `mergeEdgesLimit`: 50 max edges per map in merge
+- `preview`:
+  - `maxDisplayedSkillsPerCategory`: 8 skills shown per category
+  - `maxDisplayedCategories`: 5 max categories in summary
+  - `confidenceThresholds.high`: 0.8 for high confidence
+  - `confidenceThresholds.medium`: 0.5 for medium confidence
+
+Derived constants (computed from fileTypes):
+- `SUPPORTED_EXTENSIONS`: All supported file extensions
+- `SUPPORTED_MIME_TYPES`: All supported MIME types
+- `IMAGE_EXTENSIONS`: Image-only extensions
+- `EXTENSION_TO_MIME`: Extension to MIME type mapping
+- `SUPPORTED_FILE_ACCEPT`: HTML file input accept attribute string
+
+**Update vs Create Mode:**
+- Dashboard: Creates new skill maps (`mode='create'`)
+- AI Chat: Updates existing maps (`mode='update'`), filtering out duplicate skills
 
 ### Skill Graph Layout
 

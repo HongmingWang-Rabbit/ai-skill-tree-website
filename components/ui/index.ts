@@ -4,6 +4,7 @@ export { SearchInput } from './SearchInput';
 export { DropdownMenu, type DropdownMenuItem } from './DropdownMenu';
 export { ConfirmModal, type ConfirmModalProps } from './ConfirmModal';
 export { Toaster, showToast } from './Toast';
+export { FileDropzone } from './FileDropzone';
 export {
   MenuIcon,
   CloseIcon,
@@ -27,4 +28,13 @@ export {
   ShareIcon,
   SaveIcon,
   SortIcon,
+  // Document Import icons
+  UploadIcon,
+  DocumentIcon,
+  LinkIcon,
+  FilePdfIcon,
+  FileTextIcon,
+  FileWordIcon,
+  FileImageIcon,
+  ImportIcon,
 } from './Icons';

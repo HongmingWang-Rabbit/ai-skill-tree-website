@@ -3,11 +3,13 @@
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
-import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon } from '@/components/ui';
+import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon } from '@/components/ui';
+import { DocumentImportModal, type ImportResult } from '@/components/import';
+import { type Locale } from '@/i18n/routing';
 
 interface SavedGraph {
   id: string;
@@ -41,6 +43,7 @@ export default function DashboardPage() {
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const t = useTranslations();
+  const locale = useLocale() as Locale;
   const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
   const [isLoadingCareers, setIsLoadingCareers] = useState(true);
   const [deletingMapId, setDeletingMapId] = useState<string | null>(null);
@@ -49,6 +52,8 @@ export default function DashboardPage() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [isSavingName, setIsSavingName] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [isCreatingMap, setIsCreatingMap] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user's saved career graphs (single API call with joined career data)
@@ -167,6 +172,37 @@ export default function DashboardPage() {
       cancelEditingName();
     }
   }, [saveEditedName, cancelEditingName]);
+
+  // Handle import completion - create new map with imported skills
+  const handleImportComplete = useCallback(async (result: ImportResult) => {
+    setIsCreatingMap(true);
+    try {
+      // Create a new map with the imported skills as custom nodes/edges
+      const response = await fetch(`${API_ROUTES.MAP}/fork`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: result.suggestedTitle,
+          customNodes: result.nodes,
+          customEdges: result.edges,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.mapId) {
+        showToast.success(t('import.success'));
+        // Redirect to the new map
+        router.push(`/career/${data.mapId}`);
+      } else {
+        throw new Error(data.error || 'Failed to create map');
+      }
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : t('import.createFailed'));
+    } finally {
+      setIsCreatingMap(false);
+    }
+  }, [router, t]);
 
   // Calculate stats from saved careers
   const stats = {
@@ -306,7 +342,17 @@ export default function DashboardPage() {
 
         {/* Saved Career Paths */}
         <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-white mb-6">{t('dashboard.yourCareerPaths')}</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white">{t('dashboard.yourCareerPaths')}</h2>
+            <button
+              onClick={() => setShowImportModal(true)}
+              disabled={isCreatingMap}
+              className="flex items-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-lg border border-violet-500/30 transition-colors disabled:opacity-50"
+            >
+              <ImportIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('import.importButton')}</span>
+            </button>
+          </div>
 
           {isLoadingCareers ? (
             <div className="text-center py-12">
@@ -402,6 +448,15 @@ export default function DashboardPage() {
         cancelText={t('common.cancel')}
         variant="danger"
         isLoading={!!deletingMapId}
+      />
+
+      {/* Document Import Modal */}
+      <DocumentImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
+        locale={locale}
+        mode="create"
       />
     </div>
   );

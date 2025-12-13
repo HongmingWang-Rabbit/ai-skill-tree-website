@@ -15,6 +15,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
+- **Document Import**: Extract skills from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI
 - **Smart Map Merging**: AI-powered merge combining two skill maps with intelligent deduplication
 - **Draggable Nodes**: Reposition skills to your preference - positions auto-save and persist
 - **Organize Button**: Re-arrange nodes in a neat radial layout with max 6 nodes per ring (auto-triggers after merge)
@@ -129,6 +130,7 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   │   ├── chat/           # AI chat for skill map modifications
 │   │   │   └── generate/       # AI skill map generation
 │   │   ├── career/             # Career CRUD operations
+│   │   ├── import/             # Document import (PDF, Word, images, URLs)
 │   │   └── map/                # User map operations
 │   ├── globals.css             # Tailwind CSS with custom theme
 │   ├── sitemap.ts              # Dynamic sitemap with all locales
@@ -138,11 +140,14 @@ An interactive web application that generates and visualizes career skill maps u
 │   └── favicon.ico             # Browser favicon
 ├── components/
 │   ├── ai-chat/
-│   │   ├── AIChatPanel.tsx     # Floating AI chat panel
+│   │   ├── AIChatPanel.tsx     # Floating AI chat panel with import
 │   │   ├── ChatMessage.tsx     # Chat message display
 │   │   ├── ChatInput.tsx       # Text input with send button
 │   │   ├── ModificationPreview.tsx # Changes confirmation modal
 │   │   └── MergeMapModal.tsx   # Map merge UI
+│   ├── import/
+│   │   ├── DocumentImportModal.tsx # File/URL import modal
+│   │   └── ImportPreview.tsx   # Extracted skills preview
 │   ├── layout/
 │   │   ├── Header.tsx              # Site header with navigation
 │   │   └── SkillTreeBackground.tsx # Animated network background
@@ -168,6 +173,8 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   └── tavily.ts           # Tavily web search integration
 │   ├── ai.ts                   # OpenAI integration (career generation)
 │   ├── ai-chat.ts              # AI chat utilities (modifications, merge)
+│   ├── ai-document.ts          # Document skill extraction with vision
+│   ├── document-parser.ts      # PDF, Word, image, URL parsing
 │   ├── cache.ts                # Redis cache utilities
 │   ├── constants.ts            # Centralized app constants
 │   └── schemas.ts              # Zod validation schemas
@@ -264,6 +271,22 @@ TAVILY_CONFIG.careerSkills.includeDomains // Trusted domains for career search
 
 // Map Merge
 MERGE_CONFIG.similarityThreshold        // Threshold for "recommended" maps (0.3)
+
+// Document Import
+DOCUMENT_IMPORT_CONFIG.maxFileSizeBytes           // Max file size (20MB)
+DOCUMENT_IMPORT_CONFIG.charsPerToken              // Chars per token for truncation (4)
+DOCUMENT_IMPORT_CONFIG.fileTypes                  // Supported file type definitions (pdf, word, text, image)
+DOCUMENT_IMPORT_CONFIG.urlTimeout                 // URL fetch timeout (30s)
+DOCUMENT_IMPORT_CONFIG.userAgent                  // Bot user agent for URL fetching
+DOCUMENT_IMPORT_CONFIG.portfolioDomains           // Domains to detect as portfolio sites
+DOCUMENT_IMPORT_CONFIG.aiExtraction.visionModel   // GPT-4o for images
+DOCUMENT_IMPORT_CONFIG.aiExtraction.textModel     // gpt-4o-mini for text
+DOCUMENT_IMPORT_CONFIG.aiExtraction.minSkills     // Min skills to extract (10)
+DOCUMENT_IMPORT_CONFIG.aiExtraction.maxSkills     // Max skills to extract (25)
+DOCUMENT_IMPORT_CONFIG.aiExtraction.existingSkillsLimit  // Max existing skills in context (20)
+DOCUMENT_IMPORT_CONFIG.preview.confidenceThresholds      // High/medium confidence thresholds
+// Derived constants
+SUPPORTED_FILE_ACCEPT                             // HTML file input accept string
 ```
 
 ## API Routes
@@ -294,11 +317,20 @@ Fetch an existing career by its canonical key or UUID.
 ### GET `/api/career/search?q=engineer`
 Search for careers matching a query.
 
+### Document Import API
+- `POST /api/import/document` - Upload and parse file (PDF, Word, images)
+  - Accepts: multipart/form-data with file, locale, optional existing context
+  - Returns: Extracted skills, edges, suggested title, confidence score
+  - Uses GPT-4o vision for images, gpt-4o-mini for text documents
+- `POST /api/import/url` - Import from URL (LinkedIn, GitHub, etc.)
+  - Accepts: URL, locale, optional existing context
+  - Returns: Extracted skills with Tavily fallback for blocked pages
+
 ### User Maps API
 - `GET /api/map/[mapId]` - Fetch map by UUID or share slug
 - `PATCH /api/map/[mapId]` - Update map settings
 - `DELETE /api/map/[mapId]` - Delete a user's map
-- `POST /api/map/fork` - Create map from base career
+- `POST /api/map/fork` - Create map from base career or imported skills
 - `POST /api/map/[mapId]/copy` - Copy public map to your account
 
 ### User Profile API

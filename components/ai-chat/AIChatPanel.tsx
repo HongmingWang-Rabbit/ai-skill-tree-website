@@ -3,10 +3,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GlassPanel, ChatIcon, MinimizeIcon } from '@/components/ui';
+import { GlassPanel, ChatIcon, MinimizeIcon, ImportIcon } from '@/components/ui';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ModificationPreview } from './ModificationPreview';
+import { DocumentImportModal, type ImportResult } from '@/components/import/DocumentImportModal';
 import { type SkillNode, type SkillEdge } from '@/lib/schemas';
 import { type ChatModification, generateModificationSummary, applyModifications } from '@/lib/ai-chat';
 import { type Locale } from '@/i18n/routing';
@@ -55,6 +56,7 @@ export function AIChatPanel({
     modifications: ChatModification['modifications'];
   } | null>(null);
   const [streamingContent, setStreamingContent] = useState('');
+  const [showImportModal, setShowImportModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -207,6 +209,36 @@ export function AIChatPanel({
     setIsExpanded(prev => !prev);
   }, []);
 
+  const handleImportComplete = useCallback((result: ImportResult) => {
+    // Convert imported skills to modifications
+    const existingNodeIds = new Set(currentNodes.map(n => n.id));
+    const existingEdgeIds = new Set(currentEdges.map(e => `${e.source}-${e.target}`));
+
+    // Filter out nodes that already exist
+    const newNodes = result.nodes.filter(n => !existingNodeIds.has(n.id));
+    const newEdges = result.edges.filter(e => !existingEdgeIds.has(`${e.source}-${e.target}`));
+
+    if (newNodes.length === 0) {
+      // No new skills to add
+      return;
+    }
+
+    // Create modifications
+    const modifications: ChatModification['modifications'] = {
+      addNodes: newNodes,
+      updateNodes: [],
+      removeNodes: [],
+      addEdges: newEdges,
+      removeEdges: [],
+    };
+
+    // Show preview
+    setPendingModification({
+      messageId: `import-${Date.now()}`,
+      modifications,
+    });
+  }, [currentNodes, currentEdges]);
+
   return (
     <>
       {/* Chat Toggle Button */}
@@ -273,6 +305,15 @@ export function AIChatPanel({
                       <SuggestionChip onClick={() => handleSendMessage(t('suggestion1'))} text={t('suggestion1')} />
                       <SuggestionChip onClick={() => handleSendMessage(t('suggestion2'))} text={t('suggestion2')} />
                       <SuggestionChip onClick={() => handleSendMessage(t('suggestion3'))} text={t('suggestion3')} />
+                      {!isReadOnly && (
+                        <button
+                          onClick={() => setShowImportModal(true)}
+                          className="w-full flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 hover:text-violet-200 transition-colors border border-violet-500/30"
+                        >
+                          <ImportIcon className="w-4 h-4" />
+                          {t('suggestionImport')}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -323,6 +364,17 @@ export function AIChatPanel({
           onReject={handleRejectModification}
         />
       )}
+
+      {/* Document Import Modal */}
+      <DocumentImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
+        locale={locale}
+        existingNodes={currentNodes}
+        existingEdges={currentEdges}
+        mode="update"
+      />
     </>
   );
 }
