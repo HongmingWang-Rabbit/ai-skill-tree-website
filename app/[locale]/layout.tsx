@@ -3,7 +3,7 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { routing, locales, defaultLocale, getOgLocale } from '@/i18n/routing';
-import { AuthProvider, Web3Provider } from '@/components/providers';
+import { AuthProvider, Web3Provider, QueryProvider } from '@/components/providers';
 import { Header } from '@/components/layout';
 import { JsonLd, OrganizationJsonLd, SoftwareAppJsonLd } from '@/components/seo';
 import { Toaster } from '@/components/ui';
@@ -78,13 +78,15 @@ export default async function LocaleLayout({
       </head>
       <body className="antialiased bg-slate-950 min-h-screen" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <Web3Provider>
-              <Toaster />
-              <Header />
-              <main>{children}</main>
-            </Web3Provider>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <Web3Provider>
+                <Toaster />
+                <Header />
+                <main>{children}</main>
+              </Web3Provider>
+            </AuthProvider>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

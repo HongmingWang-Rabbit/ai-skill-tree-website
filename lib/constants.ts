@@ -266,11 +266,19 @@ export const API_ROUTES = {
   AI_MERGE: '/api/ai/merge',
   USER_GRAPH: '/api/user/graph',
   USER_PROFILE: '/api/user/profile',
+  USER_MASTER_MAP: '/api/user/master-map',
   MAP: '/api/map',
   MAP_FORK: '/api/map/fork',
   IMPORT_DOCUMENT: '/api/import/document',
   IMPORT_URL: '/api/import/url',
   RESUME_GENERATE: '/api/resume/generate',
+} as const;
+
+// React Query Configuration
+export const QUERY_CONFIG = {
+  staleTime: 60 * 1000, // 1 minute - data considered fresh for this duration
+  gcTime: 5 * 60 * 1000, // 5 minutes - keep cached data for this duration
+  retryCount: 1, // Retry failed requests once
 } as const;
 
 // Landing Page Configuration

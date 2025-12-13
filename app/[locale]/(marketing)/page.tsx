@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations, useLocale } from "next-intl";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { GlassPanel } from "@/components/ui/GlassPanel";
@@ -27,11 +28,14 @@ import {
 import { showToast } from "@/components/ui";
 import { normalizeCareerKey } from "@/lib/normalize-career";
 import type { CareerSuggestion } from "@/lib/ai";
-import {
-  DocumentImportModal,
-  type ImportResult,
-} from "@/components/import/DocumentImportModal";
+import type { ImportResult } from "@/components/import/DocumentImportModal";
 import type { Locale } from "@/i18n/routing";
+
+// Lazy load heavy modal to reduce initial bundle size
+const DocumentImportModal = dynamic(
+  () => import("@/components/import/DocumentImportModal").then(mod => mod.DocumentImportModal),
+  { ssr: false }
+);
 
 // Feature cards configuration (icons must be defined here as they're React components)
 const FEATURES = [

@@ -1,16 +1,26 @@
 'use client';
 
 import { useEffect, useState, use, useCallback, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { useSession } from 'next-auth/react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { SkillGraph, type SkillGraphHandle } from '@/components/skill-graph/SkillGraph';
+import { LazySkillGraph, type SkillGraphHandle } from '@/components/skill-graph/LazySkillGraph';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
 import { ShareModal } from '@/components/ui/ShareModal';
 import { DropdownMenu, type DropdownMenuItem, MergeIcon, TrashIcon, SortIcon, ShareIcon, ConfirmModal, showToast } from '@/components/ui';
-import { AIChatPanel, MergeMapModal } from '@/components/ai-chat';
 import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
+
+// Lazy load heavy AI chat components
+const AIChatPanel = dynamic(
+  () => import('@/components/ai-chat').then(mod => mod.AIChatPanel),
+  { ssr: false }
+);
+const MergeMapModal = dynamic(
+  () => import('@/components/ai-chat').then(mod => mod.MergeMapModal),
+  { ssr: false }
+);
 import { SKILL_PASS_THRESHOLD, SIGN_IN_PROMPT_DELAY_MS, AUTO_SAVE_DEBOUNCE_MS, API_ROUTES } from '@/lib/constants';
 import { isUUID, isShareSlug } from '@/lib/normalize-career';
 import { useRouter } from '@/i18n/navigation';
@@ -773,7 +783,7 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       {/* Skill Graph */}
       <main className="flex-1 relative">
         <div ref={graphContainerRef} className="absolute inset-0">
-          <SkillGraph
+          <LazySkillGraph
             ref={skillGraphRef}
             key={userMap?.id || 'base'}
             initialNodes={nodes}

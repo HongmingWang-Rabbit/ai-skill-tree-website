@@ -1,67 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
-import { MasterSkillGraph } from './MasterSkillGraph';
+import { LazyMasterSkillGraph } from './LazyMasterSkillGraph';
 import { Link } from '@/i18n/navigation';
-
-interface SkillData {
-  id: string;
-  name: string;
-  icon: string;
-  level: number;
-  category: string;
-  progress: number;
-}
-
-interface CareerWithSkills {
-  id: string;
-  careerId: string;
-  title: string;
-  skills: SkillData[];
-}
-
-interface MasterMapData {
-  userName: string;
-  careers: CareerWithSkills[];
-  stats: {
-    totalCareers: number;
-    totalSkills: number;
-    masteredSkills: number;
-    inProgressSkills: number;
-  };
-}
+import { useMasterMap } from '@/hooks/useQueryHooks';
 
 export function MasterSkillMap() {
   const t = useTranslations('masterMap');
   const router = useRouter();
-  const [data, setData] = useState<MasterMapData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch master map data
-  useEffect(() => {
-    async function fetchMasterMap() {
-      try {
-        const response = await fetch('/api/user/master-map');
-        const result = await response.json();
-
-        if (result.success) {
-          setData(result.data);
-        } else {
-          setError(result.error || 'Failed to load');
-        }
-      } catch (err) {
-        console.error('Failed to fetch master map:', err);
-        setError('Failed to load');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchMasterMap();
-  }, []);
+  // Use React Query hook for data fetching (replaces manual useEffect)
+  const { data, isLoading, error } = useMasterMap();
 
   // Handle career click - navigate to career page
   const handleCareerClick = (careerId: string) => {
@@ -155,7 +105,7 @@ export function MasterSkillMap() {
       </div>
 
       {/* Graph Visualization */}
-      <MasterSkillGraph
+      <LazyMasterSkillGraph
         userName={data.userName}
         careers={data.careers}
         onCareerClick={handleCareerClick}

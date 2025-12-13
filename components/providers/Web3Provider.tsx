@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@rainbow-me/rainbowkit/styles.css';
 
 interface Web3ProviderProps {
@@ -11,7 +10,6 @@ interface Web3ProviderProps {
 }
 
 export function Web3Provider({ children }: Web3ProviderProps) {
-  const [queryClient] = useState(() => new QueryClient());
   const [mounted, setMounted] = useState(false);
   const [wagmiConfig, setWagmiConfig] = useState<Awaited<typeof import('@/lib/wagmi')>['wagmiConfig'] | null>(null);
 
@@ -28,20 +26,20 @@ export function Web3Provider({ children }: Web3ProviderProps) {
     return <>{children}</>;
   }
 
+  // Note: QueryClientProvider is now provided by QueryProvider at the root level
+  // WagmiProvider will use the parent QueryClient
   return (
     <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={darkTheme({
-            accentColor: '#C9A227',
-            accentColorForeground: 'white',
-            borderRadius: 'medium',
-            fontStack: 'system',
-          })}
-        >
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
+      <RainbowKitProvider
+        theme={darkTheme({
+          accentColor: '#C9A227',
+          accentColorForeground: 'white',
+          borderRadius: 'medium',
+          fontStack: 'system',
+        })}
+      >
+        {children}
+      </RainbowKitProvider>
     </WagmiProvider>
   );
 }

@@ -1,14 +1,21 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassPanel, ChatIcon, MinimizeIcon, ImportIcon } from '@/components/ui';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ModificationPreview } from './ModificationPreview';
-import { DocumentImportModal, type ImportResult } from '@/components/import/DocumentImportModal';
+import type { ImportResult } from '@/components/import/DocumentImportModal';
 import { type SkillNode, type SkillEdge } from '@/lib/schemas';
+
+// Lazy load heavy modal
+const DocumentImportModal = dynamic(
+  () => import('@/components/import/DocumentImportModal').then(mod => mod.DocumentImportModal),
+  { ssr: false }
+);
 import { type ChatModification, generateModificationSummary, applyModifications } from '@/lib/ai-chat';
 import { type Locale } from '@/i18n/routing';
 import { AI_CHAT_CONFIG, API_ROUTES } from '@/lib/constants';

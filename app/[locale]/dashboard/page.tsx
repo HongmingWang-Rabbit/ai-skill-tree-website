@@ -2,17 +2,29 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH, RESUME_CONFIG } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
+import dynamic from 'next/dynamic';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
 import { ExperienceEditor } from '@/components/dashboard/ExperienceEditor';
 import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon } from '@/components/ui';
-import { DocumentImportModal, type ImportResult } from '@/components/import';
-import { ResumeExportModal } from '@/components/resume';
+import type { ImportResult } from '@/components/import';
+
+// Lazy load heavy modals to reduce initial bundle size
+const DocumentImportModal = dynamic(
+  () => import('@/components/import/DocumentImportModal').then(mod => mod.DocumentImportModal),
+  { ssr: false }
+);
+const ResumeExportModal = dynamic(
+  () => import('@/components/resume/ResumeExportModal').then(mod => mod.ResumeExportModal),
+  { ssr: false }
+);
 import { type Locale } from '@/i18n/routing';
 import { type WorkExperience } from '@/lib/schemas';
+import { useUserGraphs, useUserProfile, useDeleteMap, useUpdateProfile, queryKeys } from '@/hooks/useQueryHooks';
 
 interface SavedGraph {
   id: string;
@@ -47,9 +59,27 @@ export default function DashboardPage() {
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale() as Locale;
-  const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
-  const [isLoadingCareers, setIsLoadingCareers] = useState(true);
-  const [deletingMapId, setDeletingMapId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  // React Query hooks for data fetching (replaces manual useEffect)
+  const { data: savedCareers = [], isLoading: isLoadingCareers } = useUserGraphs(!!session?.user?.id);
+  const { data: profile } = useUserProfile(!!session?.user?.id);
+  const deleteMapMutation = useDeleteMap();
+  const updateProfileMutation = useUpdateProfile();
+
+  // Local state synced with profile query
+  const [bio, setBio] = useState('');
+  const [experience, setExperience] = useState<WorkExperience[]>([]);
+
+  // Sync local state when profile data loads
+  useEffect(() => {
+    if (profile) {
+      setBio(profile.bio || '');
+      setExperience(profile.experience || []);
+    }
+  }, [profile]);
+
+  // UI state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [mapToDelete, setMapToDelete] = useState<string | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -59,57 +89,11 @@ export default function DashboardPage() {
   const [isCreatingMap, setIsCreatingMap] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  // Profile state (bio and experience)
-  const [bio, setBio] = useState('');
-  const [experience, setExperience] = useState<WorkExperience[]>([]);
+  // Profile UI state
   const [isSavingBio, setIsSavingBio] = useState(false);
   const [showExperienceEditor, setShowExperienceEditor] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
   const bioSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Fetch user's saved career graphs (single API call with joined career data)
-  useEffect(() => {
-    async function fetchSavedCareers() {
-      if (!session?.user?.id) return;
-
-      try {
-        const response = await fetch(API_ROUTES.USER_GRAPH);
-        const data = await response.json();
-
-        if (data.graphs) {
-          // API returns joined data - no N+1 calls needed
-          setSavedCareers(data.graphs);
-        }
-      } catch {
-        // Failed to fetch saved careers
-      } finally {
-        setIsLoadingCareers(false);
-      }
-    }
-
-    fetchSavedCareers();
-  }, [session?.user?.id]);
-
-  // Fetch user profile (bio and experience)
-  useEffect(() => {
-    async function fetchProfile() {
-      if (!session?.user?.id) return;
-
-      try {
-        const response = await fetch(API_ROUTES.USER_PROFILE);
-        const data = await response.json();
-
-        if (data.success && data.data) {
-          setBio(data.data.bio || '');
-          setExperience(data.data.experience || []);
-        }
-      } catch {
-        // Failed to fetch profile
-      }
-    }
-
-    fetchProfile();
-  }, [session?.user?.id]);
 
   // Save bio with debouncing
   const saveBio = useCallback(async (newBio: string) => {
@@ -168,30 +152,23 @@ export default function DashboardPage() {
     setShowDeleteConfirm(true);
   }, []);
 
-  // Handle delete confirmation
+  // Handle delete confirmation (using React Query mutation)
   const handleConfirmDelete = useCallback(async () => {
     if (!mapToDelete) return;
 
-    setDeletingMapId(mapToDelete);
-    try {
-      const response = await fetch(`${API_ROUTES.MAP}/${mapToDelete}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setSavedCareers((prev) => prev.filter((sc) => sc.graph.id !== mapToDelete));
+    deleteMapMutation.mutate(mapToDelete, {
+      onSuccess: () => {
         showToast.success(t('dashboard.deleteSuccess'));
-      } else {
+        setShowDeleteConfirm(false);
+        setMapToDelete(null);
+      },
+      onError: () => {
         showToast.error(t('dashboard.deleteFailed'));
-      }
-    } catch {
-      showToast.error(t('dashboard.deleteFailed'));
-    } finally {
-      setDeletingMapId(null);
-      setShowDeleteConfirm(false);
-      setMapToDelete(null);
-    }
-  }, [mapToDelete, t]);
+        setShowDeleteConfirm(false);
+        setMapToDelete(null);
+      },
+    });
+  }, [mapToDelete, t, deleteMapMutation]);
 
   // Cancel delete
   const handleCancelDelete = useCallback(() => {
@@ -552,7 +529,7 @@ export default function DashboardPage() {
                 const totalSkills = sc.graph.nodeData.length;
                 const masteredSkills = sc.graph.nodeData.filter((n) => n.progress >= SKILL_PASS_THRESHOLD).length;
                 const progress = totalSkills > 0 ? Math.round((masteredSkills / totalSkills) * 100) : 0;
-                const isDeleting = deletingMapId === sc.graph.id;
+                const isDeleting = deleteMapMutation.isPending && mapToDelete === sc.graph.id;
 
                 const menuItems: DropdownMenuItem[] = [
                   {
@@ -634,7 +611,7 @@ export default function DashboardPage() {
         confirmText={t('dashboard.delete')}
         cancelText={t('common.cancel')}
         variant="danger"
-        isLoading={!!deletingMapId}
+        isLoading={deleteMapMutation.isPending}
       />
 
       {/* Document Import Modal */}

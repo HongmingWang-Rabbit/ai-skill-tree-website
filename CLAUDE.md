@@ -39,23 +39,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
      - Resume Export: `RESUME_CONFIG` (bioMaxLength, experienceMaxItems, pdfMaxSkillsPerCategory, aiModel, aiMaxTokens, aiJobAnalysisMaxTokens, aiTemperature, jobUrlTimeout, jobContentMaxChars, jobTitleMaxLength, previewSkillCategories, previewSkillsPerCategory, previewHighlightsCount, pdfLabels for i18n-ready section titles, monthAbbreviations for date formatting)
      - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds/maxDisplayedExperiences, modal settings with maxHeightVh/headerHeightPx), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
-     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`)
+     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `USER_MASTER_MAP`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`)
+     - React Query: `QUERY_CONFIG` (staleTime, gcTime, retryCount for client-side caching)
      - Landing Page: `LANDING_PAGE_CONFIG` (featuredCareers array, stats array, workflowSteps array, demo settings with orbitalSkillCount/orbitalRadius/connectionLineWidth, animation timing with sectionDelay/staggerDelay/duration)
 
 2. **Check `components/` for existing UI**:
    - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`; resume: `PlusIcon`, `BriefcaseIcon`, `DownloadIcon`, `ResumeIcon`, `SparklesIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
-   - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
+   - `components/skill-graph/` - `SkillGraph`, `LazySkillGraph` (dynamic import wrapper), `SkillGraphSkeleton`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
    - `components/ai-chat/` - `AIChatPanel` (floating chat panel with document import), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
    - `components/import/` - `DocumentImportModal` (modal for importing skills from documents/URLs), `ImportPreview` (preview extracted skills before confirmation)
    - `components/resume/` - `ResumePDF` (PDF template using @react-pdf/renderer), `ResumeExportModal` (multi-stage modal for resume generation), `PDFDownloadButton` (wrapper for dynamic PDF download to avoid SSR issues)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
-   - `components/providers/` - Context providers
-   - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph` (React Flow visualization of user's skill universe), `ExperienceEditor` (modal for managing work experience)
+   - `components/providers/` - `AuthProvider`, `Web3Provider`, `QueryProvider` (React Query for data fetching)
+   - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph`, `LazyMasterSkillGraph` (dynamic import wrapper), `MasterSkillGraphSkeleton`, `ExperienceEditor` (modal for managing work experience)
 
 3. **Check `hooks/`** - Custom React hooks:
    - `useShareScreenshot` - Screenshot/share functionality
+   - `useQueryHooks.ts` - React Query hooks for data fetching:
+     - `useUserGraphs()` - Fetch user's saved career graphs with caching
+     - `useUserProfile()` - Fetch user profile (bio, experience)
+     - `useMasterMap()` - Fetch master skill map data
+     - `useDeleteMap()` - Mutation for deleting maps (invalidates cache)
+     - `useUpdateProfile()` - Mutation for profile updates
+     - `queryKeys` - Centralized query keys for cache invalidation
 
 4. **Check `i18n/` for internationalization**:
    - `i18n/routing.ts` - Locale configuration: `locales`, `Locale` type, `defaultLocale`, `routing`, `ogLocaleMap`, `getOgLocale()`, `getLocalePath()`
@@ -460,6 +468,67 @@ interface WorkExperience {
 - `analyzeJobPosting(content, jobTitle, locale)` - Extract requirements from job posting
 - `analyzeJobTitle(jobTitle, locale)` - Infer requirements from title alone
 - `generateResumeContent(profile, careers, jobRequirements, locale)` - Generate tailored content
+
+### Loading Optimization
+
+The app implements comprehensive loading optimization for better perceived performance:
+
+**Loading Pages (Next.js Suspense Boundaries):**
+- `app/[locale]/dashboard/loading.tsx` - Dashboard skeleton with profile, stats grid, and career cards
+- `app/[locale]/career/[careerId]/loading.tsx` - Career page skeleton with header, stats bar, and graph placeholder
+
+**Skeleton Components:**
+- `SkillGraphSkeleton` - Animated orbital node visualization while React Flow loads
+- `MasterSkillGraphSkeleton` - Skill universe loading state with career/skill nodes
+
+**Lazy Loading Heavy Components:**
+Use `next/dynamic` with `ssr: false` for heavy client-side components:
+```tsx
+import dynamic from 'next/dynamic';
+
+// Lazy load React Flow components (~100KB savings)
+const LazySkillGraph = dynamic(
+  () => import('@/components/skill-graph/LazySkillGraph').then(mod => mod.LazySkillGraph),
+  { ssr: false }
+);
+
+// Lazy load heavy modals
+const DocumentImportModal = dynamic(
+  () => import('@/components/import/DocumentImportModal').then(mod => mod.DocumentImportModal),
+  { ssr: false }
+);
+```
+
+**Components with Lazy Wrappers:**
+- `LazySkillGraph` - Wraps SkillGraph with dynamic import and skeleton fallback
+- `LazyMasterSkillGraph` - Wraps MasterSkillGraph with dynamic import
+
+**React Query for Data Fetching:**
+Use React Query hooks instead of manual `useEffect` fetching:
+```tsx
+import { useUserGraphs, useUserProfile, useDeleteMap } from '@/hooks/useQueryHooks';
+
+// In component:
+const { data: graphs, isLoading } = useUserGraphs(!!userId);
+const deleteMapMutation = useDeleteMap();
+
+// Delete with automatic cache invalidation
+deleteMapMutation.mutate(mapId, {
+  onSuccess: () => showToast.success('Deleted'),
+});
+```
+
+**Query Configuration** (`QUERY_CONFIG` in constants):
+- `staleTime`: 60 seconds - data considered fresh
+- `gcTime`: 5 minutes - cache retention
+- `retryCount`: 1 - retry failed requests once
+
+**Best Practices:**
+1. Use `loading.tsx` files for route-level loading states
+2. Use skeleton components that match the actual UI layout
+3. Lazy load React Flow, PDF renderer, and heavy modals
+4. Use React Query hooks for data fetching with caching
+5. Prefer lazy loading for components not needed on initial render
 
 ### Skill Graph Layout
 
