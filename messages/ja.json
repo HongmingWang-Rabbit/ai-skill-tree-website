@@ -12,7 +12,8 @@
     "goBack": "戻る",
     "goBackHome": "ホームに戻る",
     "saved": "保存済み",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "cancel": "キャンセル"
   },
   "header": {
     "brandName": "パーソナルスキルマップ"
@@ -70,7 +71,17 @@
     "copyToMyMaps": "マイマップにコピー",
     "copying": "コピー中...",
     "saveToMyMaps": "マイマップに保存",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "deleteTitle": "スキルマップを削除",
+    "confirmDelete": "このスキルマップを削除しますか？この操作は取り消せません。",
+    "deleteSuccess": "スキルマップを削除しました",
+    "deleteFailed": "スキルマップの削除に失敗しました",
+    "menu": {
+      "merge": "マップを統合",
+      "sort": "整理",
+      "share": "共有",
+      "delete": "削除"
+    }
   },
   "dashboard": {
     "signInRequired": "ログインが必要です",
@@ -88,7 +99,13 @@
     "startYourJourney": "旅を始めよう",
     "startDescription": "キャリアパスを探索してスキルの進捗追跡を始めましょう。保存したパスはここに表示されます。",
     "exploreCareers": "キャリアを探索",
-    "unknownCareer": "不明なキャリア"
+    "unknownCareer": "不明なキャリア",
+    "merge": "統合",
+    "delete": "削除",
+    "deleteTitle": "スキルマップを削除",
+    "confirmDelete": "このスキルマップを削除しますか？この操作は取り消せません。",
+    "deleteSuccess": "スキルマップを削除しました",
+    "deleteFailed": "スキルマップの削除に失敗しました"
   },
   "featuredCareers": {
     "frontendDeveloper": "フロントエンドエンジニア",

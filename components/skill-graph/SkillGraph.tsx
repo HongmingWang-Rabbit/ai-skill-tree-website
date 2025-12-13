@@ -41,6 +41,7 @@ export interface NodePositionInfo {
 // Ref handle for external access
 export interface SkillGraphHandle {
   getNodePositions: () => NodePositionInfo[];
+  sortNodes: () => void;
 }
 
 const nodeTypes = {
@@ -246,7 +247,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
     onNodesChangeProp?.(sortedNodes);
   }, [nodesWithCenter, edgesWithCenter, setNodes, setEdges, onNodesChangeProp]);
 
-  // Expose getNodePositions method via ref for screenshot capture
+  // Expose methods via ref for external access
   useImperativeHandle(ref, () => ({
     getNodePositions: (): NodePositionInfo[] => {
       return nodes.map((node) => {
@@ -263,7 +264,8 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
         };
       });
     },
-  }), [nodes]);
+    sortNodes: handleSortNodes,
+  }), [nodes, handleSortNodes]);
 
   // Update edge handles when nodes are dragged
   const handleNodesChange = useCallback(

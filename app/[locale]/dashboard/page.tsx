@@ -2,11 +2,12 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import { useEffect, useState, useCallback } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { SKILL_PASS_THRESHOLD, API_ROUTES } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
+import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast } from '@/components/ui';
 
 interface SavedGraph {
   id: string;
@@ -40,8 +41,12 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const t = useTranslations();
+  const locale = useLocale();
   const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
   const [isLoadingCareers, setIsLoadingCareers] = useState(true);
+  const [deletingMapId, setDeletingMapId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [mapToDelete, setMapToDelete] = useState<string | null>(null);
 
   // Fetch user's saved career graphs (single API call with joined career data)
   useEffect(() => {
@@ -49,15 +54,15 @@ export default function DashboardPage() {
       if (!session?.user?.id) return;
 
       try {
-        const response = await fetch('/api/user/graph');
+        const response = await fetch(API_ROUTES.USER_GRAPH);
         const data = await response.json();
 
         if (data.graphs) {
           // API returns joined data - no N+1 calls needed
           setSavedCareers(data.graphs);
         }
-      } catch (err) {
-        console.error('Failed to fetch saved careers:', err);
+      } catch {
+        // Failed to fetch saved careers
       } finally {
         setIsLoadingCareers(false);
       }
@@ -65,6 +70,48 @@ export default function DashboardPage() {
 
     fetchSavedCareers();
   }, [session?.user?.id]);
+
+  // Open delete confirmation modal
+  const openDeleteConfirm = useCallback((mapId: string) => {
+    setMapToDelete(mapId);
+    setShowDeleteConfirm(true);
+  }, []);
+
+  // Handle delete confirmation
+  const handleConfirmDelete = useCallback(async () => {
+    if (!mapToDelete) return;
+
+    setDeletingMapId(mapToDelete);
+    try {
+      const response = await fetch(`${API_ROUTES.MAP}/${mapToDelete}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setSavedCareers((prev) => prev.filter((sc) => sc.graph.id !== mapToDelete));
+        showToast.success(t('dashboard.deleteSuccess'));
+      } else {
+        showToast.error(t('dashboard.deleteFailed'));
+      }
+    } catch {
+      showToast.error(t('dashboard.deleteFailed'));
+    } finally {
+      setDeletingMapId(null);
+      setShowDeleteConfirm(false);
+      setMapToDelete(null);
+    }
+  }, [mapToDelete, t]);
+
+  // Cancel delete
+  const handleCancelDelete = useCallback(() => {
+    setShowDeleteConfirm(false);
+    setMapToDelete(null);
+  }, []);
+
+  // Navigate to merge (go to career page and open merge modal)
+  const handleMergeMap = useCallback((mapId: string) => {
+    router.push(`/career/${mapId}?merge=true`);
+  }, [router]);
 
   // Calculate stats from saved careers
   const stats = {
@@ -186,30 +233,54 @@ export default function DashboardPage() {
                 const totalSkills = sc.graph.nodeData.length;
                 const masteredSkills = sc.graph.nodeData.filter((n) => n.progress >= SKILL_PASS_THRESHOLD).length;
                 const progress = totalSkills > 0 ? Math.round((masteredSkills / totalSkills) * 100) : 0;
+                const isDeleting = deletingMapId === sc.graph.id;
+
+                const menuItems: DropdownMenuItem[] = [
+                  {
+                    id: 'merge',
+                    label: t('dashboard.merge'),
+                    icon: <MergeIcon className="w-4 h-4" />,
+                    onClick: () => handleMergeMap(sc.graph.id),
+                  },
+                  {
+                    id: 'delete',
+                    label: t('dashboard.delete'),
+                    icon: <TrashIcon className="w-4 h-4" />,
+                    onClick: () => openDeleteConfirm(sc.graph.id),
+                    variant: 'danger',
+                    disabled: isDeleting,
+                  },
+                ];
 
                 return (
-                  <Link
+                  <div
                     key={sc.graph.id}
-                    href={`/career/${sc.graph.id}`}
-                    className="block bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all"
+                    className={`relative bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all ${isDeleting ? 'opacity-50' : ''}`}
                   >
-                    <h3 className="font-semibold text-white mb-2">
-                      {sc.graph.title || sc.career?.title || t('dashboard.unknownCareer')}
-                    </h3>
-                    <div className="flex items-center justify-between text-sm text-slate-400 mb-3">
-                      <span>{masteredSkills}/{totalSkills} {t('dashboard.skillsMastered')}</span>
-                      <span className="text-amber-400">{progress}%</span>
+                    {/* 3-dots menu */}
+                    <div className="absolute top-2 right-2">
+                      <DropdownMenu items={menuItems} position="bottom-right" />
                     </div>
-                    <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-slate-500 mt-2">
-                      {t('dashboard.lastUpdated')}: {new Date(sc.graph.updatedAt).toLocaleDateString()}
-                    </p>
-                  </Link>
+
+                    <Link href={`/career/${sc.graph.id}`} className="block">
+                      <h3 className="font-semibold text-white mb-2 pr-8">
+                        {sc.graph.title || sc.career?.title || t('dashboard.unknownCareer')}
+                      </h3>
+                      <div className="flex items-center justify-between text-sm text-slate-400 mb-3">
+                        <span>{masteredSkills}/{totalSkills} {t('dashboard.skillsMastered')}</span>
+                        <span className="text-amber-400">{progress}%</span>
+                      </div>
+                      <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2">
+                        {t('dashboard.lastUpdated')}: {new Date(sc.graph.updatedAt).toLocaleDateString()}
+                      </p>
+                    </Link>
+                  </div>
                 );
               })}
             </div>
@@ -233,6 +304,19 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title={t('dashboard.deleteTitle')}
+        message={t('dashboard.confirmDelete')}
+        confirmText={t('dashboard.delete')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        isLoading={!!deletingMapId}
+      />
     </div>
   );
 }

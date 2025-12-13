@@ -12,7 +12,8 @@
     "goBack": "返回",
     "goBackHome": "返回首页",
     "saved": "已保存",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "cancel": "取消"
   },
   "header": {
     "brandName": "个人技能地图"
@@ -70,7 +71,17 @@
     "copyToMyMaps": "复制到我的地图",
     "copying": "复制中...",
     "saveToMyMaps": "保存到我的地图",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "deleteTitle": "删除技能地图",
+    "confirmDelete": "确定要删除这个技能地图吗？此操作无法撤销。",
+    "deleteSuccess": "技能地图已删除",
+    "deleteFailed": "删除技能地图失败",
+    "menu": {
+      "merge": "合并地图",
+      "sort": "整理布局",
+      "share": "分享",
+      "delete": "删除"
+    }
   },
   "dashboard": {
     "signInRequired": "需要登录",
@@ -88,7 +99,13 @@
     "startYourJourney": "开始你的旅程",
     "startDescription": "探索职业道路并开始追踪你的技能进度。你保存的道路将显示在这里。",
     "exploreCareers": "探索职业",
-    "unknownCareer": "未知职业"
+    "unknownCareer": "未知职业",
+    "merge": "合并",
+    "delete": "删除",
+    "deleteTitle": "删除技能地图",
+    "confirmDelete": "确定要删除这个技能地图吗？此操作无法撤销。",
+    "deleteSuccess": "技能地图已删除",
+    "deleteFailed": "删除技能地图失败"
   },
   "featuredCareers": {
     "frontendDeveloper": "前端开发工程师",

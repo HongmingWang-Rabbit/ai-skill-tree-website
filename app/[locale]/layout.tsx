@@ -6,6 +6,7 @@ import { routing, locales, getOgLocale } from '@/i18n/routing';
 import { AuthProvider, Web3Provider } from '@/components/providers';
 import { Header } from '@/components/layout';
 import { JsonLd, OrganizationJsonLd } from '@/components/seo';
+import { Toaster } from '@/components/ui';
 import { SITE_URL } from '@/lib/constants';
 
 export function generateStaticParams() {
@@ -78,6 +79,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <Web3Provider>
+              <Toaster />
               <Header />
               <main>{children}</main>
             </Web3Provider>

@@ -17,6 +17,8 @@ An interactive web application that generates and visualizes career skill maps u
 - **Smart Map Merging**: AI-powered merge combining two skill maps with intelligent deduplication
 - **Draggable Nodes**: Reposition skills to your preference - positions auto-save and persist
 - **Organize Button**: Re-arrange nodes in a neat radial layout with max 6 nodes per ring (auto-triggers after merge)
+- **Quick Actions Menu**: 3-dots dropdown on dashboard cards and career page for merge, organize, share, and delete
+- **Toast Notifications**: Non-intrusive success/error feedback via react-hot-toast with custom styling
 - **Multi-Language Support**: Full internationalization with English, Chinese, and Japanese
 - **SEO Optimized**: Dynamic sitemap, robots.txt, hreflang tags, Open Graph/Twitter cards, JSON-LD structured data
 - **Smart Caching**: Redis caching prevents redundant API calls and speeds up repeat queries
@@ -153,6 +155,9 @@ An interactive web application that generates and visualizes career skill maps u
 │       ├── GlassPanel.tsx      # Glassmorphism container
 │       ├── Icons.tsx           # Reusable SVG icons
 │       ├── SearchInput.tsx     # Search input with customizable width
+│       ├── DropdownMenu.tsx    # 3-dots action menu
+│       ├── ConfirmModal.tsx    # Styled confirmation dialog
+│       ├── Toast.tsx           # Toast notifications wrapper
 │       └── LanguageSwitcher.tsx # Language dropdown selector
 ├── i18n/                       # Internationalization config
 ├── messages/                   # Translation files (en, zh, ja)

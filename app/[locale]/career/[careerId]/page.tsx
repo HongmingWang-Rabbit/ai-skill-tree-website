@@ -3,13 +3,15 @@
 import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { SkillGraph, type SkillGraphHandle } from '@/components/skill-graph/SkillGraph';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { XPProgressRing } from '@/components/ui/XPProgressRing';
 import { ShareModal } from '@/components/ui/ShareModal';
+import { DropdownMenu, type DropdownMenuItem, MergeIcon, TrashIcon, SortIcon, ShareIcon, ConfirmModal, showToast } from '@/components/ui';
 import { AIChatPanel, MergeMapModal } from '@/components/ai-chat';
 import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
-import { SKILL_PASS_THRESHOLD, SIGN_IN_PROMPT_DELAY_MS, AUTO_SAVE_DEBOUNCE_MS } from '@/lib/constants';
+import { SKILL_PASS_THRESHOLD, SIGN_IN_PROMPT_DELAY_MS, AUTO_SAVE_DEBOUNCE_MS, API_ROUTES } from '@/lib/constants';
 import { isUUID, isShareSlug } from '@/lib/normalize-career';
 import { useRouter } from '@/i18n/navigation';
 import type { Node, Edge } from '@xyflow/react';
@@ -73,6 +75,7 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const { data: session, status: authStatus } = useSession();
 
   // Core state
@@ -83,6 +86,7 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // UI state
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
@@ -113,6 +117,13 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const graphContainerRef = useRef<HTMLDivElement>(null);
   const skillGraphRef = useRef<SkillGraphHandle>(null);
   const { isCapturing, capturePreview, downloadFromDataUrl, copyFromDataUrl, shareFromDataUrl } = useShareScreenshot();
+
+  // Auto-open merge modal if ?merge=true query param is present
+  useEffect(() => {
+    if (searchParams.get('merge') === 'true' && viewMode === 'own-map' && !showMergeModal) {
+      setShowMergeModal(true);
+    }
+  }, [searchParams, viewMode, showMergeModal]);
 
   // Determine what type of ID we're dealing with and fetch accordingly
   useEffect(() => {
@@ -364,6 +375,57 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
       setIsSaved(false);
     }
   }, [previousGraphState]);
+
+  // Delete confirmation modal state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Open delete confirmation
+  const openDeleteConfirm = useCallback(() => {
+    setShowDeleteConfirm(true);
+  }, []);
+
+  // Handle delete confirmation
+  const handleConfirmDelete = useCallback(async () => {
+    if (!userMap?.id) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`${API_ROUTES.MAP}/${userMap.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        showToast.success(t('career.deleteSuccess'));
+        router.push('/dashboard');
+      } else {
+        showToast.error(t('career.deleteFailed'));
+      }
+    } catch {
+      showToast.error(t('career.deleteFailed'));
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  }, [userMap?.id, router, t]);
+
+  // Cancel delete
+  const handleCancelDelete = useCallback(() => {
+    setShowDeleteConfirm(false);
+  }, []);
+
+  // Sort/organize nodes
+  const handleSortNodes = useCallback(() => {
+    skillGraphRef.current?.sortNodes();
+  }, []);
+
+  // Open share modal
+  const handleOpenShare = useCallback(async () => {
+    setShowShareModal(true);
+    setCurrentSlide('full');
+    setSlidePreviews({ full: null, completed: null, summary: null });
+    await captureSlidePreview('full');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Save merged graph to database
   const saveMergedGraph = useCallback(async (
@@ -617,70 +679,70 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
             )}
 
 
-            {/* Save status and merge button for own map */}
+            {/* Save status for own map */}
             {viewMode === 'own-map' && session?.user && (
-              <div className="flex items-center gap-3">
-                {/* Merge Button */}
-                <button
-                  onClick={() => setShowMergeModal(true)}
-                  className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
-                  title={t('aiChat.mergeButton')}
-                >
-                  <svg
-                    className="w-5 h-5 text-slate-400 group-hover:text-amber-400 transition-colors"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                </button>
-
-                {/* Save Status */}
-                <div className="flex items-center gap-2 text-sm">
-                  {isSaving ? (
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                      {t('common.saving')}
-                    </span>
-                  ) : isSaved ? (
-                    <span className="text-emerald-400 flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {t('common.saved')}
-                    </span>
-                  ) : null}
-                </div>
+              <div className="flex items-center gap-2 text-sm">
+                {isSaving ? (
+                  <span className="text-slate-400 flex items-center gap-1">
+                    <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                    {t('common.saving')}
+                  </span>
+                ) : isSaved ? (
+                  <span className="text-emerald-400 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {t('common.saved')}
+                  </span>
+                ) : null}
               </div>
             )}
 
-            {/* Share Button */}
-            <button
-              onClick={async () => {
-                setShowShareModal(true);
-                setCurrentSlide('full');
-                setSlidePreviews({ full: null, completed: null, summary: null });
-                await captureSlidePreview('full');
-              }}
-              className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
-              title={t('career.share')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-slate-400 group-hover:text-amber-400 transition-colors"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            {/* 3-dots menu for own map */}
+            {viewMode === 'own-map' && session?.user && (
+              <DropdownMenu
+                items={[
+                  {
+                    id: 'merge',
+                    label: t('career.menu.merge'),
+                    icon: <MergeIcon className="w-4 h-4" />,
+                    onClick: () => setShowMergeModal(true),
+                  },
+                  {
+                    id: 'sort',
+                    label: t('career.menu.sort'),
+                    icon: <SortIcon className="w-4 h-4" />,
+                    onClick: handleSortNodes,
+                  },
+                  {
+                    id: 'share',
+                    label: t('career.menu.share'),
+                    icon: <ShareIcon className="w-4 h-4" />,
+                    onClick: handleOpenShare,
+                  },
+                  {
+                    id: 'delete',
+                    label: t('career.menu.delete'),
+                    icon: <TrashIcon className="w-4 h-4" />,
+                    onClick: openDeleteConfirm,
+                    variant: 'danger',
+                    disabled: isDeleting,
+                  },
+                ]}
+                position="bottom-right"
+              />
+            )}
+
+            {/* Share button for non-owner views */}
+            {viewMode !== 'own-map' && (
+              <button
+                onClick={handleOpenShare}
+                className="p-2 hover:bg-slate-800 rounded-lg transition-colors group"
+                title={t('career.share')}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                />
-              </svg>
-            </button>
+                <ShareIcon className="h-5 w-5 text-slate-400 group-hover:text-amber-400 transition-colors" />
+              </button>
+            )}
             <XPProgressRing progress={overallProgress} size={60} strokeWidth={4} />
           </div>
         </div>
@@ -824,6 +886,19 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         currentEdges={skillEdges as SkillEdge[]}
         locale={locale as Locale}
         onMergeComplete={handleMergeComplete}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title={t('career.deleteTitle')}
+        message={t('career.confirmDelete')}
+        confirmText={t('career.menu.delete')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );

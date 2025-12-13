@@ -36,7 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - API Routes: `API_ROUTES` (centralized API endpoint paths for client-side fetching)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
@@ -293,6 +293,11 @@ The skill graph uses a radial layout algorithm with smart features:
 3. Merge/AI adds nodes → auto-detects new nodes and reorganizes entire layout
 4. Click "Organize" → all positions reset (uses `preservePositions: false`)
 
+**SkillGraphHandle Ref:**
+The SkillGraph component exposes methods via `ref` for external control:
+- `getNodePositions()` - Returns array of node positions for screenshot capture
+- `sortNodes()` - Triggers layout reorganization (used by dropdown menu)
+
 ### SEO & Multi-locale Support
 
 The app has comprehensive SEO with multi-locale support:
@@ -326,6 +331,53 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
+```
+
+### UI Patterns
+
+**Confirmation Dialogs:**
+Use `ConfirmModal` instead of browser's native `confirm()` for consistent styling:
+```tsx
+import { ConfirmModal } from '@/components/ui';
+
+const [showConfirm, setShowConfirm] = useState(false);
+
+<ConfirmModal
+  isOpen={showConfirm}
+  onConfirm={handleConfirm}
+  onCancel={() => setShowConfirm(false)}
+  title={t('dashboard.deleteTitle')}
+  message={t('dashboard.confirmDelete')}
+  confirmText={t('dashboard.delete')}
+  cancelText={t('common.cancel')}
+  variant="danger" // 'danger' | 'warning' | 'default'
+  isLoading={isDeleting}
+/>
+```
+
+**Toast Notifications:**
+Use `showToast` for user feedback. `Toaster` is already added in `app/[locale]/layout.tsx`:
+```tsx
+import { showToast } from '@/components/ui';
+
+showToast.success(t('dashboard.deleteSuccess'));
+showToast.error(t('dashboard.deleteFailed'));
+showToast.warning('Warning message');
+showToast.info('Info message');
+showToast.loading('Loading...');
+showToast.dismiss(); // Dismiss all toasts
+```
+
+**Dropdown Menus:**
+Use `DropdownMenu` for 3-dots action menus:
+```tsx
+import { DropdownMenu, type DropdownMenuItem, TrashIcon } from '@/components/ui';
+
+const menuItems: DropdownMenuItem[] = [
+  { id: 'delete', label: t('delete'), icon: <TrashIcon />, onClick: handleDelete, variant: 'danger' },
+];
+
+<DropdownMenu items={menuItems} position="bottom-right" />
 ```
 
 ### Path Aliases

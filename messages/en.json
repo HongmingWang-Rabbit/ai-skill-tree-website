@@ -12,7 +12,8 @@
     "goBack": "Go Back",
     "goBackHome": "Go Back Home",
     "saved": "Saved",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "cancel": "Cancel"
   },
   "header": {
     "brandName": "Personal Skill Map"
@@ -70,7 +71,17 @@
     "copyToMyMaps": "Copy to My Maps",
     "copying": "Copying...",
     "saveToMyMaps": "Save to My Maps",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "deleteTitle": "Delete Skill Map",
+    "confirmDelete": "Are you sure you want to delete this skill map? This action cannot be undone.",
+    "deleteSuccess": "Skill map deleted successfully",
+    "deleteFailed": "Failed to delete skill map",
+    "menu": {
+      "merge": "Merge Maps",
+      "sort": "Organize",
+      "share": "Share",
+      "delete": "Delete"
+    }
   },
   "dashboard": {
     "signInRequired": "Sign In Required",
@@ -88,7 +99,13 @@
     "startYourJourney": "Start Your Journey",
     "startDescription": "Explore career paths and start tracking your skill progress. Your saved paths will appear here.",
     "exploreCareers": "Explore Careers",
-    "unknownCareer": "Unknown Career"
+    "unknownCareer": "Unknown Career",
+    "merge": "Merge",
+    "delete": "Delete",
+    "deleteTitle": "Delete Skill Map",
+    "confirmDelete": "Are you sure you want to delete this skill map? This action cannot be undone.",
+    "deleteSuccess": "Skill map deleted successfully",
+    "deleteFailed": "Failed to delete skill map"
   },
   "featuredCareers": {
     "frontendDeveloper": "Frontend Developer",
