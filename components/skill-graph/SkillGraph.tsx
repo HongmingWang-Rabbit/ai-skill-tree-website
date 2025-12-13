@@ -162,8 +162,8 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
 
   // Apply layout to nodes (preserve saved positions on initial load)
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
-    return getLayoutedElements(nodesWithCenter, edgesWithCenter, 'TB', CENTER_NODE_ID, { preservePositions: true });
-  }, [nodesWithCenter, edgesWithCenter]);
+    return getLayoutedElements(nodesWithCenter, edgesWithCenter, 'TB', CENTER_NODE_ID, { preservePositions: true, centerNodeTitle: careerTitle });
+  }, [nodesWithCenter, edgesWithCenter, careerTitle]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
@@ -213,7 +213,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
           edgesWithCenter,
           'TB',
           CENTER_NODE_ID,
-          { preservePositions: false }
+          { preservePositions: false, centerNodeTitle: careerTitle }
         );
         setNodes(organizedNodes);
         setEdges(organizedEdges);
@@ -228,7 +228,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
       prevNodesIdentityRef.current = currentNodesIdentity;
       prevEdgesIdentityRef.current = currentEdgesIdentity;
     }
-  }, [layoutedNodes, layoutedEdges, setNodes, setEdges, getNodesIdentity, getEdgesIdentity, nodesWithCenter, edgesWithCenter, onNodesChangeProp]);
+  }, [layoutedNodes, layoutedEdges, setNodes, setEdges, getNodesIdentity, getEdgesIdentity, nodesWithCenter, edgesWithCenter, onNodesChangeProp, careerTitle]);
 
   // Handle sort/organize button - re-apply layout to current nodes (reset all positions)
   const handleSortNodes = useCallback(() => {
@@ -239,13 +239,13 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
       edgesWithCenter,
       'TB',
       CENTER_NODE_ID,
-      { preservePositions: false }
+      { preservePositions: false, centerNodeTitle: careerTitle }
     );
     setNodes(sortedNodes);
     setEdges(sortedEdges);
     // Notify parent of position changes
     onNodesChangeProp?.(sortedNodes);
-  }, [nodesWithCenter, edgesWithCenter, setNodes, setEdges, onNodesChangeProp]);
+  }, [nodesWithCenter, edgesWithCenter, setNodes, setEdges, onNodesChangeProp, careerTitle]);
 
   // Expose methods via ref for external access
   useImperativeHandle(ref, () => ({

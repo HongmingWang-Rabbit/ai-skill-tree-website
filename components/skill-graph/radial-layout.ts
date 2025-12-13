@@ -6,6 +6,11 @@ const {
   NODE_WIDTH,
   NODE_HEIGHT,
   CENTER_NODE_SIZE,
+  CENTER_NODE_MAX_SIZE,
+  CENTER_NODE_TITLE_THRESHOLD,
+  CENTER_NODE_GROWTH_FACTOR,
+  CENTER_NODE_DECORATIVE_RINGS_SPACE,
+  CENTER_NODE_GAP,
   CENTER_X,
   CENTER_Y,
   RING_SPACING,
@@ -15,6 +20,28 @@ const {
   SUB_RING_SPACING,
 } = LAYOUT_CONFIG;
 
+/**
+ * Calculate dynamic center node size based on title length
+ * Must match the calculation in CenterNode.tsx
+ */
+function calculateCenterNodeSize(titleLength: number): number {
+  const dynamicSize = Math.max(
+    CENTER_NODE_SIZE,
+    CENTER_NODE_SIZE + Math.max(0, titleLength - CENTER_NODE_TITLE_THRESHOLD) * CENTER_NODE_GROWTH_FACTOR
+  );
+  return Math.min(dynamicSize, CENTER_NODE_MAX_SIZE);
+}
+
+/**
+ * Calculate minimum radius based on center node size
+ * Accounts for decorative rings and node dimensions
+ */
+function calculateMinRadius(centerNodeSize: number): number {
+  const centerRadius = centerNodeSize / 2;
+  const nodeHalfHeight = NODE_HEIGHT / 2;
+  return centerRadius + CENTER_NODE_DECORATIVE_RINGS_SPACE + nodeHalfHeight + CENTER_NODE_GAP;
+}
+
 interface LayoutResult {
   nodes: Node[];
   edges: Edge[];
@@ -22,6 +49,7 @@ interface LayoutResult {
 
 interface LayoutOptions {
   preservePositions?: boolean;
+  centerNodeTitle?: string;
 }
 
 /**
@@ -74,23 +102,27 @@ function assignNodeDepths(
  * @param nodeId - The node ID for consistent jitter
  * @param isCenter - Whether this is the center node
  * @param subRingIndex - Which sub-ring within the depth level (0-based)
+ * @param centerNodeSize - Dynamic size of center node
+ * @param minRadius - Dynamic minimum radius for first ring
  */
 function calculateNodePosition(
   depth: number,
   angle: number,
   nodeId: string,
   isCenter: boolean,
-  subRingIndex: number = 0
+  subRingIndex: number = 0,
+  centerNodeSize: number = CENTER_NODE_SIZE,
+  minRadius: number = MIN_RADIUS
 ): { x: number; y: number } {
   if (isCenter) {
     return {
-      x: CENTER_X - CENTER_NODE_SIZE / 2,
-      y: CENTER_Y - CENTER_NODE_SIZE / 2,
+      x: CENTER_X - centerNodeSize / 2,
+      y: CENTER_Y - centerNodeSize / 2,
     };
   }
 
   // Base radius for this depth, plus offset for sub-ring
-  const baseRadius = MIN_RADIUS + (depth - 1) * RING_SPACING;
+  const baseRadius = minRadius + (depth - 1) * RING_SPACING;
   const subRingOffset = subRingIndex * SUB_RING_SPACING;
   const radius = baseRadius + subRingOffset;
 
@@ -178,7 +210,7 @@ export function getRadialLayout(
   centerNodeId?: string,
   options: LayoutOptions = {}
 ): LayoutResult {
-  const { preservePositions = false } = options;
+  const { preservePositions = false, centerNodeTitle = '' } = options;
   if (nodes.length === 0) {
     return { nodes: [], edges };
   }
@@ -186,6 +218,10 @@ export function getRadialLayout(
   if (!centerNodeId) {
     return { nodes, edges };
   }
+
+  // Calculate dynamic center node size and min radius
+  const centerNodeSize = calculateCenterNodeSize(centerNodeTitle.length);
+  const dynamicMinRadius = Math.max(MIN_RADIUS, calculateMinRadius(centerNodeSize));
 
   const childrenMap = buildChildrenMap(edges);
   const depths = assignNodeDepths(centerNodeId, childrenMap);
@@ -206,7 +242,7 @@ export function getRadialLayout(
     let position: { x: number; y: number };
 
     if (isCenter) {
-      position = calculateNodePosition(0, 0, node.id, true);
+      position = calculateNodePosition(0, 0, node.id, true, 0, centerNodeSize, dynamicMinRadius);
     } else if (assignment) {
       // Calculate angle based on position in sub-ring
       // Evenly distribute nodes around the circle
@@ -220,7 +256,9 @@ export function getRadialLayout(
         angle,
         node.id,
         false,
-        assignment.subRingIndex
+        assignment.subRingIndex,
+        centerNodeSize,
+        dynamicMinRadius
       );
     } else {
       // Fallback for unconnected nodes - place in outer ring
@@ -228,7 +266,7 @@ export function getRadialLayout(
       const fallbackIndex = unconnectedNodes.indexOf(node);
       const totalUnconnected = unconnectedNodes.length;
       const fallbackAngle = (fallbackIndex / Math.max(totalUnconnected, 1)) * 2 * Math.PI;
-      const fallbackRadius = MIN_RADIUS + 3 * RING_SPACING;
+      const fallbackRadius = dynamicMinRadius + 3 * RING_SPACING;
       position = {
         x: CENTER_X + fallbackRadius * Math.cos(fallbackAngle - Math.PI / 2) - NODE_WIDTH / 2,
         y: CENTER_Y + fallbackRadius * Math.sin(fallbackAngle - Math.PI / 2) - NODE_HEIGHT / 2,

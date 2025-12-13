@@ -68,9 +68,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`
 
 6. **Check `components/skill-graph/` for layout utilities**:
-   - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, ring spacing, max nodes per ring)
-   - `radial-layout.ts` - `getRadialLayout()` with `preservePositions` option for saved positions
+   - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, center node dynamic sizing, ring spacing, max nodes per ring), `CENTER_NODE_ID`
+   - `radial-layout.ts` - `getRadialLayout()` with options: `preservePositions` (keep saved positions), `centerNodeTitle` (enable dynamic center node sizing)
    - `layout-utils.ts` - Edge handle utilities, seeded random for consistent jitter
+   - `CenterNode.tsx` - Dynamic center node component (size adjusts based on title length using `LAYOUT_CONFIG` constants)
 
 ## Commands
 
@@ -353,10 +354,33 @@ Derived constants (computed from fileTypes):
 The skill graph uses a radial layout algorithm with smart features:
 
 **Layout Configuration** (`LAYOUT_CONFIG` in `components/skill-graph/constants.ts`):
-- `MAX_NODES_PER_RING`: 6 - Maximum nodes per ring before creating sub-rings
-- `SUB_RING_SPACING`: 180 - Spacing between sub-rings at same depth
-- `RING_SPACING`: 280 - Spacing between depth levels
-- `MIN_RADIUS`: 300 - Minimum radius for first ring
+- Node dimensions:
+  - `NODE_WIDTH`: 160 - Skill node width
+  - `NODE_HEIGHT`: 140 - Skill node height
+- Center node sizing (dynamic based on title length):
+  - `CENTER_NODE_SIZE`: 200 - Base size
+  - `CENTER_NODE_MAX_SIZE`: 300 - Maximum dynamic size
+  - `CENTER_NODE_TITLE_THRESHOLD`: 20 - Characters before size increases
+  - `CENTER_NODE_GROWTH_FACTOR`: 3 - Pixels per character over threshold
+  - `CENTER_NODE_DECORATIVE_RINGS_SPACE`: 30 - Space for decorative rings
+  - `CENTER_NODE_GAP`: 50 - Gap between center edge and first ring
+  - `CENTER_NODE_CONTENT_PADDING`: 48 - Padding inside center node
+  - `CENTER_NODE_FONT_SIZE_SMALL_THRESHOLD`: 40 - Characters for smallest font
+  - `CENTER_NODE_FONT_SIZE_MEDIUM_THRESHOLD`: 25 - Characters for medium font
+- Layout positioning:
+  - `RING_SPACING`: 280 - Spacing between depth levels
+  - `MIN_RADIUS`: 350 - Base minimum radius for first ring
+  - `MAX_NODES_PER_RING`: 6 - Maximum nodes per ring before creating sub-rings
+  - `SUB_RING_SPACING`: 180 - Spacing between sub-rings at same depth
+  - `JITTER_AMOUNT`: 20 - Random jitter for organic look
+
+**Dynamic Center Node:**
+The center node size adjusts based on career title length:
+- Titles under 20 chars: 200px (base size)
+- Longer titles grow at 3px per character
+- Maximum size capped at 300px
+- Font size adapts: >40 chars = small, >25 chars = medium, else large
+- Layout algorithm calculates minimum radius dynamically to prevent overlap
 
 **Features:**
 - Nodes arranged in concentric rings around center career node
@@ -365,6 +389,7 @@ The skill graph uses a radial layout algorithm with smart features:
 - "Organize" button resets all nodes to calculated layout
 - `preservePositions` option respects saved positions on load
 - Auto-organize on merge: when new nodes are added, layout automatically reorganizes
+- `centerNodeTitle` option enables dynamic radius calculation
 
 **Position Persistence:**
 1. User drags node → position saved to `nodeData` via PATCH API
