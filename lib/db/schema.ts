@@ -2,6 +2,17 @@ import { pgTable, text, timestamp, uuid, integer, jsonb, primaryKey, unique, boo
 
 // Note: For locale types, use `Locale` from '@/i18n/routing' as the canonical source
 
+// Type for user's work experience (stored in users.experience JSONB)
+export interface WorkExperience {
+  id: string;
+  company: string;
+  title: string;
+  startDate: string; // ISO date string (YYYY-MM)
+  endDate: string | null; // null = current position
+  description: string;
+  location?: string;
+}
+
 export const careers = pgTable('careers', {
   id: uuid('id').primaryKey().defaultRandom(),
   canonicalKey: text('canonical_key').notNull(),
@@ -64,6 +75,9 @@ export const users = pgTable('users', {
   emailVerified: timestamp('email_verified'),
   image: text('image'),
   walletAddress: text('wallet_address').unique(),
+  // Resume profile fields
+  bio: text('bio'),
+  experience: jsonb('experience').$type<WorkExperience[]>(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

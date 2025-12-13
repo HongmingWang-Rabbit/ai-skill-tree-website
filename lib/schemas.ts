@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SKILL_PROGRESS_MAX, MAP_TITLE_MAX_LENGTH } from './constants';
+import { SKILL_PROGRESS_MAX, MAP_TITLE_MAX_LENGTH, USER_NAME_MAX_LENGTH, RESUME_CONFIG } from './constants';
 
 // User node data schema (for saved map progress)
 export const UserNodeDataSchema = z.object({
@@ -76,9 +76,37 @@ export const URLImportSchema = z.object({
   existingEdges: z.array(z.lazy(() => SkillEdgeSchema)).optional(),
 });
 
+// Work experience schema (for resume profile)
+export const WorkExperienceSchema = z.object({
+  id: z.string(),
+  company: z.string().min(1).max(RESUME_CONFIG.experienceCompanyMaxLength),
+  title: z.string().min(1).max(RESUME_CONFIG.experienceTitleMaxLength),
+  startDate: z.string(), // ISO date (YYYY-MM)
+  endDate: z.string().nullable(), // null = current position
+  description: z.string().max(RESUME_CONFIG.experienceDescriptionMaxLength),
+  location: z.string().max(RESUME_CONFIG.experienceLocationMaxLength).optional(),
+});
+
+// Profile update schema (extended for resume feature)
+export const ProfileUpdateSchema = z.object({
+  name: z.string().min(1).max(USER_NAME_MAX_LENGTH).optional(),
+  bio: z.string().max(RESUME_CONFIG.bioMaxLength).optional(),
+  experience: z.array(WorkExperienceSchema).max(RESUME_CONFIG.experienceMaxItems).optional(),
+});
+
+// Resume generation request schema
+export const ResumeGenerateSchema = z.object({
+  locale: z.enum(['en', 'zh', 'ja']).default('en'),
+  jobTitle: z.string().max(RESUME_CONFIG.jobTitleMaxLength).optional(),
+  jobUrl: z.string().url().optional(),
+});
+
 // Types derived from schemas
 export type SkillNode = z.infer<typeof SkillNodeSchema>;
 export type SkillEdge = z.infer<typeof SkillEdgeSchema>;
 export type CareerResponse = z.infer<typeof CareerResponseSchema>;
 export type DocumentImportInput = z.infer<typeof DocumentImportSchema>;
 export type URLImportInput = z.infer<typeof URLImportSchema>;
+export type WorkExperience = z.infer<typeof WorkExperienceSchema>;
+export type ProfileUpdate = z.infer<typeof ProfileUpdateSchema>;
+export type ResumeGenerateInput = z.infer<typeof ResumeGenerateSchema>;

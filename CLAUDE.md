@@ -8,11 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 1. **Check `lib/` first** - Contains reusable utilities:
    - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`
-   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`
+   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`, `WorkExperienceSchema`, `ProfileUpdateSchema`, `ResumeGenerateSchema`
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
    - `lib/ai.ts` - OpenAI functions (using gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
    - `lib/ai-chat.ts` - AI chat utilities: `processChatMessage()`, `generateModificationSummary()`, `applyModifications()`, `generateSmartMerge()`, types: `ChatModification`, `ChatContext`, `ChatMessage`
-   - `lib/ai-document.ts` - Document skill extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()`, `generateExtractionSummary()`, types: `DocumentImportResult`
+   - `lib/ai-document.ts` - Document skill extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()`, `generateExtractionSummary()`, types: `DocumentImportResult`, `ExtractedExperience`
+   - `lib/ai-resume.ts` - Resume generation AI functions: `analyzeJobPosting()`, `analyzeJobTitle()`, `generateResumeContent()`, types: `JobRequirements`, `ResumeSkill`, `ResumeSkillGroup`, `ResumeContent`, `CareerSkillData`, `UserProfile`
    - `lib/document-parser.ts` - Document parsing utilities: `parsePDF()`, `parseWord()`, `parseImage()`, `parseText()`, `parseURL()`, `detectURLType()`, `truncateForAI()`, `isSupportedFileType()`, `isImageFile()`, `getMimeType()`, types: `ParsedDocument`, `DocumentParseError`
    - `lib/mcp/tavily.ts` - Tavily web search integration: `searchTavily()`, `searchTrendingTech()`, `searchCareerSkills()`, `formatSearchResultsForAI()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
@@ -36,19 +37,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - AI Chat: `AI_CHAT_CONFIG` (panel dimensions, API settings like model/temperature/maxTokens, animation timing, search keywords)
      - Tavily: `TAVILY_CONFIG` (API URL, search depth defaults, domain filters for trending tech and career skills searches)
      - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
-     - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
+     - Resume Export: `RESUME_CONFIG` (bioMaxLength, experienceMaxItems, pdfMaxSkillsPerCategory, aiModel, aiMaxTokens, aiJobAnalysisMaxTokens, aiTemperature, jobUrlTimeout, jobContentMaxChars, jobTitleMaxLength, previewSkillCategories, previewSkillsPerCategory, previewHighlightsCount, pdfLabels for i18n-ready section titles, monthAbbreviations for date formatting)
+     - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds/maxDisplayedExperiences, modal settings with maxHeightVh/headerHeightPx), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
      - API Routes: `API_ROUTES` (centralized API endpoint paths for client-side fetching)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`; resume: `PlusIcon`, `BriefcaseIcon`, `DownloadIcon`, `ResumeIcon`, `SparklesIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
    - `components/ai-chat/` - `AIChatPanel` (floating chat panel with document import), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
    - `components/import/` - `DocumentImportModal` (modal for importing skills from documents/URLs), `ImportPreview` (preview extracted skills before confirmation)
+   - `components/resume/` - `ResumePDF` (PDF template using @react-pdf/renderer), `ResumeExportModal` (multi-stage modal for resume generation), `PDFDownloadButton` (wrapper for dynamic PDF download to avoid SSR issues)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - Context providers
-   - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph` (React Flow visualization of user's skill universe)
+   - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph` (React Flow visualization of user's skill universe), `ExperienceEditor` (modal for managing work experience)
 
 3. **Check `hooks/`** - Custom React hooks:
    - `useShareScreenshot` - Screenshot/share functionality
@@ -65,7 +68,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`, `resume`
 
 6. **Check `components/skill-graph/` for layout utilities**:
    - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, center node dynamic sizing, ring spacing, max nodes per ring), `CENTER_NODE_ID`
@@ -104,7 +107,7 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (update user name), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`, `/import/document` (file upload), `/import/url` (URL import)
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (GET/PATCH user profile with bio/experience), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`, `/import/document` (file upload), `/import/url` (URL import), `/resume/generate` (AI resume generation)
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
@@ -277,7 +280,7 @@ AI is restricted to skill map related tasks only. Off-topic requests are decline
 
 ### Document Import Feature
 
-Users can import skills from resumes, portfolios, or web profiles to create or update skill maps:
+Users can import skills, professional bio, and work experience from resumes, portfolios, or web profiles to create or update skill maps:
 
 **Supported Input Types:**
 - PDF files (resumes, CVs)
@@ -290,14 +293,19 @@ Users can import skills from resumes, portfolios, or web profiles to create or u
 1. Dashboard: Import button creates new skill maps from documents
 2. AI Chat: "Import from document" suggestion updates existing maps
 
+**Extracted Data:**
+- Skills with categories, levels, and confidence scores
+- Professional bio/summary (2-4 sentences)
+- Work experience (company, title, dates, location, description)
+
 **Data Flow:**
 1. User uploads file or enters URL
 2. `POST /api/import/document` or `POST /api/import/url` parses content
 3. `lib/document-parser.ts` extracts text (pdf-parse for PDFs, cheerio + @extractus/article-extractor for URLs)
-4. `lib/ai-document.ts` uses OpenAI to extract skills with categories and confidence scores
+4. `lib/ai-document.ts` uses OpenAI to extract skills, bio, and work experience
 5. For LinkedIn/login-walled sites, Tavily API provides fallback content extraction
-6. Preview modal shows extracted skills grouped by category with confidence indicators
-7. User confirms → skills converted to SkillNodes and saved via `/api/map/fork`
+6. Preview modal shows extracted skills, bio, and work experience with confidence indicators
+7. User confirms → skills converted to SkillNodes, bio and experience saved to user profile
 
 **Components:**
 - `DocumentImportModal` - Tab-based modal for file upload or URL input
@@ -336,8 +344,12 @@ Users can import skills from resumes, portfolios, or web profiles to create or u
 - `preview`:
   - `maxDisplayedSkillsPerCategory`: 8 skills shown per category
   - `maxDisplayedCategories`: 5 max categories in summary
+  - `maxDisplayedExperiences`: 5 max work experiences in preview
   - `confidenceThresholds.high`: 0.8 for high confidence
   - `confidenceThresholds.medium`: 0.5 for medium confidence
+- `modal`:
+  - `maxHeightVh`: 85 (modal max height as viewport percentage)
+  - `headerHeightPx`: 200 (header + padding + actions height for scroll calculation)
 
 Derived constants (computed from fileTypes):
 - `SUPPORTED_EXTENSIONS`: All supported file extensions
@@ -349,6 +361,64 @@ Derived constants (computed from fileTypes):
 **Update vs Create Mode:**
 - Dashboard: Creates new skill maps (`mode='create'`)
 - AI Chat: Updates existing maps (`mode='update'`), filtering out duplicate skills
+
+### Resume Export Feature
+
+Users can generate professional PDF resumes based on their skill maps and work experience:
+
+**Components:**
+- `ResumeExportModal` - Multi-stage modal (input → generating → preview → download)
+- `ResumePDF` - PDF template using @react-pdf/renderer with professional styling
+- `ExperienceEditor` - Modal for managing work experience entries
+
+**Data Flow:**
+1. Dashboard shows bio textarea (auto-saves) and work experience management
+2. User clicks "Export Resume" → opens `ResumeExportModal`
+3. User optionally enters job title or job posting URL for tailored resume
+4. `POST /api/resume/generate` fetches user's skills from all career maps
+5. If job URL provided, `parseURL()` extracts content and AI analyzes requirements
+6. AI generates tailored resume content (summary, skills grouped by relevance, highlights)
+7. Preview shows generated content with editable summary
+8. User downloads PDF via `PDFDownloadLink` (client-side rendering)
+
+**API Route:**
+- `POST /api/resume/generate` - Generate resume content
+  - Input: `{ locale, jobTitle?, jobUrl? }`
+  - Returns: profile, experience, AI-generated resumeContent, jobRequirements, stats
+
+**Database Schema (users table):**
+- `bio: text` - Professional bio/summary
+- `experience: jsonb` - Array of `WorkExperience` objects
+
+**WorkExperience Type:**
+```typescript
+interface WorkExperience {
+  id: string;
+  company: string;
+  title: string;
+  startDate: string; // YYYY-MM format
+  endDate: string | null; // null = current position
+  description: string;
+  location?: string;
+}
+```
+
+**Configuration** (`RESUME_CONFIG` in constants):
+- `bioMaxLength`: 500 chars
+- `experienceMaxItems`: 10 max work experiences
+- `aiModel`: gpt-4o-mini for content generation
+- `aiMaxTokens`: 4000 for resume generation
+- `aiJobAnalysisMaxTokens`: 2000 for job analysis
+- `previewSkillCategories`: 3 categories in preview
+- `previewSkillsPerCategory`: 4 skills per category in preview
+- `previewHighlightsCount`: 3 highlights in preview
+- `pdfLabels`: Section titles (applyingFor, professionalSummary, keyHighlights, skills, workExperience, footer, present) for i18n
+- `monthAbbreviations`: Date formatting array
+
+**AI Functions** (`lib/ai-resume.ts`):
+- `analyzeJobPosting(content, jobTitle, locale)` - Extract requirements from job posting
+- `analyzeJobTitle(jobTitle, locale)` - Infer requirements from title alone
+- `generateResumeContent(profile, careers, jobRequirements, locale)` - Generate tailored content
 
 ### Skill Graph Layout
 

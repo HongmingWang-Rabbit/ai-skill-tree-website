@@ -4,12 +4,15 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH } from '@/lib/constants';
+import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH, RESUME_CONFIG } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
-import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon } from '@/components/ui';
+import { ExperienceEditor } from '@/components/dashboard/ExperienceEditor';
+import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon } from '@/components/ui';
 import { DocumentImportModal, type ImportResult } from '@/components/import';
+import { ResumeExportModal } from '@/components/resume';
 import { type Locale } from '@/i18n/routing';
+import { type WorkExperience } from '@/lib/schemas';
 
 interface SavedGraph {
   id: string;
@@ -56,6 +59,14 @@ export default function DashboardPage() {
   const [isCreatingMap, setIsCreatingMap] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
+  // Profile state (bio and experience)
+  const [bio, setBio] = useState('');
+  const [experience, setExperience] = useState<WorkExperience[]>([]);
+  const [isSavingBio, setIsSavingBio] = useState(false);
+  const [showExperienceEditor, setShowExperienceEditor] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const bioSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Fetch user's saved career graphs (single API call with joined career data)
   useEffect(() => {
     async function fetchSavedCareers() {
@@ -78,6 +89,78 @@ export default function DashboardPage() {
 
     fetchSavedCareers();
   }, [session?.user?.id]);
+
+  // Fetch user profile (bio and experience)
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!session?.user?.id) return;
+
+      try {
+        const response = await fetch(API_ROUTES.USER_PROFILE);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          setBio(data.data.bio || '');
+          setExperience(data.data.experience || []);
+        }
+      } catch {
+        // Failed to fetch profile
+      }
+    }
+
+    fetchProfile();
+  }, [session?.user?.id]);
+
+  // Save bio with debouncing
+  const saveBio = useCallback(async (newBio: string) => {
+    // Clear any pending save
+    if (bioSaveTimeoutRef.current) {
+      clearTimeout(bioSaveTimeoutRef.current);
+    }
+
+    // Debounce the save
+    bioSaveTimeoutRef.current = setTimeout(async () => {
+      setIsSavingBio(true);
+      try {
+        const response = await fetch(API_ROUTES.USER_PROFILE, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bio: newBio }),
+        });
+
+        if (!response.ok) {
+          showToast.error(t('dashboard.bioSaveFailed'));
+        }
+      } catch {
+        showToast.error(t('dashboard.bioSaveFailed'));
+      } finally {
+        setIsSavingBio(false);
+      }
+    }, 1000);
+  }, [t]);
+
+  // Handle bio change with auto-save
+  const handleBioChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newBio = e.target.value;
+    setBio(newBio);
+    saveBio(newBio);
+  }, [saveBio]);
+
+  // Save experience
+  const handleSaveExperience = useCallback(async (newExperience: WorkExperience[]) => {
+    const response = await fetch(API_ROUTES.USER_PROFILE, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ experience: newExperience }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save experience');
+    }
+
+    setExperience(newExperience);
+    showToast.success(t('dashboard.experienceSaved'));
+  }, [t]);
 
   // Open delete confirmation modal
   const openDeleteConfirm = useCallback((mapId: string) => {
@@ -173,12 +256,12 @@ export default function DashboardPage() {
     }
   }, [saveEditedName, cancelEditingName]);
 
-  // Handle import completion - create new map with imported skills
+  // Handle import completion - create new map with imported skills and update profile
   const handleImportComplete = useCallback(async (result: ImportResult) => {
     setIsCreatingMap(true);
     try {
       // Create a new map with the imported skills as custom nodes/edges
-      const response = await fetch(`${API_ROUTES.MAP}/fork`, {
+      const mapResponse = await fetch(`${API_ROUTES.MAP}/fork`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -188,21 +271,81 @@ export default function DashboardPage() {
         }),
       });
 
-      const data = await response.json();
+      const mapData = await mapResponse.json();
 
-      if (response.ok && data.mapId) {
-        showToast.success(t('import.success'));
-        // Redirect to the new map
-        router.push(`/career/${data.mapId}`);
-      } else {
-        throw new Error(data.error || 'Failed to create map');
+      if (!mapResponse.ok || !mapData.mapId) {
+        throw new Error(mapData.error || 'Failed to create map');
       }
+
+      // If bio or experience were extracted, update the user profile
+      if (result.bio || (result.experience && result.experience.length > 0)) {
+        const profileUpdate: { bio?: string; experience?: WorkExperience[] } = {};
+
+        // Update bio if extracted and user doesn't have one
+        if (result.bio && !bio) {
+          profileUpdate.bio = result.bio;
+        }
+
+        // Merge extracted experience with existing experience
+        if (result.experience && result.experience.length > 0) {
+          // Convert ExtractedExperience to WorkExperience by adding unique IDs
+          const newExperiences: WorkExperience[] = result.experience.map((exp, idx) => ({
+            id: `imported-${Date.now()}-${idx}`,
+            company: exp.company,
+            title: exp.title,
+            startDate: exp.startDate,
+            endDate: exp.endDate,
+            description: exp.description,
+            location: exp.location,
+          }));
+
+          // Merge with existing, avoiding duplicates (by company + title + startDate)
+          const existingKeys = new Set(
+            experience.map(e => `${e.company}-${e.title}-${e.startDate}`)
+          );
+          const uniqueNewExps = newExperiences.filter(
+            e => !existingKeys.has(`${e.company}-${e.title}-${e.startDate}`)
+          );
+
+          if (uniqueNewExps.length > 0) {
+            // Combine and sort by start date (most recent first)
+            const combinedExperience = [...experience, ...uniqueNewExps]
+              .sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))
+              .slice(0, RESUME_CONFIG.experienceMaxItems);
+            profileUpdate.experience = combinedExperience;
+          }
+        }
+
+        // Save profile updates if any
+        if (Object.keys(profileUpdate).length > 0) {
+          const profileResponse = await fetch(API_ROUTES.USER_PROFILE, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profileUpdate),
+          });
+
+          if (profileResponse.ok) {
+            // Update local state
+            if (profileUpdate.bio) {
+              setBio(profileUpdate.bio);
+            }
+            if (profileUpdate.experience) {
+              setExperience(profileUpdate.experience);
+            }
+            showToast.success(t('import.profileUpdated'));
+          }
+        }
+      }
+
+      showToast.success(t('import.success'));
+      // Redirect to the new map
+      router.push(`/career/${mapData.mapId}`);
     } catch (err) {
       showToast.error(err instanceof Error ? err.message : t('import.createFailed'));
     } finally {
       setIsCreatingMap(false);
     }
-  }, [router, t]);
+  }, [router, t, bio, experience]);
 
   // Calculate stats from saved careers
   const stats = {
@@ -310,6 +453,50 @@ export default function DashboardPage() {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Bio Section */}
+          <div className="mt-4 pt-4 border-t border-slate-700">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-slate-400">{t('dashboard.bio')}</label>
+              {isSavingBio && (
+                <span className="text-xs text-slate-500">{t('dashboard.saving')}</span>
+              )}
+            </div>
+            <textarea
+              value={bio}
+              onChange={handleBioChange}
+              placeholder={t('dashboard.bioPlaceholder')}
+              maxLength={RESUME_CONFIG.bioMaxLength}
+              rows={2}
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              {bio.length}/{RESUME_CONFIG.bioMaxLength}
+            </p>
+          </div>
+
+          {/* Experience and Resume Actions */}
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              onClick={() => setShowExperienceEditor(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+            >
+              <BriefcaseIcon className="w-4 h-4" />
+              <span>{t('dashboard.manageExperience')}</span>
+              {experience.length > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                  {experience.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setShowResumeModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-semibold rounded-lg transition-all"
+            >
+              <ResumeIcon className="w-4 h-4" />
+              <span>{t('dashboard.exportResume')}</span>
+            </button>
           </div>
         </div>
 
@@ -457,6 +644,21 @@ export default function DashboardPage() {
         onImportComplete={handleImportComplete}
         locale={locale}
         mode="create"
+      />
+
+      {/* Experience Editor Modal */}
+      <ExperienceEditor
+        isOpen={showExperienceEditor}
+        onClose={() => setShowExperienceEditor(false)}
+        experience={experience}
+        onSave={handleSaveExperience}
+      />
+
+      {/* Resume Export Modal */}
+      <ResumeExportModal
+        isOpen={showResumeModal}
+        onClose={() => setShowResumeModal(false)}
+        locale={locale}
       />
     </div>
   );

@@ -16,7 +16,9 @@ An interactive web application that generates and visualizes career skill maps u
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
-- **Document Import**: Extract skills from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI - imported skills are automatically marked as learned
+- **Document Import**: Extract skills, bio, and work experience from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI - imported skills are marked as learned, bio and experience update your profile
+- **Resume Export**: Generate professional PDF resumes from your skill maps - optionally target specific jobs via URL or title for AI-tailored content
+- **Work Experience**: Manage work history in dashboard with add/edit/delete - included in generated resumes
 - **Smart Map Merging**: AI-powered merge combining two skill maps with intelligent deduplication
 - **Draggable Nodes**: Reposition skills to your preference - positions auto-save and persist
 - **Organize Button**: Re-arrange nodes in a neat radial layout with max 6 nodes per ring (auto-triggers after merge)
@@ -34,6 +36,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Caching**: Upstash Redis (HTTP-based)
 - **AI**: OpenAI API (GPT-4o-mini)
 - **Visualization**: React Flow (@xyflow/react)
+- **PDF Generation**: @react-pdf/renderer (client-side)
 - **Styling**: Tailwind CSS v4
 - **Animation**: Framer Motion
 - **i18n**: next-intl (locale-prefixed URLs)
@@ -132,7 +135,8 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   │   └── generate/       # AI skill map generation
 │   │   ├── career/             # Career CRUD operations
 │   │   ├── import/             # Document import (PDF, Word, images, URLs)
-│   │   └── map/                # User map operations
+│   │   ├── map/                # User map operations
+│   │   └── resume/             # Resume generation
 │   ├── globals.css             # Tailwind CSS with custom theme
 │   ├── sitemap.ts              # Dynamic sitemap with all locales
 │   ├── robots.ts               # Robots.txt configuration
@@ -149,6 +153,12 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── import/
 │   │   ├── DocumentImportModal.tsx # File/URL import modal
 │   │   └── ImportPreview.tsx   # Extracted skills preview
+│   ├── resume/
+│   │   ├── ResumePDF.tsx       # PDF template with professional styling
+│   │   ├── ResumeExportModal.tsx # Multi-stage resume generation modal
+│   │   └── PDFDownloadButton.tsx # Dynamic PDF download wrapper (SSR-safe)
+│   ├── dashboard/
+│   │   └── ExperienceEditor.tsx # Work experience management modal
 │   ├── layout/
 │   │   ├── Header.tsx              # Site header with navigation
 │   │   └── SkillTreeBackground.tsx # Animated network background
@@ -175,6 +185,7 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── ai.ts                   # OpenAI integration (career generation)
 │   ├── ai-chat.ts              # AI chat utilities (modifications, merge)
 │   ├── ai-document.ts          # Document skill extraction with vision
+│   ├── ai-resume.ts            # Resume generation AI functions
 │   ├── document-parser.ts      # PDF, Word, image, URL parsing
 │   ├── cache.ts                # Redis cache utilities
 │   ├── constants.ts            # Centralized app constants
@@ -273,6 +284,18 @@ TAVILY_CONFIG.careerSkills.includeDomains // Trusted domains for career search
 // Map Merge
 MERGE_CONFIG.similarityThreshold        // Threshold for "recommended" maps (0.3)
 
+// Resume Export
+RESUME_CONFIG.bioMaxLength              // Max bio length (500)
+RESUME_CONFIG.experienceMaxItems        // Max work experiences (10)
+RESUME_CONFIG.aiModel                   // OpenAI model (gpt-4o-mini)
+RESUME_CONFIG.aiMaxTokens               // Resume generation tokens (4000)
+RESUME_CONFIG.aiJobAnalysisMaxTokens    // Job analysis tokens (2000)
+RESUME_CONFIG.previewSkillCategories    // Categories in preview (3)
+RESUME_CONFIG.previewSkillsPerCategory  // Skills per category (4)
+RESUME_CONFIG.previewHighlightsCount    // Highlights in preview (3)
+RESUME_CONFIG.pdfLabels                 // PDF section titles (i18n-ready)
+RESUME_CONFIG.monthAbbreviations        // Date formatting
+
 // Document Import
 DOCUMENT_IMPORT_CONFIG.maxFileSizeBytes           // Max file size (20MB)
 DOCUMENT_IMPORT_CONFIG.charsPerToken              // Chars per token for truncation (4)
@@ -286,6 +309,9 @@ DOCUMENT_IMPORT_CONFIG.aiExtraction.minSkills     // Min skills to extract (10)
 DOCUMENT_IMPORT_CONFIG.aiExtraction.maxSkills     // Max skills to extract (25)
 DOCUMENT_IMPORT_CONFIG.aiExtraction.existingSkillsLimit  // Max existing skills in context (20)
 DOCUMENT_IMPORT_CONFIG.preview.confidenceThresholds      // High/medium confidence thresholds
+DOCUMENT_IMPORT_CONFIG.preview.maxDisplayedExperiences   // Max work experiences in preview (5)
+DOCUMENT_IMPORT_CONFIG.modal.maxHeightVh                 // Modal max height as viewport % (85)
+DOCUMENT_IMPORT_CONFIG.modal.headerHeightPx              // Header height for scroll calc (200)
 // Derived constants
 SUPPORTED_FILE_ACCEPT                             // HTML file input accept string
 ```
@@ -321,11 +347,11 @@ Search for careers matching a query.
 ### Document Import API
 - `POST /api/import/document` - Upload and parse file (PDF, Word, images)
   - Accepts: multipart/form-data with file, locale, optional existing context
-  - Returns: Extracted skills, edges, suggested title, confidence score
+  - Returns: Extracted skills, edges, suggested title, confidence score, bio, work experience
   - Uses GPT-4o vision for images, gpt-4o-mini for text documents
 - `POST /api/import/url` - Import from URL (LinkedIn, GitHub, etc.)
   - Accepts: URL, locale, optional existing context
-  - Returns: Extracted skills with Tavily fallback for blocked pages
+  - Returns: Extracted skills, bio, work experience with Tavily fallback for blocked pages
 
 ### User Maps API
 - `GET /api/map/[mapId]` - Fetch map by UUID or share slug
@@ -335,7 +361,14 @@ Search for careers matching a query.
 - `POST /api/map/[mapId]/copy` - Copy public map to your account
 
 ### User Profile API
-- `PATCH /api/user/profile` - Update user profile (name)
+- `GET /api/user/profile` - Get user profile (name, bio, experience)
+- `PATCH /api/user/profile` - Update user profile (name, bio, experience)
+
+### Resume API
+- `POST /api/resume/generate` - Generate AI-powered resume content
+  - Accepts: `{ locale, jobTitle?, jobUrl? }`
+  - Returns: profile, experience, AI-generated resumeContent, jobRequirements, stats
+  - Features: Job URL analysis, tailored content generation, skill relevance grouping
 
 ## Deployment
 

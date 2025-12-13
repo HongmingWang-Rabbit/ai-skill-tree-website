@@ -37,4 +37,10 @@ export {
   FileWordIcon,
   FileImageIcon,
   ImportIcon,
+  // Resume Export icons
+  PlusIcon,
+  BriefcaseIcon,
+  DownloadIcon,
+  ResumeIcon,
+  SparklesIcon,
 } from './Icons';
