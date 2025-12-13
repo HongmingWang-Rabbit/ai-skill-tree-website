@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { GlassPanel, CloseIcon, TrashIcon, EditIcon, PlusIcon } from '@/components/ui';
@@ -42,6 +42,11 @@ export function ExperienceEditor({
 }: ExperienceEditorProps) {
   const t = useTranslations('dashboard');
   const [items, setItems] = useState<WorkExperience[]>(experience);
+
+  // Sync items state when experience prop changes (e.g., when profile data loads)
+  useEffect(() => {
+    setItems(experience);
+  }, [experience]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState<ExperienceFormData>(emptyForm);
