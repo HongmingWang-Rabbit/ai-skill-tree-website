@@ -11,6 +11,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Dynamic Background**: Animated network background with mouse-reactive nodes
 - **Game-Like UI**: Skills displayed with levels, progress bars, and category badges
 - **User-Owned Maps**: Logged-in users automatically get personalized copies of skill maps with custom titles and progress tracking
+- **Editable Profile**: Update your display name directly from the dashboard with inline editing
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
@@ -245,10 +246,14 @@ AI_CHAT_CONFIG.maxTokens     // Token limit (4000)
 AI_CHAT_CONFIG.temperature   // Response randomness (0.7)
 AI_CHAT_CONFIG.chatHistoryLimit // Messages in context (10)
 
+// User Profile
+USER_NAME_MAX_LENGTH         // Max characters for user name (100)
+
 // API Routes (for client-side)
 API_ROUTES.AI_CHAT           // /api/ai/chat
 API_ROUTES.AI_MERGE          // /api/ai/merge
 API_ROUTES.USER_GRAPH        // /api/user/graph
+API_ROUTES.USER_PROFILE      // /api/user/profile
 API_ROUTES.MAP               // /api/map
 
 // Tavily Web Search
@@ -295,6 +300,9 @@ Search for careers matching a query.
 - `DELETE /api/map/[mapId]` - Delete a user's map
 - `POST /api/map/fork` - Create map from base career
 - `POST /api/map/[mapId]/copy` - Copy public map to your account
+
+### User Profile API
+- `PATCH /api/user/profile` - Update user profile (name)
 
 ## Deployment
 

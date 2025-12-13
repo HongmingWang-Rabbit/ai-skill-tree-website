@@ -105,7 +105,11 @@
     "deleteTitle": "スキルマップを削除",
     "confirmDelete": "このスキルマップを削除しますか？この操作は取り消せません。",
     "deleteSuccess": "スキルマップを削除しました",
-    "deleteFailed": "スキルマップの削除に失敗しました"
+    "deleteFailed": "スキルマップの削除に失敗しました",
+    "editName": "名前を編集",
+    "namePlaceholder": "名前を入力",
+    "nameUpdateSuccess": "名前を更新しました",
+    "nameUpdateFailed": "名前の更新に失敗しました"
   },
   "featuredCareers": {
     "frontendDeveloper": "フロントエンドエンジニア",

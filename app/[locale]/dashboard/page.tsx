@@ -2,12 +2,12 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useState, useCallback } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
-import { SKILL_PASS_THRESHOLD, API_ROUTES } from '@/lib/constants';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
+import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH } from '@/lib/constants';
 import { Link, useRouter } from '@/i18n/navigation';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
-import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast } from '@/components/ui';
+import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon } from '@/components/ui';
 
 interface SavedGraph {
   id: string;
@@ -38,15 +38,18 @@ interface SavedCareer {
 }
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const t = useTranslations();
-  const locale = useLocale();
   const [savedCareers, setSavedCareers] = useState<SavedCareer[]>([]);
   const [isLoadingCareers, setIsLoadingCareers] = useState(true);
   const [deletingMapId, setDeletingMapId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [mapToDelete, setMapToDelete] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user's saved career graphs (single API call with joined career data)
   useEffect(() => {
@@ -113,6 +116,58 @@ export default function DashboardPage() {
     router.push(`/career/${mapId}?merge=true`);
   }, [router]);
 
+  // Start editing name
+  const startEditingName = useCallback(() => {
+    setEditedName(session?.user?.name || '');
+    setIsEditingName(true);
+    setTimeout(() => nameInputRef.current?.focus(), 0);
+  }, [session?.user?.name]);
+
+  // Cancel editing name
+  const cancelEditingName = useCallback(() => {
+    setIsEditingName(false);
+    setEditedName('');
+  }, []);
+
+  // Save edited name
+  const saveEditedName = useCallback(async () => {
+    const trimmedName = editedName.trim();
+    if (!trimmedName || trimmedName === session?.user?.name) {
+      cancelEditingName();
+      return;
+    }
+
+    setIsSavingName(true);
+    try {
+      const response = await fetch(API_ROUTES.USER_PROFILE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmedName }),
+      });
+
+      if (response.ok) {
+        await updateSession({ name: trimmedName });
+        showToast.success(t('dashboard.nameUpdateSuccess'));
+        setIsEditingName(false);
+      } else {
+        showToast.error(t('dashboard.nameUpdateFailed'));
+      }
+    } catch {
+      showToast.error(t('dashboard.nameUpdateFailed'));
+    } finally {
+      setIsSavingName(false);
+    }
+  }, [editedName, session?.user?.name, cancelEditingName, updateSession, t]);
+
+  // Handle key press in name input
+  const handleNameKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      saveEditedName();
+    } else if (e.key === 'Escape') {
+      cancelEditingName();
+    }
+  }, [saveEditedName, cancelEditingName]);
+
   // Calculate stats from saved careers
   const stats = {
     totalPaths: savedCareers.length,
@@ -177,8 +232,39 @@ export default function DashboardPage() {
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
-            <div>
-              <h1 className="text-2xl font-bold text-white">{displayName}</h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={nameInputRef}
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      onKeyDown={handleNameKeyDown}
+                      onBlur={saveEditedName}
+                      placeholder={t('dashboard.namePlaceholder')}
+                      disabled={isSavingName}
+                      className="text-2xl font-bold text-white bg-slate-800 border border-slate-600 rounded-lg px-3 py-1 focus:outline-none focus:border-amber-500 disabled:opacity-50"
+                      maxLength={USER_NAME_MAX_LENGTH}
+                    />
+                    {isSavingName && (
+                      <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <h1 className="text-2xl font-bold text-white">{displayName}</h1>
+                    <button
+                      onClick={startEditingName}
+                      className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
+                      title={t('dashboard.editName')}
+                    >
+                      <EditIcon className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
               {session.user.email && (
                 <p className="text-slate-400">{session.user.email}</p>
               )}

@@ -11,6 +11,9 @@ export const SHARE_SLUG_GENERATION_MAX_RETRIES = 5;
 // Map title constraints
 export const MAP_TITLE_MAX_LENGTH = 100;
 
+// User profile constraints
+export const USER_NAME_MAX_LENGTH = 100;
+
 // UI timing constants (in milliseconds)
 export const SIGN_IN_PROMPT_DELAY_MS = 2000;
 export const AUTO_SAVE_DEBOUNCE_MS = 1000;
@@ -158,5 +161,6 @@ export const API_ROUTES = {
   AI_ANALYZE: '/api/ai/analyze',
   AI_MERGE: '/api/ai/merge',
   USER_GRAPH: '/api/user/graph',
+  USER_PROFILE: '/api/user/profile',
   MAP: '/api/map',
 } as const;

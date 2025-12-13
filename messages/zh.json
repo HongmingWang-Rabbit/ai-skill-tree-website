@@ -105,7 +105,11 @@
     "deleteTitle": "删除技能地图",
     "confirmDelete": "确定要删除这个技能地图吗？此操作无法撤销。",
     "deleteSuccess": "技能地图已删除",
-    "deleteFailed": "删除技能地图失败"
+    "deleteFailed": "删除技能地图失败",
+    "editName": "编辑名称",
+    "namePlaceholder": "输入你的名称",
+    "nameUpdateSuccess": "名称更新成功",
+    "nameUpdateFailed": "名称更新失败"
   },
   "featuredCareers": {
     "frontendDeveloper": "前端开发工程师",

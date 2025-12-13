@@ -20,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Skill: `SKILL_PASS_THRESHOLD`, `SKILL_PROGRESS_MAX`, `SKILL_SCORE_EXCELLENT_THRESHOLD`
      - Share: `SHARE_SLUG_LENGTH`, `SHARE_SLUG_CHARS`, `SHARE_SLUG_GENERATION_MAX_RETRIES`
      - Map: `MAP_TITLE_MAX_LENGTH`
+     - User: `USER_NAME_MAX_LENGTH`
      - Timing: `SIGN_IN_PROMPT_DELAY_MS`, `AUTO_SAVE_DEBOUNCE_MS`
      - Assets: `ASSETS.ICON`, `ASSETS.ICON_LARGE`
      - Branding: `APP_NAME`
@@ -98,7 +99,7 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (update user name), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
