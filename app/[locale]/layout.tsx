@@ -2,10 +2,10 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { routing, locales, getOgLocale } from '@/i18n/routing';
+import { routing, locales, defaultLocale, getOgLocale } from '@/i18n/routing';
 import { AuthProvider, Web3Provider } from '@/components/providers';
 import { Header } from '@/components/layout';
-import { JsonLd, OrganizationJsonLd } from '@/components/seo';
+import { JsonLd, OrganizationJsonLd, SoftwareAppJsonLd } from '@/components/seo';
 import { Toaster } from '@/components/ui';
 import { SITE_URL } from '@/lib/constants';
 
@@ -26,7 +26,7 @@ export async function generateMetadata({
   for (const loc of locales) {
     languages[loc] = `${SITE_URL}/${loc}`;
   }
-  languages['x-default'] = `${SITE_URL}/en`;
+  languages['x-default'] = `${SITE_URL}/${defaultLocale}`;
 
   return {
     title: t('title'),
@@ -74,6 +74,7 @@ export default async function LocaleLayout({
       <head>
         <JsonLd type="website" />
         <OrganizationJsonLd />
+        <SoftwareAppJsonLd />
       </head>
       <body className="antialiased bg-slate-950 min-h-screen" suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>

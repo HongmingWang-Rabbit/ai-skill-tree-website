@@ -267,7 +267,154 @@ export const API_ROUTES = {
   USER_GRAPH: '/api/user/graph',
   USER_PROFILE: '/api/user/profile',
   MAP: '/api/map',
+  MAP_FORK: '/api/map/fork',
   IMPORT_DOCUMENT: '/api/import/document',
   IMPORT_URL: '/api/import/url',
   RESUME_GENERATE: '/api/resume/generate',
+} as const;
+
+// Landing Page Configuration
+export const LANDING_PAGE_CONFIG = {
+  // Featured careers shown on landing page
+  featuredCareers: [
+    { titleKey: 'frontendDeveloper', icon: '💻', key: 'frontend-developer' },
+    { titleKey: 'dataScientist', icon: '📊', key: 'data-scientist' },
+    { titleKey: 'uxDesigner', icon: '🎨', key: 'ux-designer' },
+    { titleKey: 'devopsEngineer', icon: '⚙️', key: 'devops-engineer' },
+    { titleKey: 'productManager', icon: '📋', key: 'product-manager' },
+    { titleKey: 'mlEngineer', icon: '🤖', key: 'machine-learning-engineer' },
+  ],
+  // Stats displayed on landing page (placeholder values)
+  stats: [
+    { key: 'skillsMapped', value: '10,000+' },
+    { key: 'careerPaths', value: '500+' },
+    { key: 'resumesGenerated', value: '3,000+' },
+    { key: 'fileTypes', value: '50+' },
+  ],
+  // Workflow steps
+  workflowSteps: [
+    { key: 'step1', icon: '📤' },
+    { key: 'step2', icon: '🗺️' },
+    { key: 'step3', icon: '📄' },
+  ],
+  // Demo preview configuration
+  demo: {
+    orbitalSkillCount: 6,
+    orbitalRadius: '10rem',
+    connectionLineWidth: '8rem',
+  },
+  // Animation timing
+  animation: {
+    sectionDelay: 0.2,
+    staggerDelay: 0.1,
+    duration: 0.5,
+  },
+} as const;
+
+// SEO & GEO Configuration
+export const SEO_CONFIG = {
+  // Organization details
+  organization: {
+    foundingDate: '2024',
+    supportedLanguages: ['English', 'Chinese', 'Japanese'],
+    expertiseAreas: [
+      'Career Development',
+      'Skill Mapping',
+      'Professional Growth',
+      'AI-powered Learning',
+      'Resume Generation',
+    ],
+    // Uncomment and add your social profiles when available
+    socialProfiles: [
+      // 'https://twitter.com/personalskillmap',
+      // 'https://github.com/personalskillmap',
+      // 'https://linkedin.com/company/personalskillmap',
+    ],
+  },
+  // Software application details
+  software: {
+    version: '1.0',
+    applicationCategory: 'EducationalApplication',
+    applicationSubCategory: 'Career Development',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript. Requires HTML5.',
+    features: [
+      'AI-powered skill map generation',
+      'Document import (PDF, Word, images)',
+      'Resume export with AI tailoring',
+      'Interactive skill visualization',
+      'Multi-language support',
+      'Progress tracking',
+    ],
+  },
+  // Course/Career schema defaults
+  course: {
+    defaultName: 'Career Skill Map',
+    educationalLevel: 'Beginner to Advanced',
+    courseMode: 'online',
+    courseWorkload: 'Self-paced',
+  },
+  // AI crawler user agents for robots.txt
+  aiCrawlers: [
+    'GPTBot',
+    'ChatGPT-User',
+    'Claude-Web',
+    'anthropic-ai',
+    'PerplexityBot',
+    'Bytespider',
+    'Google-Extended',
+    'cohere-ai',
+  ],
+  // Paths to disallow for crawlers
+  disallowedPaths: ['/api/', '/dashboard'],
+  // FAQ data for GEO (AI search engines)
+  faq: [
+    {
+      question: 'What is Personal Skill Map?',
+      answer: 'Personal Skill Map is an AI-powered web application that helps you visualize and track your career skills. You can import skills from your resume, explore any career path, and generate tailored resumes for job applications.',
+    },
+    {
+      question: 'How do I import skills from my resume?',
+      answer: 'You can upload your resume in PDF, Word, or image format, or paste a LinkedIn URL. Our AI will automatically extract your skills, work experience, and professional summary to create your personalized skill map.',
+    },
+    {
+      question: 'Can I explore different career paths?',
+      answer: 'Yes! Simply search for any career title like "Software Engineer" or describe your preferences like "I want to work remotely". Our AI will generate a comprehensive skill map showing all the skills needed for that career path.',
+    },
+    {
+      question: 'How does the resume generation work?',
+      answer: 'Our AI analyzes your skill map and work experience to generate a professional PDF resume. You can optionally paste a job posting URL, and the AI will tailor your resume to match the specific job requirements.',
+    },
+    {
+      question: 'Is Personal Skill Map free to use?',
+      answer: 'Yes, Personal Skill Map is free to use. You can create skill maps, track your progress, and generate resumes without any cost.',
+    },
+    {
+      question: 'What languages are supported?',
+      answer: 'Personal Skill Map supports English, Chinese (Simplified), and Japanese. The AI generates skill maps and content in your selected language.',
+    },
+  ],
+  // HowTo steps for GEO
+  howToSteps: [
+    {
+      name: 'Import Your Skills',
+      text: 'Upload your resume (PDF, Word, or image) or paste your LinkedIn URL. The AI will extract your existing skills automatically.',
+    },
+    {
+      name: 'Visualize Your Skill Map',
+      text: 'View your skills as an interactive map. See connections between skills, track your progress, and identify skill gaps.',
+    },
+    {
+      name: 'Explore Career Paths',
+      text: 'Search for any career to see what skills are required. Compare your current skills to your target career.',
+    },
+    {
+      name: 'Generate Your Resume',
+      text: 'Export a professional PDF resume tailored to specific job postings. The AI optimizes your resume for each application.',
+    },
+  ],
+  howToMeta: {
+    name: 'How to Build Your Personal Skill Map',
+    description: 'Learn how to import your skills, visualize your career path, and generate AI-tailored resumes with Personal Skill Map.',
+  },
 } as const;

@@ -19,31 +19,79 @@
     "brandName": "个人技能地图"
   },
   "home": {
-    "title": "个人技能地图",
-    "subtitle": "使用AI驱动的技能地图发现你的职业道路。可视化你需要掌握的技能，实现梦想职业。",
-    "searchPlaceholder": "试试「软件工程师」或「我想远程工作」",
-    "popularCareers": "热门职业探索",
-    "howItWorks": "工作原理",
-    "search": {
-      "title": "搜索",
-      "description": "输入任何你想探索的职业道路。我们的AI理解数千种职位。"
+    "hero": {
+      "title": "你的个人技能地图",
+      "subtitle": "构建你的职业路线图。从简历导入技能或探索任何职业路径。可视化进度并生成定制简历。",
+      "importLabel": "有简历？",
+      "importCta": "导入技能",
+      "exploreLabel": "或探索职业",
+      "searchPlaceholder": "试试「软件工程师」或「我想远程办公」"
     },
-    "generate": {
-      "title": "生成",
-      "description": "AI生成全面的技能地图，包含你需要掌握的所有技能。"
+    "twoPaths": {
+      "importTitle": "从简历开始",
+      "importDescription": "已有简历或 LinkedIn 资料？让 AI 自动提取你的现有技能并构建技能地图。",
+      "importCta": "上传文档",
+      "exploreTitle": "探索职业路径",
+      "exploreDescription": "发现任何职业所需的技能。搜索数千种职位，查看完整技能地图。",
+      "exploreCta": "搜索职业"
     },
-    "track": {
-      "title": "追踪",
-      "description": "在解锁技能和提升职业等级的过程中可视化你的进度。"
+    "workflow": {
+      "title": "工作原理",
+      "step1Title": "导入",
+      "step1Description": "上传任意文档 - PDF、Word、图片，或粘贴 LinkedIn 链接。AI 提取技能、经历和个人简介。",
+      "step2Title": "可视化",
+      "step2Description": "看着你的技能转化为交互式地图。发现差距、追踪进度、发现技能关联。",
+      "step3Title": "导出",
+      "step3Description": "为任何职位创建 AI 定制简历。只需粘贴招聘链接，几秒钟即可获得定制 PDF。"
+    },
+    "features": {
+      "title": "你需要的一切",
+      "import": {
+        "title": "多源导入",
+        "description": "PDF 简历、Word 文档、图片、LinkedIn、GitHub 等"
+      },
+      "skillMaps": {
+        "title": "AI 生成技能地图",
+        "description": "可视化任何职业路径所需的技能"
+      },
+      "resume": {
+        "title": "智能简历生成",
+        "description": "AI 定制的 PDF，匹配职位要求"
+      },
+      "chat": {
+        "title": "AI 聊天助手",
+        "description": "用自然语言修改你的技能地图"
+      },
+      "universe": {
+        "title": "技能宇宙仪表盘",
+        "description": "查看所有职业路径的全部技能"
+      },
+      "share": {
+        "title": "分享进度",
+        "description": "独特链接的公开技能地图"
+      }
+    },
+    "demo": {
+      "title": "看你的技能活起来",
+      "description": "这是技能地图的样子。你的地图等待被发现。",
+      "cta": "立即创建",
+      "coreSkill": "你的职业",
+      "relatedSkill": "技能"
+    },
+    "stats": {
+      "skillsMapped": "已映射技能",
+      "careerPaths": "职业路径",
+      "resumesGenerated": "已生成简历",
+      "fileTypes": "支持文件类型"
+    },
+    "secondaryCta": {
+      "title": "探索职业路径",
+      "description": "搜索任何职业，发现成功所需的技能。AI 为数千种职位生成全面的技能地图。",
+      "searchPlaceholder": "试试「软件工程师」或「我想远程工作」",
+      "popularCareers": "热门职业探索"
     },
     "footer": "基于 Next.js、React Flow 和 OpenAI 构建。",
     "footerPowered": "由AI技能地图生成技术驱动。",
-    "skillTreePreview": {
-      "title": "可视化你的精通之路",
-      "description": "我们由AI生成的技能地图为您的职业发展提供了清晰直观的路线图。查看技能之间的联系，了解接下来要学习什么。",
-      "coreSkill": "核心技能",
-      "relatedSkill": "相关技能"
-    },
     "suggestions": {
       "title": "职业推荐",
       "subtitle": "根据你的偏好，以下是一些你可能喜欢的职业："

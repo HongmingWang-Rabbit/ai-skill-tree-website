@@ -1,14 +1,29 @@
 import Script from 'next/script';
-import { APP_NAME, SITE_URL, APP_DESCRIPTION } from '@/lib/constants';
-import { locales } from '@/i18n/routing';
+import { APP_NAME, SITE_URL, APP_DESCRIPTION, SEO_CONFIG, ASSETS } from '@/lib/constants';
+import { locales, defaultLocale } from '@/i18n/routing';
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface HowToStep {
+  name: string;
+  text: string;
+  url?: string;
+}
 
 interface JsonLdProps {
-  type: 'website' | 'career' | 'breadcrumb';
+  type: 'website' | 'career' | 'breadcrumb' | 'faq' | 'howto';
   data?: {
     careerName?: string;
     careerDescription?: string;
     locale?: string;
-    breadcrumbs?: Array<{ name: string; url: string }>;
+    breadcrumbs?: readonly { name: string; url: string }[];
+    faqs?: readonly FAQItem[];
+    howToName?: string;
+    howToDescription?: string;
+    howToSteps?: readonly HowToStep[];
   };
 }
 
@@ -39,20 +54,20 @@ export function JsonLd({ type, data }: JsonLdProps) {
       jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Course',
-        name: data?.careerName || 'Career Skill Map',
+        name: data?.careerName || SEO_CONFIG.course.defaultName,
         description: data?.careerDescription || APP_DESCRIPTION,
         provider: {
           '@type': 'Organization',
           name: APP_NAME,
           url: SITE_URL,
         },
-        educationalLevel: 'Beginner to Advanced',
-        inLanguage: data?.locale || 'en',
+        educationalLevel: SEO_CONFIG.course.educationalLevel,
+        inLanguage: data?.locale || defaultLocale,
         isAccessibleForFree: true,
         hasCourseInstance: {
           '@type': 'CourseInstance',
-          courseMode: 'online',
-          courseWorkload: 'Self-paced',
+          courseMode: SEO_CONFIG.course.courseMode,
+          courseWorkload: SEO_CONFIG.course.courseWorkload,
         },
       };
       break;
@@ -66,6 +81,37 @@ export function JsonLd({ type, data }: JsonLdProps) {
           position: index + 1,
           name: item.name,
           item: item.url,
+        })) || [],
+      };
+      break;
+
+    case 'faq':
+      jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: data?.faqs?.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })) || [],
+      };
+      break;
+
+    case 'howto':
+      jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: data?.howToName || SEO_CONFIG.howToMeta.name,
+        description: data?.howToDescription || SEO_CONFIG.howToMeta.description,
+        step: data?.howToSteps?.map((step, index) => ({
+          '@type': 'HowToStep',
+          position: index + 1,
+          name: step.name,
+          text: step.text,
+          url: step.url,
         })) || [],
       };
       break;
@@ -91,13 +137,16 @@ export function OrganizationJsonLd() {
     '@type': 'Organization',
     name: APP_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/icon.png`,
-    sameAs: [],
+    logo: `${SITE_URL}${ASSETS.ICON}`,
+    description: APP_DESCRIPTION,
+    sameAs: SEO_CONFIG.organization.socialProfiles.filter(Boolean),
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer support',
-      availableLanguage: ['English', 'Chinese', 'Japanese'],
+      availableLanguage: SEO_CONFIG.organization.supportedLanguages,
     },
+    foundingDate: SEO_CONFIG.organization.foundingDate,
+    knowsAbout: SEO_CONFIG.organization.expertiseAreas,
   };
 
   return (
@@ -116,13 +165,26 @@ export function SoftwareAppJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: APP_NAME,
-    applicationCategory: 'EducationalApplication',
-    operatingSystem: 'Web Browser',
+    description: APP_DESCRIPTION,
+    url: SITE_URL,
+    applicationCategory: SEO_CONFIG.software.applicationCategory,
+    applicationSubCategory: SEO_CONFIG.software.applicationSubCategory,
+    operatingSystem: SEO_CONFIG.software.operatingSystem,
+    browserRequirements: SEO_CONFIG.software.browserRequirements,
+    softwareVersion: SEO_CONFIG.software.version,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
     },
+    featureList: SEO_CONFIG.software.features,
+    screenshot: `${SITE_URL}${ASSETS.ICON_LARGE}`,
+    author: {
+      '@type': 'Organization',
+      name: APP_NAME,
+    },
+    inLanguage: [...locales],
   };
 
   return (

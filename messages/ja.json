@@ -19,31 +19,79 @@
     "brandName": "パーソナルスキルマップ"
   },
   "home": {
-    "title": "パーソナルスキルマップ",
-    "subtitle": "AIを活用したスキルマップでキャリアパスを発見。夢のキャリアに必要なスキルを可視化します。",
-    "searchPlaceholder": "「ソフトウェアエンジニア」や「リモートで働きたい」を試す",
-    "popularCareers": "人気のキャリア",
-    "howItWorks": "仕組み",
-    "search": {
-      "title": "検索",
-      "description": "探索したいキャリアパスを入力してください。AIは数千の職種を理解しています。"
+    "hero": {
+      "title": "あなたのスキルマップ",
+      "subtitle": "キャリアロードマップを構築。履歴書からスキルをインポート、または任意のキャリアパスを探索。進捗を可視化し、カスタマイズされた履歴書を生成。",
+      "importLabel": "履歴書をお持ちですか？",
+      "importCta": "スキルをインポート",
+      "exploreLabel": "またはキャリアを探索",
+      "searchPlaceholder": "「ソフトウェアエンジニア」や「リモートで働きたい」を試してください"
     },
-    "generate": {
-      "title": "生成",
-      "description": "AIが習得すべきすべてのスキルを含む包括的なスキルマップを生成します。"
+    "twoPaths": {
+      "importTitle": "履歴書から始める",
+      "importDescription": "履歴書やLinkedInプロフィールがありますか？AIが既存のスキルを自動抽出してマップを構築します。",
+      "importCta": "ドキュメントをアップロード",
+      "exploreTitle": "キャリアパスを探索",
+      "exploreDescription": "あらゆるキャリアに必要なスキルを発見。数千の職種を検索して完全なスキルマップを確認。",
+      "exploreCta": "キャリアを検索"
     },
-    "track": {
-      "title": "追跡",
-      "description": "スキルをアンロックしてキャリアをレベルアップする進捗を可視化します。"
+    "workflow": {
+      "title": "仕組み",
+      "step1Title": "インポート",
+      "step1Description": "任意のドキュメントをアップロード - PDF、Word、画像、またはLinkedIn URLを貼り付け。AIがスキル、経歴、プロフィールを抽出します。",
+      "step2Title": "可視化",
+      "step2Description": "スキルがインタラクティブなマップに変換されるのを確認。ギャップを特定し、進捗を追跡し、スキルの関連性を発見。",
+      "step3Title": "エクスポート",
+      "step3Description": "どんな職種にもAIカスタマイズの履歴書を作成。求人URLを貼り付けるだけで数秒でカスタムPDFを取得。"
+    },
+    "features": {
+      "title": "必要なものすべて",
+      "import": {
+        "title": "あらゆるソースからインポート",
+        "description": "PDF履歴書、Wordドキュメント、画像、LinkedIn、GitHubなど"
+      },
+      "skillMaps": {
+        "title": "AI生成スキルマップ",
+        "description": "あらゆるキャリアパスに必要なスキルを可視化"
+      },
+      "resume": {
+        "title": "スマート履歴書生成",
+        "description": "求人要件に合わせたAIカスタマイズPDF"
+      },
+      "chat": {
+        "title": "AIチャットアシスタント",
+        "description": "自然言語でスキルマップを編集"
+      },
+      "universe": {
+        "title": "スキルユニバースダッシュボード",
+        "description": "すべてのキャリアパスの全スキルを一覧"
+      },
+      "share": {
+        "title": "進捗を共有",
+        "description": "ユニークURLで公開スキルマップ"
+      }
+    },
+    "demo": {
+      "title": "スキルが動き出す",
+      "description": "スキルマップはこのように表示されます。あなたのマップが発見を待っています。",
+      "cta": "今すぐ作成",
+      "coreSkill": "あなたのキャリア",
+      "relatedSkill": "スキル"
+    },
+    "stats": {
+      "skillsMapped": "マッピング済みスキル",
+      "careerPaths": "キャリアパス",
+      "resumesGenerated": "生成済み履歴書",
+      "fileTypes": "対応ファイル形式"
+    },
+    "secondaryCta": {
+      "title": "キャリアパスを探索",
+      "description": "任意のキャリアを検索して成功に必要なスキルを発見。AIが数千の職種の包括的なスキルマップを生成します。",
+      "searchPlaceholder": "「ソフトウェアエンジニア」や「リモートで働きたい」を試す",
+      "popularCareers": "人気のキャリア"
     },
     "footer": "Next.js、React Flow、OpenAIで構築。",
     "footerPowered": "AIスキルマップ生成技術で駆動。",
-    "skillTreePreview": {
-      "title": "習得への道を視覚化",
-      "description": "AIが生成するスキルマップは、あなたのキャリア成長のための明確で直感的なロードマップを提供します。スキルの関連性を確認し、次に何を学ぶべきかを理解しましょう。",
-      "coreSkill": "コアスキル",
-      "relatedSkill": "関連スキル"
-    },
     "suggestions": {
       "title": "キャリア提案",
       "subtitle": "あなたの希望に基づいて、おすすめのキャリアをご紹介します："

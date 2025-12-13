@@ -32,14 +32,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Background: `BACKGROUND_CONFIG` (grid, colors, mouse interaction settings)
      - Hero: `HERO_ICON_ROTATION_DURATION`
      - Auth: `PROVIDER_COLORS` (brand colors for OAuth providers)
-     - SEO: `SITE_URL`, `APP_DESCRIPTION` (used across metadata and JSON-LD)
+     - SEO: `SITE_URL`, `APP_DESCRIPTION`, `SEO_CONFIG` (organization details with foundingDate/supportedLanguages/expertiseAreas/socialProfiles, software details with version/applicationCategory/features, course defaults for JSON-LD, aiCrawlers list for robots.txt, disallowedPaths, FAQ data for GEO, HowTo steps for AI search engines)
      - Master Graph: `MASTER_GRAPH_CONFIG` (node sizes, radii, edge colors for skill universe visualization)
      - AI Chat: `AI_CHAT_CONFIG` (panel dimensions, API settings like model/temperature/maxTokens, animation timing, search keywords)
      - Tavily: `TAVILY_CONFIG` (API URL, search depth defaults, domain filters for trending tech and career skills searches)
      - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
      - Resume Export: `RESUME_CONFIG` (bioMaxLength, experienceMaxItems, pdfMaxSkillsPerCategory, aiModel, aiMaxTokens, aiJobAnalysisMaxTokens, aiTemperature, jobUrlTimeout, jobContentMaxChars, jobTitleMaxLength, previewSkillCategories, previewSkillsPerCategory, previewHighlightsCount, pdfLabels for i18n-ready section titles, monthAbbreviations for date formatting)
      - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds/maxDisplayedExperiences, modal settings with maxHeightVh/headerHeightPx), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
-     - API Routes: `API_ROUTES` (centralized API endpoint paths for client-side fetching)
+     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`)
+     - Landing Page: `LANDING_PAGE_CONFIG` (featuredCareers array, stats array, workflowSteps array, demo settings with orbitalSkillCount/orbitalRadius/connectionLineWidth, animation timing with sectionDelay/staggerDelay/duration)
 
 2. **Check `components/` for existing UI**:
    - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`; resume: `PlusIcon`, `BriefcaseIcon`, `DownloadIcon`, `ResumeIcon`, `SparklesIcon`)
@@ -97,12 +98,52 @@ This is a Next.js 15 App Router application called **Personal Skill Map** for ge
 
 ### Core Data Flow
 
+**Primary Flow (Import → Visualize → Export):**
+1. User uploads resume/document on landing page → `DocumentImportModal` opens
+2. AI extracts skills, bio, work experience → `POST /api/import/document` or `/api/import/url`
+3. Skills converted to SkillNodes → `POST /api/map/fork` creates new skill map
+4. User views and customizes skill map on career page
+5. User exports AI-tailored resume → `POST /api/resume/generate`
+
+**Secondary Flow (Career Exploration):**
 1. User enters a query on the landing page → `POST /api/ai/analyze` analyzes if it's a specific career or vague preference
 2. Specific career (e.g., "Software Engineer") → redirects to `/career/{canonicalKey}`
 3. Vague query (e.g., "I want to work remotely") → shows career suggestions modal with AI recommendations
 4. Career page → `POST /api/ai/generate` → OpenAI gpt-4o-mini generates skill map JSON
 5. Generated data is cached in Upstash Redis and persisted to Neon PostgreSQL
 6. Skill map is rendered as an interactive graph using React Flow (@xyflow/react)
+
+### Landing Page Structure
+
+The landing page (`app/[locale]/(marketing)/page.tsx`) is organized into modular sections:
+
+**Sections (top to bottom):**
+1. **HeroSection** - Main headline, Import CTA button, "or explore careers" link
+2. **TwoPathsSection** - Two cards: "Start from Resume" vs "Explore Career Paths"
+3. **WorkflowSection** - 3-step process: Import → Visualize → Export
+4. **FeaturesSection** - 6 feature cards (Import, Skill Maps, Resume, Chat, Universe, Share)
+5. **DemoPreviewSection** - Animated skill graph visualization with orbital nodes
+6. **StatsSection** - Platform statistics (skills mapped, career paths, etc.)
+7. **SecondaryCTASection** - Career search with SearchInput + featured careers
+8. **Footer** - Build credits
+
+**Key Integration Points:**
+- `DocumentImportModal` opens from Hero CTA and TwoPathsSection
+- `SuggestionsModal` opens when vague career query returns suggestions
+- All text uses i18n translations from `home.*` namespace
+- All configurable values use `LANDING_PAGE_CONFIG` from constants
+
+**Configuration:**
+All landing page data is centralized in `LANDING_PAGE_CONFIG` (lib/constants.ts):
+```typescript
+LANDING_PAGE_CONFIG = {
+  featuredCareers: [{ titleKey, icon, key }],  // Popular career buttons
+  stats: [{ key, value }],                      // Stats section metrics
+  workflowSteps: [{ key, icon }],               // How it works steps
+  demo: { orbitalSkillCount, orbitalRadius, connectionLineWidth },
+  animation: { sectionDelay, staggerDelay, duration },
+}
+```
 
 ### Key Directories
 
@@ -475,34 +516,63 @@ The SkillGraph component exposes methods via `ref` for external control:
 
 ### SEO & Multi-locale Support
 
-The app has comprehensive SEO with multi-locale support:
+The app has comprehensive SEO with multi-locale support and GEO (Generative Engine Optimization) for AI search engines.
 
 **Key files:**
 - `app/layout.tsx` - Root metadata (Open Graph, Twitter cards, robots directives)
-- `app/[locale]/layout.tsx` - Locale-specific metadata with `generateMetadata()`, hreflang alternates
+- `app/[locale]/layout.tsx` - Locale-specific metadata with `generateMetadata()`, hreflang alternates, global JSON-LD schemas
+- `app/[locale]/career/[careerId]/layout.tsx` - Career page metadata with dynamic title/description, Course and Breadcrumb schemas
+- `app/[locale]/(marketing)/layout.tsx` - Landing page FAQ and HowTo schemas for GEO
 - `app/sitemap.ts` - Dynamic sitemap with all locales and career pages
-- `app/robots.ts` - Robots.txt configuration
+- `app/robots.ts` - Robots.txt with AI crawler rules (GPTBot, Claude, Perplexity, etc.)
 - `components/seo/JsonLd.tsx` - JSON-LD structured data components
 
+**JSON-LD Schemas:**
+- `JsonLd type="website"` - WebSite schema with SearchAction
+- `JsonLd type="career"` - Course schema for career skill maps
+- `JsonLd type="breadcrumb"` - BreadcrumbList for navigation hierarchy
+- `JsonLd type="faq"` - FAQPage schema for GEO (AI search engines)
+- `JsonLd type="howto"` - HowTo schema for process documentation
+- `OrganizationJsonLd` - Organization with expertise areas
+- `SoftwareAppJsonLd` - SoftwareApplication with feature list
+
+**GEO (AI Search Engine Optimization):**
+- robots.txt explicitly allows AI crawlers (configured via `SEO_CONFIG.aiCrawlers`)
+- FAQ schema on landing page helps AI engines answer common questions (data in `SEO_CONFIG.faq`)
+- HowTo schema explains the skill mapping process (data in `SEO_CONFIG.howToSteps`)
+- Structured data enables AI engines to understand content relationships
+- All SEO data is centralized in `SEO_CONFIG` for easy maintenance
+
 **Features:**
-- Locale-aware canonical URLs and hreflang tags
+- Locale-aware canonical URLs and hreflang tags (use `defaultLocale` for x-default, not hardcoded `'en'`)
 - Dynamic sitemap with alternate language links per page
-- JSON-LD structured data (Website, Organization, Course schemas)
+- Career pages have dynamic metadata fetched from database
 - Open Graph and Twitter Card meta tags
 - Locale-specific titles and descriptions via `seo` translation namespace
 
 **Adding SEO to new pages:**
 ```tsx
 // In page.tsx or layout.tsx
+import { locales, defaultLocale } from '@/i18n/routing';
+import { SITE_URL } from '@/lib/constants';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'seo' });
+
+  // Generate alternate language links
+  const languages: Record<string, string> = {};
+  for (const loc of locales) {
+    languages[loc] = `${SITE_URL}/${loc}/page`;
+  }
+  languages['x-default'] = `${SITE_URL}/${defaultLocale}/page`;
+
   return {
     title: t('pageTitle'),
     description: t('pageDescription'),
     alternates: {
-      canonical: `${siteUrl}/${locale}/page`,
-      languages: Object.fromEntries(locales.map(l => [l, `${siteUrl}/${l}/page`])),
+      canonical: `${SITE_URL}/${locale}/page`,
+      languages,
     },
   };
 }
