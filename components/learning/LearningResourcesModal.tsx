@@ -101,7 +101,7 @@ export function LearningResourcesModal({
                 <BookOpenIcon className="w-6 h-6 text-amber-400" />
                 <div>
                   <h2 className="text-lg font-bold text-white">
-                    {t('title', { skill: skill?.name })}
+                    {t('title', { skill: skill?.name ?? '' })}
                   </h2>
                   <p className="text-sm text-slate-400">{t('subtitle')}</p>
                 </div>
