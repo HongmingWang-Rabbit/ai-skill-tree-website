@@ -7,6 +7,7 @@
     "signIn": "登录",
     "signOut": "退出",
     "profile": "个人资料",
+    "billing": "订阅管理",
     "loading": "加载中...",
     "error": "错误",
     "goBack": "返回",
@@ -242,7 +243,9 @@
     "dashboardTitle": "仪表盘 - 个人技能地图",
     "dashboardDescription": "追踪你的技能进度并管理你的职业道路。查看你的个性化技能地图和学习旅程。",
     "careerTitle": "{career}技能地图 - 个人技能地图",
-    "careerDescription": "探索{career}的完整技能地图。发现你需要掌握的技能并追踪你的进度。"
+    "careerDescription": "探索{career}的完整技能地图。发现你需要掌握的技能并追踪你的进度。",
+    "pricingTitle": "定价 - 个人技能地图",
+    "pricingDescription": "选择您的方案，解锁无限技能地图、AI功能和专业简历导出。免费开始或升级获取更多功能。"
   },
   "skillGraph": {
     "sortNodes": "整理",
@@ -352,7 +355,12 @@
     "more": "更多",
     "highlights": "重点亮点",
     "back": "返回",
-    "downloadPdf": "下载PDF"
+    "previewPdf": "预览PDF",
+    "downloadPdf": "下载PDF",
+    "pdfOptions": "PDF选项",
+    "showWatermark": "显示水印",
+    "showFooter": "显示页脚文字",
+    "subscriberOnly": "Pro"
   },
   "learning": {
     "title": "学习 {skill}",
@@ -364,5 +372,76 @@
     "moreResources": "更多资源",
     "noResults": "未找到资源。请尝试在Google上搜索教程。",
     "startLearning": "开始学习"
+  },
+  "billing": {
+    "accountStatus": "账户状态",
+    "credits": "积分",
+    "plan": "套餐",
+    "skillMaps": "技能地图",
+    "buyCredits": "购买更多积分",
+    "upgradePlan": "升级套餐",
+    "managePlan": "管理套餐",
+    "renewsOn": "续费日期",
+    "expiresOn": "到期日期",
+    "mapLimitReached": "升级解锁无限地图"
+  },
+  "pricing": {
+    "title": "选择你的套餐",
+    "subtitle": "免费开始，按需扩展。所有套餐都包含AI驱动的技能地图。",
+    "monthly": "月付",
+    "yearly": "年付",
+    "yearlyDiscount": "省20%",
+    "currentPlan": "当前套餐",
+    "subscribe": "订阅",
+    "getStarted": "开始使用",
+    "mostPopular": "最受欢迎",
+    "perMonth": "/月",
+    "perYear": "/年",
+    "free": {
+      "name": "免费版",
+      "description": "适合入门",
+      "features": ["注册送500积分", "1个技能地图", "AI职业生成", "基础简历导出", "导出带水印"]
+    },
+    "pro": {
+      "name": "专业版",
+      "description": "适合活跃学习者",
+      "features": ["包含免费版所有功能", "每月1,000积分", "无限技能地图", "无水印", "优先支持"]
+    },
+    "premium": {
+      "name": "高级版",
+      "description": "适合专业人士",
+      "features": ["包含专业版所有功能", "每月3,000积分", "高级AI功能", "多格式导出", "专属支持"]
+    },
+    "creditsTitle": "需要更多积分？",
+    "creditsSubtitle": "购买积分包用于额外的AI操作",
+    "credits500": "500积分",
+    "credits2000": "2,000积分",
+    "credits2000Save": "省10%",
+    "credits5000": "5,000积分",
+    "credits5000Save": "省20%",
+    "buyNow": "立即购买",
+    "faq": {
+      "title": "常见问题",
+      "q1": "什么是积分？",
+      "a1": "积分用于AI操作，如生成技能地图、分析职业、导入文档和创建简历。每项操作消耗一定数量的积分。",
+      "q2": "积分会过期吗？",
+      "a2": "不会，购买的积分永不过期。订阅的月度积分在每个计费周期重置。",
+      "q3": "可以随时取消吗？",
+      "a3": "可以，你可以随时取消订阅。取消后将保留访问权限直到计费周期结束。"
+    },
+    "manageBilling": "管理账单",
+    "signInRequired": "请登录以管理订阅",
+    "currentStatus": "当前订阅状态",
+    "subscription": "订阅计划",
+    "creditsBalance": "积分余额",
+    "creditsAvailable": "积分可用",
+    "manageSubscription": "取消或更改计划",
+    "updatePaymentMethod": "更新支付方式",
+    "renewsOn": "续费日期",
+    "expiresOn": "到期日期",
+    "planUpdated": "您的订阅计划已成功更新！",
+    "priceNotConfigured": "价格未配置",
+    "checkoutFailed": "无法启动结账",
+    "portalFailed": "无法打开账单管理"
   }
 }

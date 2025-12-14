@@ -23,7 +23,7 @@ const ResumeExportModal = dynamic(
 );
 import { type Locale } from '@/i18n/routing';
 import { type WorkExperience } from '@/lib/schemas';
-import { useUserGraphs, useUserProfile, useDeleteMap } from '@/hooks/useQueryHooks';
+import { useUserGraphs, useUserProfile, useDeleteMap, useUserCredits, useUserSubscription } from '@/hooks/useQueryHooks';
 
 interface SavedGraph {
   id: string;
@@ -62,6 +62,8 @@ export default function DashboardPage() {
   // React Query hooks for data fetching
   const { data: savedCareers = [], isLoading: isLoadingCareers } = useUserGraphs(!!session?.user?.id);
   const { data: profile, isLoading: isLoadingProfile } = useUserProfile(!!session?.user?.id);
+  const { data: credits, isLoading: isLoadingCredits } = useUserCredits(!!session?.user?.id);
+  const { data: subscription, isLoading: isLoadingSubscription } = useUserSubscription(!!session?.user?.id);
   const deleteMapMutation = useDeleteMap();
 
   // Local state synced with profile query
@@ -504,6 +506,92 @@ export default function DashboardPage() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+
+        {/* Billing Section */}
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-white">{t('billing.accountStatus')}</h2>
+            <Link
+              href="/pricing"
+              className="text-sm text-amber-400 hover:text-amber-300 transition-colors"
+            >
+              {subscription?.tier === 'free' ? t('billing.upgradePlan') : t('billing.managePlan')}
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Credits Balance */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <span className="text-xl">💰</span>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">{t('billing.credits')}</p>
+                  {isLoadingCredits ? (
+                    <div className="h-6 w-16 bg-slate-700 rounded animate-pulse" />
+                  ) : (
+                    <p className="text-xl font-bold text-amber-400">{credits?.balance ?? 0}</p>
+                  )}
+                </div>
+              </div>
+              <Link
+                href="/pricing#credits"
+                className="text-xs text-slate-400 hover:text-amber-400 transition-colors"
+              >
+                {t('billing.buyCredits')} →
+              </Link>
+            </div>
+
+            {/* Subscription Tier */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                  <span className="text-xl">{subscription?.tier === 'premium' ? '👑' : subscription?.tier === 'pro' ? '⭐' : '🆓'}</span>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">{t('billing.plan')}</p>
+                  {isLoadingSubscription ? (
+                    <div className="h-6 w-16 bg-slate-700 rounded animate-pulse" />
+                  ) : (
+                    <p className="text-xl font-bold text-white capitalize">{subscription?.tier ?? 'free'}</p>
+                  )}
+                </div>
+              </div>
+              {subscription?.tier !== 'free' && subscription?.currentPeriodEnd && (
+                <p className="text-xs text-slate-400">
+                  {subscription.cancelAtPeriodEnd ? t('billing.expiresOn') : t('billing.renewsOn')}{' '}
+                  {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+
+            {/* Map Limit */}
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                  <span className="text-xl">🗺️</span>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">{t('billing.skillMaps')}</p>
+                  {isLoadingSubscription ? (
+                    <div className="h-6 w-16 bg-slate-700 rounded animate-pulse" />
+                  ) : (
+                    <p className="text-xl font-bold text-white">
+                      {subscription?.limits.currentMaps ?? 0}
+                      <span className="text-sm font-normal text-slate-400">
+                        /{subscription?.limits.maxMaps === -1 ? '∞' : subscription?.limits.maxMaps ?? 1}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              </div>
+              {subscription?.tier === 'free' && subscription?.limits.currentMaps >= subscription?.limits.maxMaps && (
+                <p className="text-xs text-amber-400">{t('billing.mapLimitReached')}</p>
+              )}
+            </div>
           </div>
         </div>
 

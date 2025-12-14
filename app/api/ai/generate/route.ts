@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { generateCareerSkillTree, type SupportedLocale } from '@/lib/ai';
 import { GenerateCareerSchema } from '@/lib/schemas';
 import { normalizeCareerKey } from '@/lib/normalize-career';
 import { setCachedCareer, getCachedCareer } from '@/lib/cache';
 import { db, careers, skillGraphs } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
-
-export const runtime = 'edge';
+import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
     const { career, locale = 'en' } = GenerateCareerSchema.parse(body);
 
@@ -52,6 +54,23 @@ export async function POST(request: NextRequest) {
           data: result,
           source: 'database',
         });
+      }
+    }
+
+    // Check credits for logged-in users before generating
+    if (session?.user?.id) {
+      const creditCheck = await hasEnoughCredits(session.user.id, 'ai_generate');
+      if (!creditCheck.sufficient) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Insufficient credits',
+            code: 'INSUFFICIENT_CREDITS',
+            creditsRequired: creditCheck.required,
+            creditsBalance: creditCheck.balance,
+          },
+          { status: 402 }
+        );
       }
     }
 
@@ -117,10 +136,22 @@ export async function POST(request: NextRequest) {
     // Cache the result
     await setCachedCareer(cacheKey, result);
 
+    // Deduct credits after successful generation
+    let newCreditsBalance: number | undefined;
+    if (session?.user?.id) {
+      const deductResult = await deductCredits(session.user.id, 'ai_generate', {
+        career,
+        locale,
+        careerId: newCareer.id,
+      });
+      newCreditsBalance = deductResult.newBalance;
+    }
+
     return NextResponse.json({
       success: true,
       data: result,
       source: 'generated',
+      credits: newCreditsBalance !== undefined ? { balance: newCreditsBalance } : undefined,
     });
   } catch (error) {
     console.error('Generate career error:', error);

@@ -179,6 +179,42 @@ export const affiliatedLinks = pgTable('affiliated_links', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// User subscriptions (Stripe integration)
+export const subscriptions = pgTable('subscriptions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  stripePriceId: text('stripe_price_id'),
+  tier: text('tier').notNull().default('free'), // 'free' | 'pro' | 'premium'
+  status: text('status').notNull().default('active'), // 'active' | 'canceled' | 'past_due' | 'paused'
+  currentPeriodEnd: timestamp('current_period_end'),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// User credits balance
+export const credits = pgTable('credits', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+  balance: integer('balance').notNull().default(500), // 500 credits = $5 initial bonus
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Credit transaction audit trail
+export const creditTransactions = pgTable('credit_transactions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  amount: integer('amount').notNull(), // Negative = deduction, Positive = addition
+  balanceAfter: integer('balance_after').notNull(),
+  type: text('type').notNull(), // 'usage' | 'purchase' | 'subscription' | 'bonus' | 'refund'
+  operation: text('operation').notNull(), // 'ai_generate', 'resume_export', 'signup_bonus', etc.
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // Type for user's node data (position + progress)
 export interface UserNodeData {
   skillId: string;
@@ -226,3 +262,9 @@ export type UserMasterMap = typeof userMasterMaps.$inferSelect;
 export type NewUserMasterMap = typeof userMasterMaps.$inferInsert;
 export type AffiliatedLink = typeof affiliatedLinks.$inferSelect;
 export type NewAffiliatedLink = typeof affiliatedLinks.$inferInsert;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type NewSubscription = typeof subscriptions.$inferInsert;
+export type Credit = typeof credits.$inferSelect;
+export type NewCredit = typeof credits.$inferInsert;
+export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type NewCreditTransaction = typeof creditTransactions.$inferInsert;

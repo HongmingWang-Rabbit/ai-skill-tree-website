@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { generateShareSlug, normalizeCareerKey } from '@/lib/normalize-career';
 import { MAP_TITLE_MAX_LENGTH, SHARE_SLUG_GENERATION_MAX_RETRIES } from '@/lib/constants';
 import { SkillNodeSchema, SkillEdgeSchema } from '@/lib/schemas';
+import { canCreateMap, getUserSubscription } from '@/lib/subscription';
 
 const ForkSchema = z.object({
   // Fork from a base career
@@ -34,6 +35,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    // Check map limit based on subscription tier
+    const allowed = await canCreateMap(session.user.id);
+    if (!allowed) {
+      const subInfo = await getUserSubscription(session.user.id);
+      return NextResponse.json(
+        {
+          error: 'Map limit reached',
+          code: 'MAP_LIMIT_REACHED',
+          message: `Free tier is limited to ${subInfo.limits.maxMaps} map. Upgrade to Pro or Premium for unlimited maps.`,
+          currentMaps: subInfo.limits.currentMaps,
+          maxMaps: subInfo.limits.maxMaps,
+          tier: subInfo.tier,
+        },
+        { status: 403 }
       );
     }
 

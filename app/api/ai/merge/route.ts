@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { generateSmartMerge } from '@/lib/ai-chat';
 import { SkillNodeSchema, SkillEdgeSchema } from '@/lib/schemas';
 import { locales, type Locale } from '@/i18n/routing';
+import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 
 // Request schema for merge operation
 const MergeRequestSchema = z.object({
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
   try {
     // Require authentication for merge operations
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: 'Authentication required' },
         { status: 401 }
@@ -31,6 +32,21 @@ export async function POST(request: NextRequest) {
     // Parse and validate request
     const body = await request.json();
     const validatedInput = MergeRequestSchema.parse(body);
+
+    // Check credits before AI merge
+    const creditCheck = await hasEnoughCredits(session.user.id, 'ai_merge');
+    if (!creditCheck.sufficient) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Insufficient credits',
+          code: 'INSUFFICIENT_CREDITS',
+          creditsRequired: creditCheck.required,
+          creditsBalance: creditCheck.balance,
+        },
+        { status: 402 }
+      );
+    }
 
     // Generate smart merge using AI
     const merged = await generateSmartMerge(
@@ -43,6 +59,12 @@ export async function POST(request: NextRequest) {
       validatedInput.locale as Locale
     );
 
+    // Deduct credits after successful merge
+    const deductResult = await deductCredits(session.user.id, 'ai_merge', {
+      sourceCareerTitle: validatedInput.sourceCareerTitle,
+      targetCareerTitle: validatedInput.targetCareerTitle,
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -50,6 +72,7 @@ export async function POST(request: NextRequest) {
         edges: merged.edges,
         mergedTitle: merged.mergedTitle,
       },
+      credits: { balance: deductResult.newBalance },
     });
   } catch (error) {
     console.error('Merge API error:', error);

@@ -15,6 +15,8 @@ import {
   type JobRequirements,
 } from '@/lib/ai-resume';
 import { type Locale } from '@/i18n/routing';
+import { hasEnoughCredits, deductCredits } from '@/lib/credits';
+import { shouldHaveWatermark } from '@/lib/subscription';
 
 // POST /api/resume/generate - Generate resume content
 export async function POST(request: Request) {
@@ -40,6 +42,20 @@ export async function POST(request: Request) {
 
     const { locale, jobTitle, jobUrl } = result.data;
     const userId = session.user.id;
+
+    // Check credits before AI generation
+    const creditCheck = await hasEnoughCredits(userId, 'resume_generate');
+    if (!creditCheck.sufficient) {
+      return NextResponse.json(
+        {
+          error: 'Insufficient credits',
+          code: 'INSUFFICIENT_CREDITS',
+          creditsRequired: creditCheck.required,
+          creditsBalance: creditCheck.balance,
+        },
+        { status: 402 }
+      );
+    }
 
     // Fetch user profile
     const user = await db.query.users.findFirst({
@@ -158,6 +174,16 @@ export async function POST(request: Request) {
       0
     );
 
+    // Deduct credits after successful generation
+    const deductResult = await deductCredits(userId, 'resume_generate', {
+      locale,
+      jobTitle,
+      hasJobUrl: !!jobUrl,
+    });
+
+    // Check if resume should have watermark based on subscription
+    const hasWatermark = await shouldHaveWatermark(userId);
+
     return NextResponse.json({
       success: true,
       data: {
@@ -169,12 +195,14 @@ export async function POST(request: Request) {
         experience: userProfile.experience,
         resumeContent,
         jobRequirements,
+        hasWatermark,
         stats: {
           totalSkills,
           masteredSkills,
           careerCount: careerSkillData.length,
         },
       },
+      credits: { balance: deductResult.newBalance },
     });
 
   } catch (error) {

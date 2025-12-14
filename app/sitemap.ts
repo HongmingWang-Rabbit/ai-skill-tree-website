@@ -33,6 +33,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
       },
     });
+
+    // Add pricing page for each locale
+    entries.push({
+      url: `${SITE_URL}/${locale}/pricing`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, `${SITE_URL}/${l}/pricing`])
+        ),
+      },
+    });
   }
 
   // Fetch all public careers from database

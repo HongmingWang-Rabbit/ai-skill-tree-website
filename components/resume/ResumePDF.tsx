@@ -92,11 +92,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#334155',
   },
-  skillLevel: {
-    fontSize: 8,
-    color: '#64748b',
-    marginLeft: 4,
-  },
   experienceItem: {
     marginBottom: 12,
   },
@@ -155,15 +150,37 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#94a3b8',
   },
+  watermarkContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  watermarkMainText: {
+    fontSize: 48,
+    color: '#e5e7eb',
+    fontFamily: 'Helvetica-Bold',
+    letterSpacing: 4,
+  },
+  watermarkSubText: {
+    fontSize: 14,
+    color: '#d1d5db',
+    marginTop: 8,
+    fontFamily: 'Helvetica',
+  },
 });
 
 export interface ResumePDFProps {
   userName: string;
   email: string;
-  bio?: string;
   resumeContent: ResumeContent;
   experience: WorkExperience[];
   targetJob?: string;
+  hasWatermark?: boolean;
+  showFooter?: boolean;
 }
 
 // Format date for display
@@ -179,10 +196,20 @@ export function ResumePDF({
   resumeContent,
   experience,
   targetJob,
+  hasWatermark = false,
+  showFooter = true,
 }: ResumePDFProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Watermark for free tier users - fixed to appear on every page */}
+        {hasWatermark && (
+          <View style={styles.watermarkContainer} fixed>
+            <Text style={styles.watermarkMainText}>{RESUME_CONFIG.pdfLabels.watermarkMain}</Text>
+            <Text style={styles.watermarkSubText}>{RESUME_CONFIG.pdfLabels.watermarkSub}</Text>
+          </View>
+        )}
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.name}>{userName}</Text>
@@ -226,7 +253,6 @@ export function ResumePDF({
                     ]}
                   >
                     <Text style={styles.skillText}>{skill.name}</Text>
-                    <Text style={styles.skillLevel}>L{skill.level}</Text>
                   </View>
                 ))}
               </View>
@@ -258,9 +284,11 @@ export function ResumePDF({
         )}
 
         {/* Footer */}
-        <Text style={styles.footer}>
-          {RESUME_CONFIG.pdfLabels.footer} • {new Date().toLocaleDateString()}
-        </Text>
+        {showFooter && (
+          <Text style={styles.footer}>
+            {RESUME_CONFIG.pdfLabels.footer} • {new Date().toLocaleDateString()}
+          </Text>
+        )}
       </Page>
     </Document>
   );

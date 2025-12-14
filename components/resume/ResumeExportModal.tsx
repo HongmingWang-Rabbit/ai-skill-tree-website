@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
@@ -10,13 +10,14 @@ import {
   SparklesIcon,
   LinkIcon,
   WarningIcon,
+  PreviewIcon,
 } from '@/components/ui';
 import { API_ROUTES, RESUME_CONFIG } from '@/lib/constants';
 import { type ResumeContent, type JobRequirements } from '@/lib/ai-resume';
 import { type WorkExperience } from '@/lib/schemas';
 import { type Locale } from '@/i18n/routing';
 
-// Dynamically import PDF download button to avoid SSR issues with @react-pdf/renderer
+// Dynamically import PDF components to avoid SSR issues with @react-pdf/renderer
 const PDFDownloadButton = dynamic(
   () => import('./PDFDownloadButton').then(mod => mod.PDFDownloadButton),
   {
@@ -30,13 +31,28 @@ const PDFDownloadButton = dynamic(
   }
 );
 
+const PDFPreviewPanel = dynamic(
+  () => import('./PDFPreviewPanel').then(mod => mod.PDFPreviewPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center bg-slate-800 rounded-lg">
+        <div className="text-center">
+          <div className="w-8 h-8 border-3 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-slate-400">Loading preview...</p>
+        </div>
+      </div>
+    ),
+  }
+);
+
 export interface ResumeExportModalProps {
   isOpen: boolean;
   onClose: () => void;
   locale: Locale;
 }
 
-type Stage = 'input' | 'generating' | 'preview';
+type Stage = 'input' | 'generating' | 'preview' | 'pdfPreview';
 
 interface ResumeData {
   profile: {
@@ -52,6 +68,7 @@ interface ResumeData {
     masteredSkills: number;
     careerCount: number;
   };
+  hasWatermark: boolean;
 }
 
 export function ResumeExportModal({
@@ -69,6 +86,14 @@ export function ResumeExportModal({
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [editedSummary, setEditedSummary] = useState('');
   const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(false);
+  const [showFooter, setShowFooter] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure PDF components only render after client-side mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const resetState = useCallback(() => {
     setStage('input');
@@ -78,6 +103,8 @@ export function ResumeExportModal({
     setResumeData(null);
     setEditedSummary('');
     setIsEditingSummary(false);
+    setShowWatermark(false);
+    setShowFooter(true);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -143,7 +170,11 @@ export function ResumeExportModal({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="w-full max-w-2xl max-h-[85vh] overflow-hidden"
+          className={`w-full overflow-hidden transition-all duration-300 ${
+            stage === 'pdfPreview'
+              ? 'max-w-5xl max-h-[90vh]'
+              : 'max-w-2xl max-h-[85vh]'
+          }`}
         >
           <GlassPanel className="p-0 overflow-hidden">
             {/* Header */}
@@ -345,6 +376,73 @@ export function ResumeExportModal({
                       </ul>
                     </div>
                   )}
+
+                  {/* PDF Options */}
+                  <div className="pt-4 border-t border-slate-700">
+                    <h3 className="text-sm font-medium text-slate-300 mb-3">{t('pdfOptions')}</h3>
+                    <div className="space-y-3">
+                      {/* Watermark Toggle - always show, but only subscribers can turn off */}
+                      <label className={`flex items-center justify-between ${resumeData.hasWatermark ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-slate-400">{t('showWatermark')}</span>
+                          {resumeData.hasWatermark && (
+                            <span className="text-xs text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded">{t('subscriberOnly')}</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => !resumeData.hasWatermark && setShowWatermark(!showWatermark)}
+                          disabled={resumeData.hasWatermark}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            resumeData.hasWatermark
+                              ? 'bg-amber-500 opacity-50 cursor-not-allowed'
+                              : showWatermark
+                              ? 'bg-amber-500'
+                              : 'bg-slate-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              resumeData.hasWatermark || showWatermark ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </label>
+                      {/* Footer Toggle */}
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <span className="text-sm text-slate-400">{t('showFooter')}</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowFooter(!showFooter)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                            showFooter ? 'bg-amber-500' : 'bg-slate-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              showFooter ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* PDF Preview Stage */}
+              {stage === 'pdfPreview' && resumeData && isMounted && (
+                <div className="h-[70vh]">
+                  <PDFPreviewPanel
+                    key={`pdf-preview-${showWatermark}-${showFooter}`}
+                    userName={resumeData.profile.name}
+                    email={resumeData.profile.email}
+                    resumeContent={resumeData.resumeContent}
+                    experience={resumeData.experience}
+                    targetJob={resumeData.jobRequirements?.jobTitle}
+                    hasWatermark={resumeData.hasWatermark || showWatermark}
+                    showFooter={showFooter}
+                  />
                 </div>
               )}
             </div>
@@ -359,14 +457,48 @@ export function ResumeExportModal({
                   >
                     {t('back')}
                   </button>
-                  {resumeData && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setStage('pdfPreview')}
+                      className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <PreviewIcon className="w-4 h-4" />
+                      {t('previewPdf')}
+                    </button>
+                    {resumeData && isMounted && (
+                      <PDFDownloadButton
+                        key={`pdf-btn-preview-${showWatermark}-${showFooter}`}
+                        userName={resumeData.profile.name}
+                        email={resumeData.profile.email}
+                        resumeContent={resumeData.resumeContent}
+                        experience={resumeData.experience}
+                        targetJob={resumeData.jobRequirements?.jobTitle}
+                        hasWatermark={resumeData.hasWatermark || showWatermark}
+                        showFooter={showFooter}
+                        fileName={`${resumeData.profile.name.replace(/\s+/g, '_')}_Resume.pdf`}
+                        buttonText={t('downloadPdf')}
+                      />
+                    )}
+                  </div>
+                </>
+              ) : stage === 'pdfPreview' ? (
+                <>
+                  <button
+                    onClick={() => setStage('preview')}
+                    className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    {t('back')}
+                  </button>
+                  {resumeData && isMounted && (
                     <PDFDownloadButton
+                      key={`pdf-btn-full-${showWatermark}-${showFooter}`}
                       userName={resumeData.profile.name}
                       email={resumeData.profile.email}
-                      bio={resumeData.profile.bio}
                       resumeContent={resumeData.resumeContent}
                       experience={resumeData.experience}
                       targetJob={resumeData.jobRequirements?.jobTitle}
+                      hasWatermark={resumeData.hasWatermark || showWatermark}
+                      showFooter={showFooter}
                       fileName={`${resumeData.profile.name.replace(/\s+/g, '_')}_Resume.pdf`}
                       buttonText={t('downloadPdf')}
                     />

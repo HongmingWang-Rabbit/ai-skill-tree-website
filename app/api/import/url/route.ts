@@ -1,18 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { URLImportSchema } from '@/lib/schemas';
 import { parseURL, detectURLType, type DocumentParseError } from '@/lib/document-parser';
 import { extractSkillsFromDocument, generateExtractionSummary } from '@/lib/ai-document';
 import { searchTavily, formatSearchResultsForAI } from '@/lib/mcp/tavily';
 import { type Locale } from '@/i18n/routing';
+import { hasEnoughCredits, deductCredits, type CreditDeductResult } from '@/lib/credits';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
     const validated = URLImportSchema.parse(body);
 
     const { url, locale } = validated;
+
+    // Check credits for logged-in users before AI extraction
+    if (session?.user?.id) {
+      const creditCheck = await hasEnoughCredits(session.user.id, 'import_url');
+      if (!creditCheck.sufficient) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Insufficient credits',
+            code: 'INSUFFICIENT_CREDITS',
+            creditsRequired: creditCheck.required,
+            creditsBalance: creditCheck.balance,
+          },
+          { status: 402 }
+        );
+      }
+    }
     const urlType = detectURLType(url);
 
     let parsedDocument;
@@ -116,6 +137,15 @@ export async function POST(request: NextRequest) {
     // Generate human-readable summary
     const summaries = generateExtractionSummary(result, locale as Locale);
 
+    // Deduct credits after successful extraction
+    let deductResult: CreditDeductResult | undefined;
+    if (session?.user?.id) {
+      deductResult = await deductCredits(session.user.id, 'import_url', {
+        url,
+        urlType,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -135,6 +165,7 @@ export async function POST(request: NextRequest) {
         urlType,
         warning,
       },
+      credits: deductResult ? { balance: deductResult.newBalance } : undefined,
     });
   } catch (error) {
     console.error('URL import error:', error);

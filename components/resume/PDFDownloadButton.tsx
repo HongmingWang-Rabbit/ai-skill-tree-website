@@ -9,10 +9,11 @@ import { DownloadIcon } from '@/components/ui';
 export interface PDFDownloadButtonProps {
   userName: string;
   email: string;
-  bio?: string;
   resumeContent: ResumeContent;
   experience: WorkExperience[];
   targetJob?: string;
+  hasWatermark?: boolean;
+  showFooter?: boolean;
   fileName: string;
   buttonText: string;
 }
@@ -20,10 +21,11 @@ export interface PDFDownloadButtonProps {
 export function PDFDownloadButton({
   userName,
   email,
-  bio,
   resumeContent,
   experience,
   targetJob,
+  hasWatermark = false,
+  showFooter = true,
   fileName,
   buttonText,
 }: PDFDownloadButtonProps) {
@@ -33,10 +35,11 @@ export function PDFDownloadButton({
         <ResumePDF
           userName={userName}
           email={email}
-          bio={bio}
           resumeContent={resumeContent}
           experience={experience}
           targetJob={targetJob}
+          hasWatermark={hasWatermark}
+          showFooter={showFooter}
         />
       }
       fileName={fileName}

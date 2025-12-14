@@ -13,6 +13,7 @@ import { locales, type Locale } from '@/i18n/routing';
 import OpenAI from 'openai';
 import { searchTrendingTech, formatSearchResultsForAI } from '@/lib/mcp/tavily';
 import { AI_CHAT_CONFIG } from '@/lib/constants';
+import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 
 const openai = new OpenAI();
 
@@ -118,6 +119,23 @@ export async function POST(request: NextRequest) {
       userMaps: validatedInput.userMaps,
       locale: validatedInput.locale as Locale,
     };
+
+    // Check credits for logged-in users before AI call
+    if (session?.user?.id) {
+      const creditCheck = await hasEnoughCredits(session.user.id, 'ai_chat');
+      if (!creditCheck.sufficient) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Insufficient credits',
+            code: 'INSUFFICIENT_CREDITS',
+            creditsRequired: creditCheck.required,
+            creditsBalance: creditCheck.balance,
+          },
+          { status: 402 }
+        );
+      }
+    }
 
     // Check if user wants to search for trending tech
     const searchIntent = detectSearchIntent(validatedInput.message);
@@ -237,9 +255,22 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Deduct credits after successful AI response
+      let newCreditsBalance: number | undefined;
+      if (session?.user?.id) {
+        const deductResult = await deductCredits(session.user.id, 'ai_chat', {
+          careerTitle: validatedInput.careerTitle,
+          hasModifications: !!(validated.modifications?.addNodes?.length ||
+            validated.modifications?.updateNodes?.length ||
+            validated.modifications?.removeNodes?.length),
+        });
+        newCreditsBalance = deductResult.newBalance;
+      }
+
       return NextResponse.json({
         success: true,
         data: validated,
+        credits: newCreditsBalance !== undefined ? { balance: newCreditsBalance } : undefined,
       });
     }
   } catch (error) {

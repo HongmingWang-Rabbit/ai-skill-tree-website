@@ -77,6 +77,9 @@ export const queryKeys = {
   userGraphs: ['userGraphs'] as const,
   userProfile: ['userProfile'] as const,
   masterMap: ['masterMap'] as const,
+  userCredits: ['userCredits'] as const,
+  userSubscription: ['userSubscription'] as const,
+  stripePrices: ['stripePrices'] as const,
   career: (id: string, locale: string) => ['career', id, locale] as const,
   map: (id: string) => ['map', id] as const,
 };
@@ -194,6 +197,143 @@ export function useDeleteMap() {
       queryClient.invalidateQueries({ queryKey: queryKeys.masterMap });
     },
   });
+}
+
+// ============================================
+// Billing Hooks
+// ============================================
+
+interface UserCreditsData {
+  balance: number;
+  history: Array<{
+    id: string;
+    amount: number;
+    balanceAfter: number;
+    type: string;
+    operation: string;
+    createdAt: string;
+  }>;
+}
+
+interface UserSubscriptionData {
+  tier: 'free' | 'pro' | 'premium';
+  status: string;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  limits: {
+    maxMaps: number; // -1 means unlimited (Infinity can't be serialized to JSON)
+    currentMaps: number;
+    hasWatermark: boolean;
+    monthlyCredits: number;
+  };
+}
+
+/**
+ * Fetch user's credit balance and history
+ */
+export function useUserCredits(enabled = true) {
+  return useQuery<UserCreditsData>({
+    queryKey: queryKeys.userCredits,
+    queryFn: async () => {
+      const response = await fetch(API_ROUTES.USER_CREDITS);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to fetch credits');
+      }
+      return data.data;
+    },
+    enabled,
+    staleTime: QUERY_CONFIG.staleTime,
+  });
+}
+
+/**
+ * Fetch user's subscription info
+ */
+export function useUserSubscription(enabled = true) {
+  return useQuery<UserSubscriptionData>({
+    queryKey: queryKeys.userSubscription,
+    queryFn: async () => {
+      const response = await fetch(API_ROUTES.USER_SUBSCRIPTION);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to fetch subscription');
+      }
+      return data.data;
+    },
+    enabled,
+    staleTime: QUERY_CONFIG.staleTime,
+  });
+}
+
+// ============================================
+// Stripe Pricing Hooks
+// ============================================
+
+interface StripePriceInfo {
+  id: string;
+  productKey: string;
+  unitAmount: number | null;
+  currency: string;
+  interval: 'month' | 'year' | null;
+  active: boolean;
+}
+
+interface StripePricesData {
+  subscriptions: {
+    proMonthly: StripePriceInfo | null;
+    proYearly: StripePriceInfo | null;
+    premiumMonthly: StripePriceInfo | null;
+    premiumYearly: StripePriceInfo | null;
+  };
+  creditPacks: {
+    credits500: StripePriceInfo | null;
+    credits2000: StripePriceInfo | null;
+    credits5000: StripePriceInfo | null;
+  };
+}
+
+/**
+ * Fetch Stripe prices for subscriptions and credit packs
+ * Prices are cached for longer since they rarely change
+ */
+export function useStripePrices() {
+  return useQuery<StripePricesData>({
+    queryKey: queryKeys.stripePrices,
+    queryFn: async () => {
+      const response = await fetch(API_ROUTES.STRIPE_PRICES);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to fetch prices');
+      }
+      return data.data;
+    },
+    // Prices rarely change, cache for 10 minutes
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+/**
+ * Format price from Stripe (cents to dollars with currency symbol)
+ */
+export function formatStripePrice(
+  unitAmount: number | null | undefined,
+  currency: string = 'usd'
+): string {
+  if (unitAmount === null || unitAmount === undefined) {
+    return '—';
+  }
+
+  const amount = unitAmount / 100;
+  const formatter = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
+  return formatter.format(amount);
 }
 
 /**

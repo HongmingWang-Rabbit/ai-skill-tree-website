@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { DocumentImportSchema } from '@/lib/schemas';
 import { parsePDF, parseWord, parseText, parseImage, isSupportedFileType, isImageFile, getMimeType, type DocumentParseError } from '@/lib/document-parser';
 import { extractSkillsFromDocument, generateExtractionSummary } from '@/lib/ai-document';
 import { DOCUMENT_IMPORT_CONFIG, SUPPORTED_EXTENSIONS } from '@/lib/constants';
 import { type Locale } from '@/i18n/routing';
+import { hasEnoughCredits, deductCredits, type CreditDeductResult } from '@/lib/credits';
 
 // Cannot use edge runtime due to pdf-parse requiring Node.js
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const locale = (formData.get('locale') as string) || 'en';
@@ -60,6 +64,26 @@ export async function POST(request: NextRequest) {
 
     // Parse the document based on type
     const fileExtension = file.name.toLowerCase().split('.').pop();
+    const isVisionDocument = isImageFile(file.name);
+
+    // Check credits for logged-in users before AI extraction
+    if (session?.user?.id) {
+      const creditOperation = isVisionDocument ? 'import_document_vision' : 'import_document';
+      const creditCheck = await hasEnoughCredits(session.user.id, creditOperation);
+      if (!creditCheck.sufficient) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Insufficient credits',
+            code: 'INSUFFICIENT_CREDITS',
+            creditsRequired: creditCheck.required,
+            creditsBalance: creditCheck.balance,
+          },
+          { status: 402 }
+        );
+      }
+    }
+
     let parsedDocument;
 
     try {
@@ -112,6 +136,17 @@ export async function POST(request: NextRequest) {
     // Generate human-readable summary
     const summaries = generateExtractionSummary(result, validatedInput.locale as Locale);
 
+    // Deduct credits after successful extraction
+    let deductResult: CreditDeductResult | undefined;
+    if (session?.user?.id) {
+      const creditOperation = isVisionDocument ? 'import_document_vision' : 'import_document';
+      deductResult = await deductCredits(session.user.id, creditOperation, {
+        fileName: file.name,
+        fileType: parsedDocument.metadata.type,
+        isVision: isVisionDocument,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -128,6 +163,7 @@ export async function POST(request: NextRequest) {
           wordCount: parsedDocument.metadata.wordCount,
         },
       },
+      credits: deductResult ? { balance: deductResult.newBalance } : undefined,
     });
   } catch (error) {
     console.error('Document import error:', error);

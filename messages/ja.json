@@ -7,6 +7,7 @@
     "signIn": "ログイン",
     "signOut": "ログアウト",
     "profile": "プロフィール",
+    "billing": "プランと請求",
     "loading": "読み込み中...",
     "error": "エラー",
     "goBack": "戻る",
@@ -242,7 +243,9 @@
     "dashboardTitle": "ダッシュボード - パーソナルスキルマップ",
     "dashboardDescription": "スキルの進捗を追跡し、キャリアパスを管理します。パーソナライズされたスキルマップと学習の旅を確認してください。",
     "careerTitle": "{career}スキルマップ - パーソナルスキルマップ",
-    "careerDescription": "{career}の完全なスキルマップを探索してください。習得すべきスキルを発見し、進捗を追跡しましょう。"
+    "careerDescription": "{career}の完全なスキルマップを探索してください。習得すべきスキルを発見し、進捗を追跡しましょう。",
+    "pricingTitle": "料金プラン - パーソナルスキルマップ",
+    "pricingDescription": "プランを選んで、無制限のスキルマップ、AI機能、プロフェッショナルな履歴書エクスポートを解放しましょう。無料で始めるか、アップグレードしてさらに多くの機能を。"
   },
   "skillGraph": {
     "sortNodes": "整理",
@@ -352,7 +355,12 @@
     "more": "その他",
     "highlights": "主なハイライト",
     "back": "戻る",
-    "downloadPdf": "PDFをダウンロード"
+    "previewPdf": "PDFをプレビュー",
+    "downloadPdf": "PDFをダウンロード",
+    "pdfOptions": "PDFオプション",
+    "showWatermark": "透かしを表示",
+    "showFooter": "フッターを表示",
+    "subscriberOnly": "Pro"
   },
   "learning": {
     "title": "{skill}を学ぶ",
@@ -364,5 +372,76 @@
     "moreResources": "その他のリソース",
     "noResults": "リソースが見つかりませんでした。Googleでチュートリアルを検索してみてください。",
     "startLearning": "学習を開始"
+  },
+  "billing": {
+    "accountStatus": "アカウント状況",
+    "credits": "クレジット",
+    "plan": "プラン",
+    "skillMaps": "スキルマップ",
+    "buyCredits": "クレジットを購入",
+    "upgradePlan": "アップグレード",
+    "managePlan": "プラン管理",
+    "renewsOn": "更新日",
+    "expiresOn": "有効期限",
+    "mapLimitReached": "アップグレードで無制限に"
+  },
+  "pricing": {
+    "title": "プランを選択",
+    "subtitle": "無料で始めて、必要に応じてスケールアップ。すべてのプランにAI駆動のスキルマッピングが含まれます。",
+    "monthly": "月額",
+    "yearly": "年額",
+    "yearlyDiscount": "20%オフ",
+    "currentPlan": "現在のプラン",
+    "subscribe": "登録する",
+    "getStarted": "始める",
+    "mostPopular": "人気No.1",
+    "perMonth": "/月",
+    "perYear": "/年",
+    "free": {
+      "name": "無料",
+      "description": "入門に最適",
+      "features": ["登録時500クレジット", "1つのスキルマップ", "AIキャリア生成", "基本履歴書エクスポート", "エクスポートに透かし"]
+    },
+    "pro": {
+      "name": "プロ",
+      "description": "アクティブな学習者向け",
+      "features": ["無料プランのすべて", "毎月1,000クレジット", "無制限スキルマップ", "透かしなし", "優先サポート"]
+    },
+    "premium": {
+      "name": "プレミアム",
+      "description": "プロフェッショナル向け",
+      "features": ["プロプランのすべて", "毎月3,000クレジット", "高度なAI機能", "複数形式エクスポート", "専用サポート"]
+    },
+    "creditsTitle": "クレジットが必要ですか？",
+    "creditsSubtitle": "追加のAI操作用にクレジットパックを購入",
+    "credits500": "500クレジット",
+    "credits2000": "2,000クレジット",
+    "credits2000Save": "10%オフ",
+    "credits5000": "5,000クレジット",
+    "credits5000Save": "20%オフ",
+    "buyNow": "今すぐ購入",
+    "faq": {
+      "title": "よくある質問",
+      "q1": "クレジットとは？",
+      "a1": "クレジットはスキルマップ生成、キャリア分析、ドキュメントインポート、履歴書作成などのAI操作に使用されます。各操作には一定数のクレジットが必要です。",
+      "q2": "クレジットに有効期限はありますか？",
+      "a2": "いいえ、購入したクレジットに有効期限はありません。サブスクリプションの月間クレジットは各請求サイクルでリセットされます。",
+      "q3": "いつでもキャンセルできますか？",
+      "a3": "はい、いつでもサブスクリプションをキャンセルできます。請求期間の終了までアクセスを維持できます。"
+    },
+    "manageBilling": "請求管理",
+    "signInRequired": "サブスクリプションを管理するにはログインしてください",
+    "currentStatus": "現在のプラン",
+    "subscription": "サブスクリプション",
+    "creditsBalance": "クレジット残高",
+    "creditsAvailable": "クレジット利用可能",
+    "manageSubscription": "キャンセルまたはプラン変更",
+    "updatePaymentMethod": "支払い方法を更新",
+    "renewsOn": "更新日",
+    "expiresOn": "有効期限",
+    "planUpdated": "プランが正常に更新されました！",
+    "priceNotConfigured": "価格が設定されていません",
+    "checkoutFailed": "チェックアウトを開始できませんでした",
+    "portalFailed": "請求ポータルを開けませんでした"
   }
 }

@@ -8,6 +8,7 @@ import { users, accounts, sessions, verificationTokens } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { SiweMessage } from 'siwe';
 import WeChatProvider, { WeChatMPProvider } from './wechat-provider';
+import { initializeUserCredits } from './credits';
 
 declare module 'next-auth' {
   interface Session {
@@ -91,6 +92,8 @@ export const authOptions: NextAuthOptions = {
               name: `${address.slice(0, 6)}...${address.slice(-4)}`,
             }).returning();
             user = newUser;
+            // Initialize credits for new Web3 users
+            await initializeUserCredits(user.id);
           }
 
           return {
@@ -130,5 +133,14 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: '/',
+  },
+
+  events: {
+    // Initialize credits for new OAuth users (Google, Twitter, WeChat)
+    createUser: async ({ user }) => {
+      if (user.id) {
+        await initializeUserCredits(user.id);
+      }
+    },
   },
 };

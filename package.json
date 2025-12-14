@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:fresh": "rm -rf .next && next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "clean": "rm -rf .next",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -37,6 +39,7 @@
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.6.0",
     "siwe": "^3.0.0",
+    "stripe": "^20.0.0",
     "viem": "^2.41.2",
     "wagmi": "^2.9.0",
     "zod": "^4.1.13"

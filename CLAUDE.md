@@ -16,8 +16,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `lib/ai-resume.ts` - Resume generation AI functions: `analyzeJobPosting()`, `analyzeJobTitle()`, `generateResumeContent()`, types: `JobRequirements`, `ResumeSkill`, `ResumeSkillGroup`, `ResumeContent`, `CareerSkillData`, `UserProfile`
    - `lib/document-parser.ts` - Document parsing utilities: `parsePDF()`, `parseWord()`, `parseImage()`, `parseText()`, `parseURL()`, `detectURLType()`, `truncateForAI()`, `isSupportedFileType()`, `isImageFile()`, `getMimeType()`, types: `ParsedDocument`, `DocumentParseError`
    - `lib/mcp/tavily.ts` - Tavily web search integration: `searchTavily()`, `searchTrendingTech()`, `searchCareerSkills()`, `searchLearningResources()`, `detectPlatformFromUrl()`, `formatSearchResultsForAI()`
-   - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
+   - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers; also calls `initializeUserCredits()` on signup
    - `lib/wechat-provider.ts` - Custom WeChat OAuth provider: `WeChatProvider()`, `WeChatMPProvider()`, `isWeChatBrowser()`
+   - `lib/stripe.ts` - Stripe client utilities: `getStripe()` (lazy initialization), `stripe` (proxy), `getTierFromPriceId()`, `getCreditsFromPriceId()`, `isSubscriptionPriceId()`, `isCreditPackPriceId()`
+   - `lib/credits.ts` - Credit management (uses atomic SQL, no transactions for Neon HTTP compatibility): `getUserCredits()`, `hasEnoughCredits()`, `deductCredits()`, `addCredits()`, `getCreditHistory()`, `initializeUserCredits()`, types: `CreditCheckResult`, `CreditDeductResult`
+   - `lib/subscription.ts` - Subscription management: `getUserSubscription()`, `getActiveSubscription()` (returns Stripe subscription for upgrades/downgrades), `canCreateMap()`, `shouldHaveWatermark()`, `getOrCreateStripeCustomer()`, webhook handlers: `handleSubscriptionCreated()`, `handleSubscriptionUpdated()`, `handleSubscriptionDeleted()`, `handleInvoicePaid()`, `handleInvoicePaymentFailed()`, types: `UserSubscriptionInfo`
    - `lib/db/index.ts` - Database connection, exports all schema types
    - `lib/constants.ts` - App constants:
      - Skill: `SKILL_PASS_THRESHOLD`, `SKILL_PROGRESS_MAX`, `SKILL_SCORE_EXCELLENT_THRESHOLD`
@@ -38,9 +41,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - Tavily: `TAVILY_CONFIG` (API URL, search depth defaults, domain filters for trending tech and career skills searches)
      - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
      - Learning: `LEARNING_CONFIG` (platform domains for courses/video/docs/community, cacheTtlSeconds for Redis caching, searchDepth, maxResults, descriptionPreviewLength, levelThresholds for beginner/intermediate/advanced, maxAffiliatedLinks, modal dimensions, platformInfo with name/icon/color for each platform), derived constant: `LEARNING_PLATFORM_DOMAINS`
-     - Resume Export: `RESUME_CONFIG` (bioMaxLength, experienceMaxItems, pdfMaxSkillsPerCategory, aiModel, aiMaxTokens, aiJobAnalysisMaxTokens, aiTemperature, jobUrlTimeout, jobContentMaxChars, jobTitleMaxLength, previewSkillCategories, previewSkillsPerCategory, previewHighlightsCount, pdfLabels for i18n-ready section titles, monthAbbreviations for date formatting)
+     - Resume Export: `RESUME_CONFIG` (bioMaxLength, experienceMaxItems, pdfMaxSkillsPerCategory, aiModel, aiMaxTokens, aiJobAnalysisMaxTokens, aiTemperature, jobUrlTimeout, jobContentMaxChars, jobTitleMaxLength, previewSkillCategories, previewSkillsPerCategory, previewHighlightsCount, pdfLabels for i18n-ready section titles including watermarkMain/watermarkSub for free tier, monthAbbreviations for date formatting)
      - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds/maxDisplayedExperiences, modal settings with maxHeightVh/headerHeightPx), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
-     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `USER_MASTER_MAP`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`, `LEARNING_RESOURCES`, `ADMIN_AFFILIATED_LINKS`)
+     - Billing: `BILLING_CONFIG` (tiers with name/maxMaps/hasWatermark/monthlyCredits, creditCosts per operation, signupBonus, creditPacks with amounts, stripePrices from env vars, fallbackPrices for display when Stripe unavailable), derived types: `SubscriptionTier`, `CreditOperation`
+     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `USER_MASTER_MAP`, `USER_CREDITS`, `USER_SUBSCRIPTION`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`, `LEARNING_RESOURCES`, `ADMIN_AFFILIATED_LINKS`, `STRIPE_CHECKOUT`, `STRIPE_PORTAL`, `STRIPE_PRICES`)
      - React Query: `QUERY_CONFIG` (staleTime, gcTime, retryCount for client-side caching)
      - Landing Page: `LANDING_PAGE_CONFIG` (featuredCareers array, stats array, workflowSteps array, demo settings with orbitalSkillCount/orbitalRadius/connectionLineWidth, animation timing with sectionDelay/staggerDelay/duration)
 
@@ -51,7 +55,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
    - `components/ai-chat/` - `AIChatPanel` (floating chat panel with document import), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
    - `components/import/` - `DocumentImportModal` (modal for importing skills from documents/URLs), `ImportPreview` (preview extracted skills before confirmation)
-   - `components/resume/` - `ResumePDF` (PDF template using @react-pdf/renderer), `ResumeExportModal` (multi-stage modal for resume generation), `PDFDownloadButton` (wrapper for dynamic PDF download to avoid SSR issues)
+   - `components/resume/` - `ResumePDF` (PDF template using @react-pdf/renderer, accepts `hasWatermark` prop for free tier overlay), `ResumeExportModal` (multi-stage modal for resume generation with PDF preview), `PDFDownloadButton` (wrapper for dynamic PDF download to avoid SSR issues), `PDFPreviewPanel` (inline PDF viewer using PDFViewer)
    - `components/learning/` - `LearningResourcesModal` (modal for displaying learning resources from web search and affiliated links)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - `AuthProvider`, `Web3Provider`, `QueryProvider` (React Query for data fetching)
@@ -65,6 +69,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - `useMasterMap()` - Fetch master skill map data
      - `useDeleteMap()` - Mutation for deleting maps (invalidates cache)
      - `useUpdateProfile()` - Mutation for profile updates
+     - `useUserCredits()` - Fetch user's credit balance and history
+     - `useUserSubscription()` - Fetch user's subscription info and limits
+     - `useStripePrices()` - Fetch prices from Stripe (cached 10 min)
+     - `formatStripePrice()` - Format Stripe cents to currency display
      - `queryKeys` - Centralized query keys for cache invalidation
 
 4. **Check `i18n/` for internationalization**:
@@ -79,7 +87,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`, `resume`, `learning`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`, `resume`, `learning`, `billing`, `pricing`
 
 6. **Check `components/skill-graph/` for layout utilities**:
    - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, center node dynamic sizing, ring spacing, max nodes per ring), `CENTER_NODE_ID`
@@ -158,11 +166,11 @@ LANDING_PAGE_CONFIG = {
 ### Key Directories
 
 - `app/[locale]/` - Locale-prefixed pages (e.g., `/en/career/...`, `/zh/career/...`)
-- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (GET/PATCH user profile with bio/experience), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`, `/import/document` (file upload), `/import/url` (URL import), `/resume/generate` (AI resume generation)
+- `app/api/` - API routes: `/ai/generate`, `/ai/analyze`, `/ai/chat` (streaming AI chat), `/ai/merge` (smart merge two maps), `/career/[careerId]`, `/career/search`, `/skill/test`, `/user/graph`, `/user/master-map`, `/user/profile` (GET/PATCH user profile with bio/experience), `/user/credits` (GET credit balance/history), `/user/subscription` (GET subscription info), `/map/[mapId]`, `/map/fork`, `/map/[mapId]/copy`, `/import/document` (file upload), `/import/url` (URL import), `/resume/generate` (AI resume generation), `/stripe/checkout` (create Stripe checkout session), `/stripe/webhook` (Stripe webhook handler), `/stripe/portal` (billing portal)
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
-- `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress, affiliatedLinks
+- `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress, affiliatedLinks, subscriptions, credits, creditTransactions
 - `lib/ai.ts` - OpenAI integration (gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `analyzeCareerQuery()`, types: `CareerSuggestion`, `QueryAnalysisResult`
 
 ### Internationalization (i18n)
@@ -418,8 +426,10 @@ Derived constants (computed from fileTypes):
 Users can generate professional PDF resumes based on their skill maps and work experience:
 
 **Components:**
-- `ResumeExportModal` - Multi-stage modal (input → generating → preview → download)
-- `ResumePDF` - PDF template using @react-pdf/renderer with professional styling
+- `ResumeExportModal` - Multi-stage modal (input → generating → preview → pdfPreview → download)
+- `ResumePDF` - PDF template using @react-pdf/renderer with professional styling and text-based watermark
+- `PDFDownloadButton` - Wrapper for dynamic PDF download (avoids SSR issues)
+- `PDFPreviewPanel` - Inline PDF viewer using `PDFViewer` for live preview before download
 - `ExperienceEditor` - Modal for managing work experience entries
 
 **Data Flow:**
@@ -429,13 +439,34 @@ Users can generate professional PDF resumes based on their skill maps and work e
 4. `POST /api/resume/generate` fetches user's skills from all career maps
 5. If job URL provided, `parseURL()` extracts content and AI analyzes requirements
 6. AI generates tailored resume content (summary, skills grouped by relevance, highlights)
-7. Preview shows generated content with editable summary
-8. User downloads PDF via `PDFDownloadLink` (client-side rendering)
+7. API checks subscription tier via `shouldHaveWatermark()` and returns `hasWatermark` flag
+8. Preview stage shows generated content with editable summary and PDF options (watermark/footer toggles)
+9. User can click "Preview PDF" to see full PDF in `pdfPreview` stage
+10. User downloads PDF via `PDFDownloadLink` (client-side rendering)
+11. Free tier PDFs include "SKILL MAP" watermark overlay; Pro/Premium can toggle it off
+
+**PDF Options:**
+- `showWatermark` toggle - Always visible, but free tier users cannot turn it off (forced ON)
+- `showFooter` toggle - Controls footer text display ("Generated by Personal Skill Map • date")
+- Toggles update PDF preview in real-time using `key` props for component remounting
+
+**Watermark Feature:**
+- Free tier users see a watermark on exported PDFs (configured in `BILLING_CONFIG.tiers.free.hasWatermark`)
+- `shouldHaveWatermark(userId)` in `lib/subscription.ts` checks user's tier
+- Watermark uses text-based overlay (not image) for @react-pdf/renderer compatibility
+- Watermark text configured in `RESUME_CONFIG.pdfLabels.watermarkMain` ("SKILL MAP") and `watermarkSub` ("Powered by Personal Skill Map")
+- Pro/Premium tiers have `hasWatermark: false` and can toggle watermark on/off
+
+**React-PDF Implementation Notes:**
+- All PDF components use `next/dynamic` with `ssr: false` to avoid SSR issues
+- `isMounted` state pattern ensures client-side only rendering
+- `key` props on PDF components force complete remount when toggle states change (fixes react-pdf re-render issues)
+- Watermark uses `fixed` prop on `View` to appear on every page
 
 **API Route:**
 - `POST /api/resume/generate` - Generate resume content
   - Input: `{ locale, jobTitle?, jobUrl? }`
-  - Returns: profile, experience, AI-generated resumeContent, jobRequirements, stats
+  - Returns: profile, experience, AI-generated resumeContent, jobRequirements, stats, hasWatermark
 
 **Database Schema (users table):**
 - `bio: text` - Professional bio/summary
@@ -463,7 +494,10 @@ interface WorkExperience {
 - `previewSkillCategories`: 3 categories in preview
 - `previewSkillsPerCategory`: 4 skills per category in preview
 - `previewHighlightsCount`: 3 highlights in preview
-- `pdfLabels`: Section titles (applyingFor, professionalSummary, keyHighlights, skills, workExperience, footer, present) for i18n
+- `pdfLabels`: Section titles for i18n:
+  - `applyingFor`, `professionalSummary`, `keyHighlights`, `skills`, `workExperience`, `footer`, `present`
+  - `watermarkMain`: Main watermark text ("SKILL MAP")
+  - `watermarkSub`: Secondary watermark text ("Powered by Personal Skill Map")
 - `monthAbbreviations`: Date formatting array
 
 **AI Functions** (`lib/ai-resume.ts`):
@@ -529,6 +563,146 @@ Uses JSONB array pattern matching in PostgreSQL:
 - `skillPatterns: ["react", "frontend"]` matches skills containing "react" or "frontend"
 - Case-insensitive partial matching
 - Results ordered by `priority` descending
+
+### Billing & Credit System
+
+The app has a credit-based billing system integrated with Stripe for payments:
+
+**Subscription Tiers:**
+| Tier | Max Maps | Watermark | Monthly Credits |
+|------|----------|-----------|-----------------|
+| Free | 1 | Yes | 0 |
+| Pro | Unlimited | No | 1000 |
+| Premium | Unlimited | No | 3000 |
+
+**Credit System:**
+- New users receive 500 credits ($5 worth) on signup
+- AI operations consume credits based on token usage (see `BILLING_CONFIG.creditCosts`)
+- Credits are deducted after successful operations (not on failed attempts)
+- All transactions recorded in `creditTransactions` table for audit trail
+
+**Key Files:**
+- `lib/stripe.ts` - Stripe client with lazy initialization (avoids build-time errors)
+- `lib/credits.ts` - Credit management (check, deduct, add, history)
+- `lib/subscription.ts` - Subscription management and webhook handlers
+- `lib/constants.ts` - `BILLING_CONFIG` with all tier definitions and credit costs
+
+**API Routes:**
+- `POST /api/stripe/checkout` - Create Stripe checkout session for subscription or credit pack
+  - Handles upgrades/downgrades: checks for existing subscription and uses `stripe.subscriptions.update()` instead of creating new checkout session
+  - Returns `{ upgraded: true, redirectUrl }` for immediate plan changes (no Stripe checkout redirect)
+- `POST /api/stripe/webhook` - Handle Stripe webhook events (subscription lifecycle, payments)
+  - Events handled: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `customer.subscription.paused`, `customer.subscription.resumed`, `invoice.paid`, `invoice.payment_failed`, `checkout.session.completed`
+  - **Local development**: Run `stripe listen --forward-to localhost:3000/api/stripe/webhook`
+  - **Production**: Configure webhook endpoint in Stripe Dashboard with `STRIPE_WEBHOOK_SECRET`
+- `POST /api/stripe/portal` - Create Stripe billing portal session (returns to `/pricing?portal=true`)
+- `GET /api/stripe/prices` - Fetch prices from Stripe (cached via React Query for 10 min)
+- `GET /api/user/credits` - Get user's credit balance and transaction history
+- `GET /api/user/subscription` - Get user's subscription info and computed limits
+  - Note: `maxMaps` is returned as `-1` for unlimited (JSON cannot serialize `Infinity`)
+
+**Database Schema:**
+```typescript
+// User subscriptions (Stripe integration)
+subscriptions: {
+  userId: uuid,           // References users.id
+  stripeCustomerId: text, // Stripe customer ID
+  stripeSubscriptionId: text,
+  stripePriceId: text,
+  tier: 'free' | 'pro' | 'premium',
+  status: 'active' | 'canceled' | 'past_due' | 'paused',
+  currentPeriodEnd: timestamp,
+  cancelAtPeriodEnd: boolean,
+}
+
+// User credit balance
+credits: {
+  userId: uuid,           // References users.id
+  balance: integer,       // Current credit balance (default: 500)
+}
+
+// Credit transaction audit trail
+creditTransactions: {
+  userId: uuid,
+  amount: integer,        // Negative = deduction, Positive = addition
+  balanceAfter: integer,
+  type: 'usage' | 'purchase' | 'subscription' | 'bonus' | 'refund',
+  operation: string,      // 'ai_generate', 'signup_bonus', etc.
+  metadata: jsonb,        // Additional context (query, locale, etc.)
+}
+```
+
+**Integrating Credit Checks in API Routes:**
+```typescript
+import { hasEnoughCredits, deductCredits } from '@/lib/credits';
+
+// Check credits before expensive operation
+if (session?.user?.id) {
+  const creditCheck = await hasEnoughCredits(session.user.id, 'ai_generate');
+  if (!creditCheck.sufficient) {
+    return NextResponse.json({
+      error: 'Insufficient credits',
+      code: 'INSUFFICIENT_CREDITS',
+      creditsRequired: creditCheck.required,
+      creditsBalance: creditCheck.balance,
+    }, { status: 402 });
+  }
+}
+
+// Perform AI operation...
+
+// Deduct credits after success
+if (session?.user?.id) {
+  const { newBalance } = await deductCredits(session.user.id, 'ai_generate', { query });
+  // Optionally include newBalance in response
+}
+```
+
+**Checking Subscription Limits:**
+```typescript
+import { canCreateMap, shouldHaveWatermark } from '@/lib/subscription';
+
+// Check map limit before creating
+const allowed = await canCreateMap(userId);
+if (!allowed) {
+  return NextResponse.json({ error: 'Map limit reached', code: 'MAP_LIMIT_REACHED' }, { status: 403 });
+}
+
+// Check watermark for resume export
+const hasWatermark = await shouldHaveWatermark(userId);
+```
+
+**Handling Unlimited Maps on Client:**
+The API returns `-1` for `maxMaps` when tier has unlimited maps (since `Infinity` can't be JSON serialized):
+```typescript
+// In client component
+const isUnlimited = subscription.limits.maxMaps === -1;
+const displayLimit = isUnlimited ? '∞' : subscription.limits.maxMaps;
+```
+
+**Pricing Page (`app/[locale]/pricing/page.tsx`):**
+- Shows subscription tiers with pricing from Stripe API
+- "Your Current Plan" section at top showing:
+  - Current subscription tier and status
+  - Credits balance
+  - "Manage Subscription" button (opens Stripe billing portal)
+  - "Update Payment Method" button
+  - Renewal/expiration date for active subscriptions (shows "Expires on" if `cancelAtPeriodEnd`)
+- Price IDs are fetched from Stripe API, not hardcoded (server env vars not available in client)
+- Handles URL params for data refresh:
+  - `?upgraded=true` - Shows success toast and refetches subscription data after plan change
+  - `?portal=true` - Refetches subscription data after returning from Stripe Portal
+- Uses Suspense boundary for `useSearchParams` (required by Next.js 15)
+
+**User Menu Billing Link:**
+User dropdown menu (`components/auth/UserMenu.tsx`) includes a "Billing" link that navigates to `/pricing`.
+
+**Configuration** (`BILLING_CONFIG` in constants):
+- `tiers`: Subscription tier definitions with limits
+- `creditCosts`: Credit cost per operation type
+- `signupBonus`: 500 credits for new users
+- `creditPacks`: Credit pack amounts (500, 2000, 5000)
+- `stripePrices`: Stripe price IDs from environment variables (server-side only)
 
 ### Loading Optimization
 
