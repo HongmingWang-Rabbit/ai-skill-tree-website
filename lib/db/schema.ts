@@ -161,6 +161,24 @@ export const userSkillProgress = pgTable('user_skill_progress', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Affiliated links for learning resources (admin-configurable priority links)
+export const affiliatedLinks = pgTable('affiliated_links', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  url: text('url').notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  platform: text('platform').notNull(), // udemy, coursera, youtube, edx, etc.
+  imageUrl: text('image_url'),
+  // Matching criteria - skills can match by name patterns or category
+  skillPatterns: jsonb('skill_patterns').notNull().$type<string[]>(), // keywords to match skill names
+  categoryPatterns: jsonb('category_patterns').$type<string[]>(), // category matching
+  priority: integer('priority').notNull().default(0), // higher = shown first
+  isActive: boolean('is_active').notNull().default(true),
+  clickCount: integer('click_count').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Type for user's node data (position + progress)
 export interface UserNodeData {
   skillId: string;
@@ -206,3 +224,5 @@ export type UserCareerGraph = typeof userCareerGraphs.$inferSelect;
 export type NewUserCareerGraph = typeof userCareerGraphs.$inferInsert;
 export type UserMasterMap = typeof userMasterMaps.$inferSelect;
 export type NewUserMasterMap = typeof userMasterMaps.$inferInsert;
+export type AffiliatedLink = typeof affiliatedLinks.$inferSelect;
+export type NewAffiliatedLink = typeof affiliatedLinks.$inferInsert;

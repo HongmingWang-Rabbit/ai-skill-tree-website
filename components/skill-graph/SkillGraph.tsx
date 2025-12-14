@@ -25,7 +25,9 @@ import { getLayoutedElements, updateEdgeHandles } from './use-skill-layout';
 import { CENTER_NODE_ID, LAYOUT_CONFIG } from './constants';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { SkillTestModal } from '@/components/skill-test/SkillTestModal';
+import { LearningResourcesModal } from '@/components/learning';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import type { SkillNodeData as DBSkillNodeData } from '@/lib/db/schema';
 
 // Node position info for screenshot capture
 export interface NodePositionInfo {
@@ -75,6 +77,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
   const t = useTranslations('skillGraph');
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [testingSkill, setTestingSkill] = useState<SkillNodeData | null>(null);
+  const [learningSkill, setLearningSkill] = useState<DBSkillNodeData | null>(null);
 
   // Calculate overall progress
   const overallProgress = useMemo(() => {
@@ -460,11 +463,19 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
             <SelectedNodeDetails
               node={selectedNode}
               onTakeTest={handleTakeTest}
+              onStartLearning={(skill) => setLearningSkill(skill as unknown as DBSkillNodeData)}
               readOnly={readOnly}
             />
           </GlassPanel>
         </div>
       )}
+
+      {/* Learning Resources Modal */}
+      <LearningResourcesModal
+        isOpen={!!learningSkill}
+        onClose={() => setLearningSkill(null)}
+        skill={learningSkill}
+      />
 
       {/* Skill Test Modal */}
       {testingSkill && (
@@ -547,10 +558,12 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
 interface SelectedNodeDetailsProps {
   node: Node;
   onTakeTest: (skill: SkillNodeData) => void;
+  onStartLearning: (skill: SkillNodeData) => void;
   readOnly?: boolean;
 }
 
-function SelectedNodeDetails({ node, onTakeTest, readOnly = false }: SelectedNodeDetailsProps) {
+function SelectedNodeDetails({ node, onTakeTest, onStartLearning, readOnly = false }: SelectedNodeDetailsProps) {
+  const tLearning = useTranslations('learning');
   const data = node.data as unknown as SkillNodeData;
   const status = data.status || 'locked';
   const isCompleted = status === 'completed';
@@ -617,8 +630,11 @@ function SelectedNodeDetails({ node, onTakeTest, readOnly = false }: SelectedNod
       {/* Action buttons - only show for available nodes (hide in readOnly mode) */}
       {!readOnly && isAvailable && !isCompleted && (
         <div className="mt-4 pt-3 border-t border-slate-700 space-y-2">
-          <button className="w-full py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm">
-            Start Learning
+          <button
+            onClick={() => onStartLearning(data)}
+            className="w-full py-2 px-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm"
+          >
+            {tLearning('startLearning')}
           </button>
           <button
             onClick={() => onTakeTest(data)}

@@ -3,7 +3,7 @@
  * Used by the AI chat to search for trending technologies and skills
  */
 
-import { TAVILY_CONFIG } from '@/lib/constants';
+import { TAVILY_CONFIG, LEARNING_CONFIG, LEARNING_PLATFORM_DOMAINS } from '@/lib/constants';
 
 export interface TavilySearchResult {
   title: string;
@@ -128,4 +128,57 @@ export function formatSearchResultsForAI(
   }
 
   return formatted;
+}
+
+/**
+ * Search for learning resources for a specific skill
+ */
+export async function searchLearningResources(
+  skillName: string,
+  options?: {
+    category?: string;
+    level?: number;
+  }
+): Promise<TavilySearchResponse | null> {
+  const year = new Date().getFullYear();
+  // Convert numeric level to difficulty text using configured thresholds
+  const { beginner, intermediate } = LEARNING_CONFIG.levelThresholds;
+  const levelText = options?.level
+    ? options.level <= beginner ? 'beginner' : options.level <= intermediate ? 'intermediate' : 'advanced'
+    : '';
+
+  const query = `learn ${skillName} ${levelText} tutorial course ${year}`.trim();
+
+  return searchTavily(query, {
+    searchDepth: LEARNING_CONFIG.searchDepth,
+    maxResults: LEARNING_CONFIG.maxResults,
+    includeDomains: [...LEARNING_PLATFORM_DOMAINS],
+  });
+}
+
+/**
+ * Detect platform from URL hostname
+ */
+export function detectPlatformFromUrl(url: string): string {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+
+    if (hostname.includes('udemy')) return 'udemy';
+    if (hostname.includes('coursera')) return 'coursera';
+    if (hostname.includes('edx.org')) return 'edx';
+    if (hostname.includes('youtube')) return 'youtube';
+    if (hostname.includes('pluralsight')) return 'pluralsight';
+    if (hostname.includes('skillshare')) return 'skillshare';
+    if (hostname.includes('linkedin.com/learning')) return 'linkedin';
+    if (hostname.includes('developer.mozilla')) return 'mdn';
+    if (hostname.includes('docs.microsoft') || hostname.includes('learn.microsoft')) return 'microsoft';
+    if (hostname.includes('stackoverflow')) return 'stackoverflow';
+    if (hostname.includes('medium.com')) return 'medium';
+    if (hostname.includes('dev.to')) return 'devto';
+    if (hostname.includes('freecodecamp')) return 'freecodecamp';
+
+    return 'other';
+  } catch {
+    return 'other';
+  }
 }

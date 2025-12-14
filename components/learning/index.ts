@@ -1,0 +1,1 @@
+export { LearningResourcesModal } from './LearningResourcesModal';

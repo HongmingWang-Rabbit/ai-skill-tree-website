@@ -7,15 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Always check existing utilities before implementing new code:**
 
 1. **Check `lib/` first** - Contains reusable utilities:
-   - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`
-   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`, `WorkExperienceSchema`, `ProfileUpdateSchema`, `ResumeGenerateSchema`
+   - `lib/cache.ts` - Redis caching: `getCachedCareer()`, `setCachedCareer()`, `getCachedSkillGraph()`, `setCachedSkillGraph()`, `invalidateCareerCache()`, `getCachedLearningResources()`, `setCachedLearningResources()`, `invalidateLearningCache()`
+   - `lib/schemas.ts` - Zod schemas: `SkillNodeSchema`, `SkillEdgeSchema`, `CareerResponseSchema`, `CareerSearchSchema`, `GenerateCareerSchema`, `UserNodeDataSchema`, `MapUpdateSchema`, `WorkExperienceSchema`, `ProfileUpdateSchema`, `ResumeGenerateSchema`, `LearningResourcesSchema`, `AffiliatedLinkSchema`; types: `LearningResource` (shared between API and components)
    - `lib/normalize-career.ts` - String utils: `normalizeCareerKey()`, `formatCareerTitle()`, `generateShareSlug()`, `isUUID()`, `isShareSlug()`
    - `lib/ai.ts` - OpenAI functions (using gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `suggestCareerSearches()`, `analyzeCareerQuery()`
    - `lib/ai-chat.ts` - AI chat utilities: `processChatMessage()`, `generateModificationSummary()`, `applyModifications()`, `generateSmartMerge()`, types: `ChatModification`, `ChatContext`, `ChatMessage`
    - `lib/ai-document.ts` - Document skill extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()`, `generateExtractionSummary()`, types: `DocumentImportResult`, `ExtractedExperience`
    - `lib/ai-resume.ts` - Resume generation AI functions: `analyzeJobPosting()`, `analyzeJobTitle()`, `generateResumeContent()`, types: `JobRequirements`, `ResumeSkill`, `ResumeSkillGroup`, `ResumeContent`, `CareerSkillData`, `UserProfile`
    - `lib/document-parser.ts` - Document parsing utilities: `parsePDF()`, `parseWord()`, `parseImage()`, `parseText()`, `parseURL()`, `detectURLType()`, `truncateForAI()`, `isSupportedFileType()`, `isImageFile()`, `getMimeType()`, types: `ParsedDocument`, `DocumentParseError`
-   - `lib/mcp/tavily.ts` - Tavily web search integration: `searchTavily()`, `searchTrendingTech()`, `searchCareerSkills()`, `formatSearchResultsForAI()`
+   - `lib/mcp/tavily.ts` - Tavily web search integration: `searchTavily()`, `searchTrendingTech()`, `searchCareerSkills()`, `searchLearningResources()`, `detectPlatformFromUrl()`, `formatSearchResultsForAI()`
    - `lib/auth.ts` - NextAuth config with Google, Twitter, WeChat, Web3 providers
    - `lib/wechat-provider.ts` - Custom WeChat OAuth provider: `WeChatProvider()`, `WeChatMPProvider()`, `isWeChatBrowser()`
    - `lib/db/index.ts` - Database connection, exports all schema types
@@ -37,20 +37,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
      - AI Chat: `AI_CHAT_CONFIG` (panel dimensions, API settings like model/temperature/maxTokens, animation timing, search keywords)
      - Tavily: `TAVILY_CONFIG` (API URL, search depth defaults, domain filters for trending tech and career skills searches)
      - Merge: `MERGE_CONFIG` (similarityThreshold for highlighting recommended maps to merge)
+     - Learning: `LEARNING_CONFIG` (platform domains for courses/video/docs/community, cacheTtlSeconds for Redis caching, searchDepth, maxResults, descriptionPreviewLength, levelThresholds for beginner/intermediate/advanced, maxAffiliatedLinks, modal dimensions, platformInfo with name/icon/color for each platform), derived constant: `LEARNING_PLATFORM_DOMAINS`
      - Resume Export: `RESUME_CONFIG` (bioMaxLength, experienceMaxItems, pdfMaxSkillsPerCategory, aiModel, aiMaxTokens, aiJobAnalysisMaxTokens, aiTemperature, jobUrlTimeout, jobContentMaxChars, jobTitleMaxLength, previewSkillCategories, previewSkillsPerCategory, previewHighlightsCount, pdfLabels for i18n-ready section titles, monthAbbreviations for date formatting)
      - Document Import: `DOCUMENT_IMPORT_CONFIG` (maxFileSizeBytes, charsPerToken, fileTypes with extensions/mimeTypes, userAgent, portfolioDomains, aiExtraction settings with models/tokens/temperature/limits, preview settings with confidenceThresholds/maxDisplayedExperiences, modal settings with maxHeightVh/headerHeightPx), derived constants: `SUPPORTED_EXTENSIONS`, `SUPPORTED_MIME_TYPES`, `IMAGE_EXTENSIONS`, `EXTENSION_TO_MIME`, `SUPPORTED_FILE_ACCEPT`
-     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `USER_MASTER_MAP`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`)
+     - API Routes: `API_ROUTES` (centralized API endpoint paths: `AI_CHAT`, `AI_GENERATE`, `AI_ANALYZE`, `AI_MERGE`, `USER_GRAPH`, `USER_PROFILE`, `USER_MASTER_MAP`, `MAP`, `MAP_FORK`, `IMPORT_DOCUMENT`, `IMPORT_URL`, `RESUME_GENERATE`, `LEARNING_RESOURCES`, `ADMIN_AFFILIATED_LINKS`)
      - React Query: `QUERY_CONFIG` (staleTime, gcTime, retryCount for client-side caching)
      - Landing Page: `LANDING_PAGE_CONFIG` (featuredCareers array, stats array, workflowSteps array, demo settings with orbitalSkillCount/orbitalRadius/connectionLineWidth, animation timing with sectionDelay/staggerDelay/duration)
 
 2. **Check `components/` for existing UI**:
-   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`; resume: `PlusIcon`, `BriefcaseIcon`, `DownloadIcon`, `ResumeIcon`, `SparklesIcon`)
+   - `components/ui/` - `GlassPanel`, `XPProgressRing`, `SearchInput`, `ShareModal`, `LanguageSwitcher`, `DropdownMenu` (reusable 3-dots menu), `ConfirmModal` (styled confirmation dialog), `Toast`/`Toaster`/`showToast` (toast notifications via react-hot-toast), `FileDropzone` (drag-and-drop file upload), `Icons` (common: `MenuIcon`, `CloseIcon`, `ChevronRightIcon`, `WeChatIcon`, `GoogleIcon`; AI chat: `ChatIcon`, `MinimizeIcon`, `SendIcon`, `WarningIcon`, `EditIcon`, `TrashIcon`, `ConnectionIcon`, `ArrowRightIcon`, `PreviewIcon`, `CheckCircleIcon`, `MergeIcon`; menu: `MoreVerticalIcon`, `ShareIcon`, `SaveIcon`, `SortIcon`; import: `UploadIcon`, `DocumentIcon`, `LinkIcon`, `FilePdfIcon`, `FileTextIcon`, `FileWordIcon`, `FileImageIcon`, `ImportIcon`; resume: `PlusIcon`, `BriefcaseIcon`, `DownloadIcon`, `ResumeIcon`, `SparklesIcon`; learning: `BookOpenIcon`, `ExternalLinkIcon`, `StarIcon`)
    - `components/layout/` - `Header` (site navigation with mobile menu), `SkillTreeBackground` (animated network background)
    - `components/skill-graph/` - `SkillGraph`, `LazySkillGraph` (dynamic import wrapper), `SkillGraphSkeleton`, `SkillNode`, `CenterNode`, `SkillEdge`, layout utilities
    - `components/auth/` - `AuthModal` (login modal with social/Web3 tabs)
    - `components/ai-chat/` - `AIChatPanel` (floating chat panel with document import), `ChatMessage`, `ChatInput`, `ModificationPreview` (changes confirmation modal), `MergeMapModal` (merge skill maps UI)
    - `components/import/` - `DocumentImportModal` (modal for importing skills from documents/URLs), `ImportPreview` (preview extracted skills before confirmation)
    - `components/resume/` - `ResumePDF` (PDF template using @react-pdf/renderer), `ResumeExportModal` (multi-stage modal for resume generation), `PDFDownloadButton` (wrapper for dynamic PDF download to avoid SSR issues)
+   - `components/learning/` - `LearningResourcesModal` (modal for displaying learning resources from web search and affiliated links)
    - `components/seo/` - `JsonLd`, `OrganizationJsonLd`, `SoftwareAppJsonLd` (structured data for SEO)
    - `components/providers/` - `AuthProvider`, `Web3Provider`, `QueryProvider` (React Query for data fetching)
    - `components/dashboard/` - `MasterSkillMap` (dashboard hero with graph), `MasterSkillGraph`, `LazyMasterSkillGraph` (dynamic import wrapper), `MasterSkillGraphSkeleton`, `ExperienceEditor` (modal for managing work experience)
@@ -77,7 +79,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - `messages/en.json` - English translations
    - `messages/zh.json` - Chinese translations
    - `messages/ja.json` - Japanese translations
-   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`, `resume`
+   - Translation namespaces: `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `aiChat`, `skillGraph`, `import`, `resume`, `learning`
 
 6. **Check `components/skill-graph/` for layout utilities**:
    - `constants.ts` - Layout constants: `LAYOUT_CONFIG` (node sizes, center node dynamic sizing, ring spacing, max nodes per ring), `CENTER_NODE_ID`
@@ -160,7 +162,7 @@ LANDING_PAGE_CONFIG = {
 - `components/skill-graph/` - React Flow visualization: `SkillGraph.tsx` (main), `SkillNode.tsx`, `SkillEdge.tsx`, radial/dagre layout utilities
 - `i18n/` - Internationalization configuration (next-intl)
 - `messages/` - Translation files (en.json, zh.json, ja.json)
-- `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress
+- `lib/db/schema.ts` - Drizzle schema: careers, skillGraphs, skills, users (NextAuth), userCareerGraphs, userSkillProgress, affiliatedLinks
 - `lib/ai.ts` - OpenAI integration (gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `gradeSkillTestAnswers()`, `analyzeCareerQuery()`, types: `CareerSuggestion`, `QueryAnalysisResult`
 
 ### Internationalization (i18n)
@@ -468,6 +470,65 @@ interface WorkExperience {
 - `analyzeJobPosting(content, jobTitle, locale)` - Extract requirements from job posting
 - `analyzeJobTitle(jobTitle, locale)` - Infer requirements from title alone
 - `generateResumeContent(profile, careers, jobRequirements, locale)` - Generate tailored content
+
+### Learning Resources Feature
+
+Users can discover learning resources for any skill in their skill map:
+
+**Entry Point:**
+- Click "Start Learning" button on any available skill in the skill graph
+
+**Data Flow:**
+1. User clicks "Start Learning" on a skill → `LearningResourcesModal` opens
+2. `GET /api/learning/resources?skillName=...` fetches resources
+3. API queries `affiliatedLinks` table for pattern-matched affiliated links
+4. API searches Tavily for web learning resources (courses, videos, docs)
+5. Results displayed with affiliated links highlighted at top
+
+**Components:**
+- `LearningResourcesModal` - Modal displaying learning resources with platform icons
+- Located in `components/learning/`
+
+**API Routes:**
+- `GET /api/learning/resources` - Fetch learning resources for a skill
+  - Query params: `skillName` (required), `category`, `level`
+  - Returns: `affiliatedLinks[]`, `webResults[]`, `totalCount`
+- `GET/POST/PUT/DELETE /api/admin/affiliated-links` - CRUD for affiliated links (admin)
+
+**Database Schema (affiliatedLinks table):**
+```typescript
+{
+  id: uuid,
+  url: text,
+  title: text,
+  description: text,
+  platform: text, // 'udemy', 'coursera', 'youtube', etc.
+  imageUrl: text,
+  skillPatterns: jsonb, // Array of patterns to match skill names
+  categoryPatterns: jsonb, // Optional category patterns
+  priority: integer, // Higher = shown first
+  isActive: boolean,
+  clickCount: integer,
+  createdAt: timestamp,
+  updatedAt: timestamp,
+}
+```
+
+**Configuration** (`LEARNING_CONFIG` in constants):
+- `platforms`: Domain groups for courses/video/docs/community
+- `searchDepth`: 'advanced' for Tavily search
+- `maxResults`: 10 web results
+- `descriptionPreviewLength`: 200 chars for truncation
+- `levelThresholds`: `{ beginner: 3, intermediate: 6 }` for difficulty mapping
+- `maxAffiliatedLinks`: 3 affiliated links per skill
+- `modal`: `{ maxHeightVh: 80, headerHeightPx: 60 }`
+- `platformInfo`: Display info (name, icon, color) for each platform
+
+**Affiliated Link Matching:**
+Uses JSONB array pattern matching in PostgreSQL:
+- `skillPatterns: ["react", "frontend"]` matches skills containing "react" or "frontend"
+- Case-insensitive partial matching
+- Results ordered by `priority` descending
 
 ### Loading Optimization
 

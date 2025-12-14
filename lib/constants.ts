@@ -154,6 +154,57 @@ export const MERGE_CONFIG = {
   similarityThreshold: 0.3, // Minimum similarity score to highlight as "recommended"
 } as const;
 
+// Learning Resources Configuration
+export const LEARNING_CONFIG = {
+  // Platform domains for Tavily search (grouped by type)
+  platforms: {
+    courses: ['udemy.com', 'coursera.org', 'edx.org', 'pluralsight.com', 'skillshare.com', 'linkedin.com/learning'],
+    video: ['youtube.com'],
+    documentation: ['developer.mozilla.org', 'docs.microsoft.com', 'reactjs.org', 'nodejs.org', 'python.org', 'go.dev', 'rust-lang.org'],
+    community: ['dev.to', 'medium.com', 'stackoverflow.com', 'hashnode.com', 'freecodecamp.org'],
+  },
+  // Cache settings
+  cacheTtlSeconds: 3600, // 1 hour - shorter than careers since web results change more frequently
+  // Search settings
+  searchDepth: 'advanced' as const,
+  maxResults: 10,
+  descriptionPreviewLength: 200, // Truncate resource descriptions in search results
+  // Skill level thresholds (for converting numeric level to difficulty text)
+  levelThresholds: {
+    beginner: 3,      // level 1-3 = beginner
+    intermediate: 6,  // level 4-6 = intermediate
+    // level 7+ = advanced
+  },
+  // Affiliated links settings
+  maxAffiliatedLinks: 3,
+  // Modal dimensions
+  modal: {
+    maxHeightVh: 80,
+    headerHeightPx: 60,
+  },
+  // Platform display info (name, icon, color for each platform)
+  platformInfo: {
+    udemy: { name: 'Udemy', icon: '🎓', color: '#A435F0' },
+    coursera: { name: 'Coursera', icon: '📚', color: '#0056D2' },
+    edx: { name: 'edX', icon: '🏛️', color: '#02262B' },
+    youtube: { name: 'YouTube', icon: '▶️', color: '#FF0000' },
+    pluralsight: { name: 'Pluralsight', icon: '📺', color: '#F15B2A' },
+    skillshare: { name: 'Skillshare', icon: '🎨', color: '#00FF84' },
+    linkedin: { name: 'LinkedIn Learning', icon: '💼', color: '#0A66C2' },
+    mdn: { name: 'MDN Docs', icon: '📖', color: '#83D0F2' },
+    microsoft: { name: 'Microsoft Docs', icon: '📄', color: '#5E5E5E' },
+    stackoverflow: { name: 'Stack Overflow', icon: '💬', color: '#F48024' },
+    medium: { name: 'Medium', icon: '✍️', color: '#000000' },
+    devto: { name: 'DEV.to', icon: '👩‍💻', color: '#0A0A0A' },
+    freecodecamp: { name: 'freeCodeCamp', icon: '🔥', color: '#0A0A23' },
+    official: { name: 'Official Docs', icon: '📘', color: '#4A90D9' },
+    other: { name: 'Resource', icon: '🔗', color: '#6B7280' },
+  },
+} as const;
+
+// Derived: All learning platform domains (flattened)
+export const LEARNING_PLATFORM_DOMAINS = Object.values(LEARNING_CONFIG.platforms).flat();
+
 // Resume Export Configuration
 export const RESUME_CONFIG = {
   // User profile limits
@@ -272,6 +323,8 @@ export const API_ROUTES = {
   IMPORT_DOCUMENT: '/api/import/document',
   IMPORT_URL: '/api/import/url',
   RESUME_GENERATE: '/api/resume/generate',
+  LEARNING_RESOURCES: '/api/learning/resources',
+  ADMIN_AFFILIATED_LINKS: '/api/admin/affiliated-links',
 } as const;
 
 // React Query Configuration

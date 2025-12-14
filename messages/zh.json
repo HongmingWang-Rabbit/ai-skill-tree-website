@@ -353,5 +353,16 @@
     "highlights": "重点亮点",
     "back": "返回",
     "downloadPdf": "下载PDF"
+  },
+  "learning": {
+    "title": "学习 {skill}",
+    "subtitle": "帮助你掌握这项技能的资源",
+    "searching": "正在查找学习资源...",
+    "fetchFailed": "加载资源失败，请重试。",
+    "tryAgain": "重试",
+    "recommended": "推荐资源",
+    "moreResources": "更多资源",
+    "noResults": "未找到资源。请尝试在Google上搜索教程。",
+    "startLearning": "开始学习"
   }
 }

@@ -101,6 +101,26 @@ export const ResumeGenerateSchema = z.object({
   jobUrl: z.string().url().optional(),
 });
 
+// Learning resources request schema
+export const LearningResourcesSchema = z.object({
+  skillName: z.string().min(1).max(200),
+  category: z.string().optional(),
+  level: z.number().min(1).max(10).optional(),
+});
+
+// Affiliated link schema (for admin CRUD)
+export const AffiliatedLinkSchema = z.object({
+  url: z.string().url(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(500).optional(),
+  platform: z.enum(['udemy', 'coursera', 'edx', 'youtube', 'pluralsight', 'skillshare', 'linkedin', 'official', 'other']),
+  imageUrl: z.string().url().optional(),
+  skillPatterns: z.array(z.string()).min(1),
+  categoryPatterns: z.array(z.string()).optional(),
+  priority: z.number().min(0).max(100).default(0),
+  isActive: z.boolean().default(true),
+});
+
 // Types derived from schemas
 export type SkillNode = z.infer<typeof SkillNodeSchema>;
 export type SkillEdge = z.infer<typeof SkillEdgeSchema>;
@@ -110,3 +130,16 @@ export type URLImportInput = z.infer<typeof URLImportSchema>;
 export type WorkExperience = z.infer<typeof WorkExperienceSchema>;
 export type ProfileUpdate = z.infer<typeof ProfileUpdateSchema>;
 export type ResumeGenerateInput = z.infer<typeof ResumeGenerateSchema>;
+export type LearningResourcesInput = z.infer<typeof LearningResourcesSchema>;
+export type AffiliatedLinkInput = z.infer<typeof AffiliatedLinkSchema>;
+
+// Learning resource type (shared between API and components)
+export interface LearningResource {
+  id: string;
+  url: string;
+  title: string;
+  description: string;
+  platform: string;
+  isAffiliated: boolean;
+  imageUrl?: string;
+}

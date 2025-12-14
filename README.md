@@ -21,6 +21,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
+- **Learning Resources**: Click "Start Learning" on any skill to discover courses, tutorials, and documentation from Udemy, Coursera, YouTube, MDN, and more via Tavily search - admin-configurable affiliated links appear first
 - **Document Import**: Extract skills, bio, and work experience from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI - imported skills are marked as learned, bio and experience update your profile
 - **Resume Export**: Generate professional PDF resumes from your skill maps - optionally target specific jobs via URL or title for AI-tailored content
 - **Work Experience**: Manage work history in dashboard with add/edit/delete - included in generated resumes
@@ -140,6 +141,8 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   │   └── generate/       # AI skill map generation
 │   │   ├── career/             # Career CRUD operations
 │   │   ├── import/             # Document import (PDF, Word, images, URLs)
+│   │   ├── learning/           # Learning resources search
+│   │   ├── admin/              # Admin APIs (affiliated links CRUD)
 │   │   ├── map/                # User map operations
 │   │   └── resume/             # Resume generation
 │   ├── globals.css             # Tailwind CSS with custom theme
@@ -158,6 +161,8 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── import/
 │   │   ├── DocumentImportModal.tsx # File/URL import modal
 │   │   └── ImportPreview.tsx   # Extracted skills preview
+│   ├── learning/
+│   │   └── LearningResourcesModal.tsx # Learning resources modal (Tavily + affiliated)
 │   ├── resume/
 │   │   ├── ResumePDF.tsx       # PDF template with professional styling
 │   │   ├── ResumeExportModal.tsx # Multi-stage resume generation modal
@@ -289,6 +294,8 @@ API_ROUTES.USER_GRAPH        // /api/user/graph
 API_ROUTES.USER_PROFILE      // /api/user/profile
 API_ROUTES.MAP               // /api/map
 API_ROUTES.MAP_FORK          // /api/map/fork
+API_ROUTES.LEARNING_RESOURCES      // /api/learning/resources
+API_ROUTES.ADMIN_AFFILIATED_LINKS  // /api/admin/affiliated-links
 
 // Landing Page
 LANDING_PAGE_CONFIG.featuredCareers  // Popular career buttons array
@@ -305,6 +312,17 @@ TAVILY_CONFIG.careerSkills.includeDomains // Trusted domains for career search
 
 // Map Merge
 MERGE_CONFIG.similarityThreshold        // Threshold for "recommended" maps (0.3)
+
+// Learning Resources
+LEARNING_CONFIG.platforms               // Domain groups (courses, video, docs, community)
+LEARNING_CONFIG.cacheTtlSeconds         // Redis cache TTL (3600 = 1 hour)
+LEARNING_CONFIG.searchDepth             // Tavily search depth ('advanced')
+LEARNING_CONFIG.maxResults              // Max web results (10)
+LEARNING_CONFIG.descriptionPreviewLength // Description truncation (200)
+LEARNING_CONFIG.levelThresholds         // Skill level to difficulty mapping
+LEARNING_CONFIG.maxAffiliatedLinks      // Max affiliated links per skill (3)
+LEARNING_CONFIG.modal                   // Modal dimensions (maxHeightVh, headerHeightPx)
+LEARNING_CONFIG.platformInfo            // Platform display info (name, icon, color)
 
 // Resume Export
 RESUME_CONFIG.bioMaxLength              // Max bio length (500)
@@ -391,6 +409,17 @@ Search for careers matching a query.
   - Accepts: `{ locale, jobTitle?, jobUrl? }`
   - Returns: profile, experience, AI-generated resumeContent, jobRequirements, stats
   - Features: Job URL analysis, tailored content generation, skill relevance grouping
+
+### Learning Resources API
+- `GET /api/learning/resources` - Search for learning resources
+  - Accepts: `skillName` (required), `category`, `level`
+  - Returns: `affiliatedLinks[]`, `webResults[]`, `totalCount`
+  - Features: Tavily web search, pattern-matched affiliated links from database, Redis caching (1 hour TTL)
+
+### Admin API
+- `GET/POST/PUT/DELETE /api/admin/affiliated-links` - CRUD for affiliated links
+  - Authenticated admin-only endpoints
+  - Pattern-based skill matching via JSONB arrays
 
 ## Deployment
 

@@ -43,4 +43,8 @@ export {
   DownloadIcon,
   ResumeIcon,
   SparklesIcon,
+  // Learning Resources icons
+  BookOpenIcon,
+  ExternalLinkIcon,
+  StarIcon,
 } from './Icons';

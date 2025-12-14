@@ -353,5 +353,16 @@
     "highlights": "主なハイライト",
     "back": "戻る",
     "downloadPdf": "PDFをダウンロード"
+  },
+  "learning": {
+    "title": "{skill}を学ぶ",
+    "subtitle": "このスキルを習得するためのリソース",
+    "searching": "学習リソースを検索中...",
+    "fetchFailed": "リソースの読み込みに失敗しました。もう一度お試しください。",
+    "tryAgain": "再試行",
+    "recommended": "おすすめのリソース",
+    "moreResources": "その他のリソース",
+    "noResults": "リソースが見つかりませんでした。Googleでチュートリアルを検索してみてください。",
+    "startLearning": "学習を開始"
   }
 }

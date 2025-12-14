@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis';
+import { LEARNING_CONFIG } from '@/lib/constants';
 
 export const redis = Redis.fromEnv();
 
@@ -45,5 +46,40 @@ export async function setCachedSkillGraph<T>(careerId: string, data: T): Promise
     await redis.set(`skillgraph:${careerId}`, data, { ex: CACHE_TTL });
   } catch (error) {
     console.error('Cache set error:', error);
+  }
+}
+
+// Learning resources cache (shorter TTL since web results change more frequently)
+// Helper to generate consistent cache keys
+function getLearningCacheKey(cacheKey: string): string {
+  return `learning:${cacheKey.toLowerCase().replace(/\s+/g, '-')}`;
+}
+
+export async function getCachedLearningResources<T>(cacheKey: string): Promise<T | null> {
+  try {
+    const key = getLearningCacheKey(cacheKey);
+    const data = await redis.get<T>(key);
+    return data;
+  } catch (error) {
+    console.error('Learning cache get error:', error);
+    return null;
+  }
+}
+
+export async function setCachedLearningResources<T>(cacheKey: string, data: T): Promise<void> {
+  try {
+    const key = getLearningCacheKey(cacheKey);
+    await redis.set(key, data, { ex: LEARNING_CONFIG.cacheTtlSeconds });
+  } catch (error) {
+    console.error('Learning cache set error:', error);
+  }
+}
+
+export async function invalidateLearningCache(cacheKey: string): Promise<void> {
+  try {
+    const key = getLearningCacheKey(cacheKey);
+    await redis.del(key);
+  } catch (error) {
+    console.error('Learning cache invalidation error:', error);
   }
 }
