@@ -57,6 +57,9 @@ export const metadata: Metadata = {
     // google: 'your-google-verification-code',
     // yandex: 'your-yandex-verification-code',
   },
+  other: {
+    'impact-site-verification': '004a59ef-6f19-4df4-80fb-3b5c9ea9b1d6',
+  },
   category: 'Education',
 };
 
