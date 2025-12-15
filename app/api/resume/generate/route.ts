@@ -72,8 +72,12 @@ export async function POST(request: Request) {
     const userProfile: UserProfile = {
       name: user.name || session.user.email || 'User',
       email: user.email || '',
+      phone: user.phone || undefined,
+      address: user.address || undefined,
       bio: user.bio || '',
       experience: user.experience || [],
+      projects: user.projects || [],
+      education: user.education || [],
     };
 
     // Fetch user's career skills
@@ -190,9 +194,13 @@ export async function POST(request: Request) {
         profile: {
           name: userProfile.name,
           email: userProfile.email,
+          phone: userProfile.phone,
+          address: userProfile.address,
           bio: userProfile.bio,
         },
         experience: userProfile.experience,
+        projects: userProfile.projects,
+        education: userProfile.education,
         resumeContent,
         jobRequirements,
         hasWatermark,

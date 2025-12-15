@@ -6,9 +6,10 @@ import {
   Text,
   View,
   StyleSheet,
+  Link,
 } from '@react-pdf/renderer';
 import { type ResumeContent, type ResumeSkillGroup } from '@/lib/ai-resume';
-import { type WorkExperience } from '@/lib/schemas';
+import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
 import { RESUME_CONFIG } from '@/lib/constants';
 
 // PDF styles using Helvetica (built-in font that works reliably)
@@ -119,6 +120,49 @@ const styles = StyleSheet.create({
     color: '#334155',
     lineHeight: 1.4,
   },
+  projectItem: {
+    marginBottom: 10,
+  },
+  projectHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 3,
+  },
+  projectName: {
+    fontSize: 11,
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
+    flex: 1,
+  },
+  projectDate: {
+    fontSize: 9,
+    color: '#64748b',
+  },
+  projectUrl: {
+    fontSize: 8,
+    color: '#0ea5e9',
+    marginBottom: 3,
+  },
+  projectDescription: {
+    fontSize: 9,
+    color: '#334155',
+    lineHeight: 1.4,
+    marginBottom: 4,
+  },
+  projectTechnologies: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 3,
+  },
+  projectTech: {
+    fontSize: 8,
+    color: '#475569',
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 3,
+  },
   highlightsTitle: {
     fontSize: 11,
     fontFamily: 'Helvetica-Bold',
@@ -176,29 +220,58 @@ const styles = StyleSheet.create({
 export interface ResumePDFProps {
   userName: string;
   email: string;
+  phone?: string;
+  address?: UserAddress;
   resumeContent: ResumeContent;
   experience: WorkExperience[];
+  projects?: Project[];
+  education?: Education[];
   targetJob?: string;
   hasWatermark?: boolean;
   showFooter?: boolean;
 }
 
 // Format date for display
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return RESUME_CONFIG.pdfLabels.present;
   const [year, month] = dateStr.split('-');
   return `${RESUME_CONFIG.monthAbbreviations[parseInt(month, 10) - 1]} ${year}`;
 }
 
+// Format project date for display (with ongoing support)
+function formatProjectDate(dateStr: string | null | undefined): string {
+  if (dateStr === null) return RESUME_CONFIG.pdfLabels.ongoing;
+  if (!dateStr) return '';
+  const [year, month] = dateStr.split('-');
+  return `${RESUME_CONFIG.monthAbbreviations[parseInt(month, 10) - 1]} ${year}`;
+}
+
+// Format address for display
+function formatAddress(address?: UserAddress): string {
+  if (!address) return '';
+  const parts: string[] = [];
+  if (address.city) parts.push(address.city);
+  if (address.state) parts.push(address.state);
+  if (address.country) parts.push(address.country);
+  return parts.join(', ');
+}
+
 export function ResumePDF({
   userName,
   email,
+  phone,
+  address,
   resumeContent,
   experience,
+  projects,
+  education,
   targetJob,
   hasWatermark = false,
   showFooter = true,
 }: ResumePDFProps) {
+  const formattedAddress = formatAddress(address);
+  const displayedProjects = projects?.slice(0, RESUME_CONFIG.pdfMaxProjects) || [];
+  const displayedEducation = education?.slice(0, RESUME_CONFIG.educationMaxItems) || [];
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -214,6 +287,8 @@ export function ResumePDF({
         <View style={styles.header}>
           <Text style={styles.name}>{userName}</Text>
           {email && <Text style={styles.contact}>{email}</Text>}
+          {phone && <Text style={styles.contact}>{phone}</Text>}
+          {formattedAddress && <Text style={styles.contact}>{formattedAddress}</Text>}
           {targetJob && <Text style={styles.contact}>{RESUME_CONFIG.pdfLabels.applyingFor} {targetJob}</Text>}
         </View>
 
@@ -277,6 +352,74 @@ export function ResumePDF({
                 </Text>
                 {exp.description && (
                   <Text style={styles.experienceDescription}>{exp.description}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Education */}
+        {displayedEducation.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{RESUME_CONFIG.pdfLabels.education}</Text>
+            {displayedEducation.map((edu, index) => (
+              <View key={index} style={styles.projectItem}>
+                <View style={styles.projectHeader}>
+                  <Text style={styles.projectName}>{edu.school}</Text>
+                  {(edu.startDate || edu.endDate !== undefined) && (
+                    <Text style={styles.projectDate}>
+                      {formatDate(edu.startDate)}
+                      {edu.startDate && (edu.endDate !== undefined) ? ' - ' : ''}
+                      {formatDate(edu.endDate)}
+                    </Text>
+                  )}
+                </View>
+                {[edu.degree, edu.fieldOfStudy].filter(Boolean).length > 0 && (
+                  <Text style={styles.experienceCompany}>
+                    {[edu.degree, edu.fieldOfStudy].filter(Boolean).join(' • ')}
+                  </Text>
+                )}
+                {edu.location && (
+                  <Text style={styles.projectDescription}>{edu.location}</Text>
+                )}
+                {edu.description && (
+                  <Text style={styles.projectDescription}>{edu.description}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Projects */}
+        {displayedProjects.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{RESUME_CONFIG.pdfLabels.projects}</Text>
+            {displayedProjects.map((proj, index) => (
+              <View key={index} style={styles.projectItem}>
+                <View style={styles.projectHeader}>
+                  <Text style={styles.projectName}>{proj.name}</Text>
+                  {(proj.startDate || proj.endDate !== undefined) && (
+                    <Text style={styles.projectDate}>
+                      {formatProjectDate(proj.startDate)}
+                      {proj.startDate && (proj.endDate !== undefined) ? ' - ' : ''}
+                      {formatProjectDate(proj.endDate)}
+                    </Text>
+                  )}
+                </View>
+                {proj.url && (
+                  <Link src={proj.url} style={styles.projectUrl}>
+                    {proj.url}
+                  </Link>
+                )}
+                {proj.description && (
+                  <Text style={styles.projectDescription}>{proj.description}</Text>
+                )}
+                {proj.technologies.length > 0 && (
+                  <View style={styles.projectTechnologies}>
+                    {proj.technologies.slice(0, 8).map((tech, techIndex) => (
+                      <Text key={techIndex} style={styles.projectTech}>{tech}</Text>
+                    ))}
+                  </View>
                 )}
               </View>
             ))}

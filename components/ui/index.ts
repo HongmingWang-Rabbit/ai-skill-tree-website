@@ -47,4 +47,8 @@ export {
   BookOpenIcon,
   ExternalLinkIcon,
   StarIcon,
+  // Profile & Contact icons
+  PhoneIcon,
+  MapPinIcon,
+  FolderIcon,
 } from './Icons';

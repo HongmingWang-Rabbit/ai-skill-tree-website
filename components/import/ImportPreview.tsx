@@ -1,12 +1,12 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { CheckCircleIcon, WarningIcon, ArrowRightIcon } from '@/components/ui';
+import { CheckCircleIcon, WarningIcon, ArrowRightIcon, PhoneIcon, MapPinIcon, FolderIcon, BookOpenIcon } from '@/components/ui';
 import { type ImportResult } from './DocumentImportModal';
 import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
 
 const { preview: previewConfig, modal: modalConfig } = DOCUMENT_IMPORT_CONFIG;
-const { confidenceThresholds, maxDisplayedSkillsPerCategory, maxDisplayedExperiences } = previewConfig;
+const { confidenceThresholds, maxDisplayedSkillsPerCategory, maxDisplayedExperiences, maxDisplayedProjects } = previewConfig;
 const { maxHeightVh, headerHeightPx } = modalConfig;
 
 interface ImportPreviewProps {
@@ -28,7 +28,19 @@ export function ImportPreview({
 }: ImportPreviewProps) {
   const t = useTranslations('import');
 
-  const { nodes, suggestedTitle, confidence, bio, experience } = result;
+  const { nodes, suggestedTitle, confidence, bio, phone, address, experience, projects, education } = result;
+
+  // Format address for display
+  const formatAddress = () => {
+    if (!address) return null;
+    const parts: string[] = [];
+    if (address.city) parts.push(address.city);
+    if (address.state) parts.push(address.state);
+    if (address.country) parts.push(address.country);
+    return parts.length > 0 ? parts.join(', ') : null;
+  };
+
+  const formattedAddress = formatAddress();
 
   // Group skills by category
   const skillsByCategory = nodes.reduce(
@@ -102,6 +114,29 @@ export function ImportPreview({
           </div>
         </div>
 
+        {/* Contact Info Preview */}
+        {(phone || formattedAddress) && (
+          <div className="bg-slate-800/50 rounded-lg p-4">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+              {t('contactInfoLabel')}
+            </label>
+            <div className="space-y-2">
+              {phone && (
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <PhoneIcon className="w-4 h-4 text-slate-400" />
+                  <span>{phone}</span>
+                </div>
+              )}
+              {formattedAddress && (
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <MapPinIcon className="w-4 h-4 text-slate-400" />
+                  <span>{formattedAddress}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Bio Preview */}
         {bio && (
           <div className="bg-slate-800/50 rounded-lg p-4">
@@ -133,6 +168,77 @@ export function ImportPreview({
               {experience.length > maxDisplayedExperiences && (
                 <p className="text-xs text-slate-500 pl-3">
                   +{experience.length - maxDisplayedExperiences} {t('more')}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Education Preview */}
+        {education && education.length > 0 && (
+          <div className="bg-slate-800/50 rounded-lg p-4">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
+              {t('educationTitle')} ({education.length})
+            </label>
+            <div className="space-y-3">
+              {education.slice(0, maxDisplayedExperiences).map((edu, idx) => (
+                <div key={idx} className="border-l-2 border-cyan-500/50 pl-3">
+                  <div className="flex items-center gap-2">
+                    <BookOpenIcon className="w-4 h-4 text-cyan-400" />
+                    <p className="text-sm font-medium text-slate-200">{edu.school}</p>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {[edu.degree, edu.fieldOfStudy].filter(Boolean).join(' • ')}
+                  </p>
+                  {(edu.startDate || edu.endDate) && (
+                    <p className="text-xs text-slate-500">
+                      {[edu.startDate, edu.endDate || t('present')].filter(Boolean).join(' - ')}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {education.length > maxDisplayedExperiences && (
+                <p className="text-xs text-slate-500 pl-3">
+                  +{education.length - maxDisplayedExperiences} {t('more')}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Projects Preview */}
+        {projects && projects.length > 0 && (
+          <div className="bg-slate-800/50 rounded-lg p-4">
+            <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">
+              {t('projectsLabel')} ({projects.length})
+            </label>
+            <div className="space-y-3">
+              {projects.slice(0, maxDisplayedProjects).map((proj, idx) => (
+                <div key={idx} className="border-l-2 border-amber-500/50 pl-3">
+                  <div className="flex items-center gap-2">
+                    <FolderIcon className="w-4 h-4 text-amber-400" />
+                    <p className="text-sm font-medium text-slate-200">{proj.name}</p>
+                  </div>
+                  {proj.description && (
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{proj.description}</p>
+                  )}
+                  {proj.technologies && proj.technologies.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {proj.technologies.slice(0, 5).map((tech, techIdx) => (
+                        <span key={techIdx} className="text-xs px-1.5 py-0.5 bg-slate-700/50 text-slate-300 rounded">
+                          {tech}
+                        </span>
+                      ))}
+                      {proj.technologies.length > 5 && (
+                        <span className="text-xs text-slate-500">+{proj.technologies.length - 5}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {projects.length > maxDisplayedProjects && (
+                <p className="text-xs text-slate-500 pl-3">
+                  +{projects.length - maxDisplayedProjects} {t('more')}
                 </p>
               )}
             </div>

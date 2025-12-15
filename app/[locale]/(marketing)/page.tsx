@@ -14,6 +14,7 @@ import {
   ChatIcon,
   ShareIcon,
   SparklesIcon,
+  BookOpenIcon,
 } from "@/components/ui/Icons";
 import { useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,6 +43,7 @@ const FEATURES = [
   { key: "import", icon: UploadIcon, large: true },
   { key: "skillMaps", icon: SparklesIcon, large: false },
   { key: "resume", icon: ResumeIcon, large: true },
+  { key: "education", icon: BookOpenIcon, large: false },
   { key: "chat", icon: ChatIcon, large: false },
   { key: "universe", icon: DocumentIcon, large: false },
   { key: "share", icon: ShareIcon, large: false },

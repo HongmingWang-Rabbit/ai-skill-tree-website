@@ -14,7 +14,7 @@ import {
 } from '@/components/ui';
 import { API_ROUTES, RESUME_CONFIG } from '@/lib/constants';
 import { type ResumeContent, type JobRequirements } from '@/lib/ai-resume';
-import { type WorkExperience } from '@/lib/schemas';
+import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
 import { type Locale } from '@/i18n/routing';
 
 // Dynamically import PDF components to avoid SSR issues with @react-pdf/renderer
@@ -58,9 +58,13 @@ interface ResumeData {
   profile: {
     name: string;
     email: string;
+    phone?: string;
+    address?: UserAddress;
     bio: string;
   };
   experience: WorkExperience[];
+  projects?: Project[];
+  education?: Education[];
   resumeContent: ResumeContent;
   jobRequirements: JobRequirements | null;
   stats: {
@@ -437,8 +441,12 @@ export function ResumeExportModal({
                     key={`pdf-preview-${showWatermark}-${showFooter}`}
                     userName={resumeData.profile.name}
                     email={resumeData.profile.email}
+                    phone={resumeData.profile.phone}
+                    address={resumeData.profile.address}
                     resumeContent={resumeData.resumeContent}
                     experience={resumeData.experience}
+                    education={resumeData.education}
+                    projects={resumeData.projects}
                     targetJob={resumeData.jobRequirements?.jobTitle}
                     hasWatermark={resumeData.hasWatermark || showWatermark}
                     showFooter={showFooter}
@@ -470,8 +478,12 @@ export function ResumeExportModal({
                         key={`pdf-btn-preview-${showWatermark}-${showFooter}`}
                         userName={resumeData.profile.name}
                         email={resumeData.profile.email}
+                        phone={resumeData.profile.phone}
+                        address={resumeData.profile.address}
                         resumeContent={resumeData.resumeContent}
                         experience={resumeData.experience}
+                        education={resumeData.education}
+                        projects={resumeData.projects}
                         targetJob={resumeData.jobRequirements?.jobTitle}
                         hasWatermark={resumeData.hasWatermark || showWatermark}
                         showFooter={showFooter}
@@ -494,8 +506,12 @@ export function ResumeExportModal({
                       key={`pdf-btn-full-${showWatermark}-${showFooter}`}
                       userName={resumeData.profile.name}
                       email={resumeData.profile.email}
+                      phone={resumeData.profile.phone}
+                      address={resumeData.profile.address}
                       resumeContent={resumeData.resumeContent}
                       experience={resumeData.experience}
+                      education={resumeData.education}
+                      projects={resumeData.projects}
                       targetJob={resumeData.jobRequirements?.jobTitle}
                       hasWatermark={resumeData.hasWatermark || showWatermark}
                       showFooter={showFooter}

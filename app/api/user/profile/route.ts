@@ -35,7 +35,11 @@ export async function GET() {
         email: user.email || '',
         image: user.image || '',
         bio: user.bio || '',
+        phone: user.phone || '',
+        address: user.address || {},
         experience: user.experience || [],
+        projects: user.projects || [],
+        education: user.education || [],
       },
     });
   } catch (error) {
@@ -64,13 +68,14 @@ export async function PATCH(request: Request) {
     // Validate with Zod schema
     const result = ProfileUpdateSchema.safeParse(body);
     if (!result.success) {
+      console.error('Profile update validation failed:', result.error.flatten());
       return NextResponse.json(
         { error: 'Invalid input', details: result.error.flatten() },
         { status: 400 }
       );
     }
 
-    const { name, bio, experience } = result.data;
+    const { name, bio, phone, address, experience, projects, education } = result.data;
 
     // Build update object with only provided fields
     const updateData: Record<string, unknown> = {
@@ -92,8 +97,24 @@ export async function PATCH(request: Request) {
       updateData.bio = bio;
     }
 
+    if (phone !== undefined) {
+      updateData.phone = phone;
+    }
+
+    if (address !== undefined) {
+      updateData.address = address;
+    }
+
     if (experience !== undefined) {
       updateData.experience = experience;
+    }
+
+    if (projects !== undefined) {
+      updateData.projects = projects;
+    }
+
+    if (education !== undefined) {
+      updateData.education = education;
     }
 
     // Update the user's profile
@@ -106,7 +127,11 @@ export async function PATCH(request: Request) {
       success: true,
       ...(name !== undefined && { name: name.trim() }),
       ...(bio !== undefined && { bio }),
+      ...(phone !== undefined && { phone }),
+      ...(address !== undefined && { address }),
       ...(experience !== undefined && { experience }),
+      ...(projects !== undefined && { projects }),
+      ...(education !== undefined && { education }),
     });
 
   } catch (error) {

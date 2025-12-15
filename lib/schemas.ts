@@ -87,11 +87,45 @@ export const WorkExperienceSchema = z.object({
   location: z.string().max(RESUME_CONFIG.experienceLocationMaxLength).optional(),
 });
 
+// Project schema (for portfolio/worked projects)
+export const ProjectSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1).max(RESUME_CONFIG.projectNameMaxLength),
+  description: z.string().max(RESUME_CONFIG.projectDescriptionMaxLength),
+  url: z.string().max(RESUME_CONFIG.projectUrlMaxLength).optional(),
+  technologies: z.array(z.string().max(RESUME_CONFIG.projectTechnologyMaxLength)).max(RESUME_CONFIG.projectTechnologiesMaxItems),
+  startDate: z.string().optional(), // ISO date (YYYY-MM)
+  endDate: z.string().nullable().optional(), // null = ongoing
+});
+
+// Education schema (for academic history)
+export const EducationSchema = z.object({
+  id: z.string(),
+  school: z.string().min(1).max(RESUME_CONFIG.educationSchoolMaxLength),
+  degree: z.string().max(RESUME_CONFIG.educationDegreeMaxLength).optional(),
+  fieldOfStudy: z.string().max(RESUME_CONFIG.educationFieldMaxLength).optional(),
+  startDate: z.string().optional(), // ISO date (YYYY-MM)
+  endDate: z.string().nullable().optional(), // null = ongoing
+  description: z.string().max(RESUME_CONFIG.educationDescriptionMaxLength).optional(),
+  location: z.string().max(RESUME_CONFIG.educationLocationMaxLength).optional(),
+});
+
+// User address schema
+export const UserAddressSchema = z.object({
+  city: z.string().max(RESUME_CONFIG.addressCityMaxLength).optional(),
+  state: z.string().max(RESUME_CONFIG.addressStateMaxLength).optional(),
+  country: z.string().max(RESUME_CONFIG.addressCountryMaxLength).optional(),
+});
+
 // Profile update schema (extended for resume feature)
 export const ProfileUpdateSchema = z.object({
   name: z.string().min(1).max(USER_NAME_MAX_LENGTH).optional(),
   bio: z.string().max(RESUME_CONFIG.bioMaxLength).optional(),
+  phone: z.string().max(RESUME_CONFIG.phoneMaxLength).optional(),
+  address: UserAddressSchema.optional(),
   experience: z.array(WorkExperienceSchema).max(RESUME_CONFIG.experienceMaxItems).optional(),
+  projects: z.array(ProjectSchema).max(RESUME_CONFIG.projectsMaxItems).optional(),
+  education: z.array(EducationSchema).max(RESUME_CONFIG.educationMaxItems).optional(),
 });
 
 // Resume generation request schema
@@ -128,6 +162,9 @@ export type CareerResponse = z.infer<typeof CareerResponseSchema>;
 export type DocumentImportInput = z.infer<typeof DocumentImportSchema>;
 export type URLImportInput = z.infer<typeof URLImportSchema>;
 export type WorkExperience = z.infer<typeof WorkExperienceSchema>;
+export type Project = z.infer<typeof ProjectSchema>;
+export type Education = z.infer<typeof EducationSchema>;
+export type UserAddress = z.infer<typeof UserAddressSchema>;
 export type ProfileUpdate = z.infer<typeof ProfileUpdateSchema>;
 export type ResumeGenerateInput = z.infer<typeof ResumeGenerateSchema>;
 export type LearningResourcesInput = z.infer<typeof LearningResourcesSchema>;

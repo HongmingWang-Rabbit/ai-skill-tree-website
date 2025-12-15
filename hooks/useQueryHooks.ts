@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { API_ROUTES, QUERY_CONFIG } from '@/lib/constants';
-import type { WorkExperience } from '@/lib/schemas';
+import type { WorkExperience, Project, UserAddress, Education } from '@/lib/schemas';
 
 // ============================================
 // Types
@@ -40,6 +40,10 @@ interface UserProfile {
   email: string | null;
   bio: string | null;
   experience: WorkExperience[];
+  phone?: string | null;
+  address?: UserAddress | null;
+  projects: Project[];
+  education: Education[];
 }
 
 interface SkillData {

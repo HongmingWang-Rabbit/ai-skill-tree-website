@@ -15,7 +15,7 @@ import { ImportPreview } from './ImportPreview';
 import { API_ROUTES } from '@/lib/constants';
 import { type SkillNode, type SkillEdge } from '@/lib/schemas';
 import { type Locale } from '@/i18n/routing';
-import { type ExtractedExperience } from '@/lib/ai-document';
+import { type ExtractedExperience, type ExtractedProject, type ExtractedAddress, type ExtractedEducation } from '@/lib/ai-document';
 
 export interface ImportResult {
   nodes: SkillNode[];
@@ -23,7 +23,11 @@ export interface ImportResult {
   suggestedTitle: string;
   confidence: number;
   bio?: string;
+  phone?: string;
+  address?: ExtractedAddress;
   experience?: ExtractedExperience[];
+  projects?: ExtractedProject[];
+  education?: ExtractedEducation[];
 }
 
 interface DocumentImportModalProps {
@@ -96,7 +100,11 @@ export function DocumentImportModal({
           suggestedTitle: data.data.suggestedTitle,
           confidence: data.data.confidence,
           bio: data.data.bio,
+          phone: data.data.phone,
+          address: data.data.address,
           experience: data.data.experience,
+          projects: data.data.projects,
+          education: data.data.education,
         });
         setSummaries(data.data.summaries || []);
       } catch (err) {
@@ -144,7 +152,11 @@ export function DocumentImportModal({
           suggestedTitle: data.data.suggestedTitle,
           confidence: data.data.confidence,
           bio: data.data.bio,
+          phone: data.data.phone,
+          address: data.data.address,
           experience: data.data.experience,
+          projects: data.data.projects,
+          education: data.data.education,
         });
         setSummaries(data.data.summaries || []);
       } catch (err) {

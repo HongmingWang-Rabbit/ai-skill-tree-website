@@ -155,7 +155,11 @@ export async function POST(request: NextRequest) {
         suggestedTitle: result.suggestedTitle,
         confidence: result.confidence,
         bio: result.bio,
+        phone: result.phone,
+        address: result.address,
         experience: result.experience,
+        projects: result.projects,
+        education: result.education,
         summaries,
         documentInfo: {
           type: parsedDocument.metadata.type,

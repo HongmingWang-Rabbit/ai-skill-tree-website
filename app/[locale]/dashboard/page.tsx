@@ -9,8 +9,10 @@ import { Link, useRouter } from '@/i18n/navigation';
 import dynamic from 'next/dynamic';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
 import { ExperienceEditor } from '@/components/dashboard/ExperienceEditor';
-import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon, SaveIcon } from '@/components/ui';
+import { EducationEditor } from '@/components/dashboard/EducationEditor';
+import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon, SaveIcon, PhoneIcon, MapPinIcon, FolderIcon, BookOpenIcon } from '@/components/ui';
 import type { ImportResult } from '@/components/import';
+import { ProjectEditor } from '@/components/dashboard/ProjectEditor';
 
 // Lazy load heavy modals to reduce initial bundle size
 const DocumentImportModal = dynamic(
@@ -22,7 +24,8 @@ const ResumeExportModal = dynamic(
   { ssr: false }
 );
 import { type Locale } from '@/i18n/routing';
-import { type WorkExperience } from '@/lib/schemas';
+import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
+import { clampString, sanitizeAddress, normalizeExperience, normalizeProject, normalizeEducation } from '@/lib/profile-normalize';
 import { useUserGraphs, useUserProfile, useDeleteMap, useUserCredits, useUserSubscription } from '@/hooks/useQueryHooks';
 
 interface SavedGraph {
@@ -59,6 +62,24 @@ export default function DashboardPage() {
   const t = useTranslations();
   const locale = useLocale() as Locale;
 
+  // Utility to strip unsupported address fields before saving
+  const extractErrorMessage = async (response: Response, fallback: string) => {
+    try {
+      const data = await response.json();
+      if (typeof data?.error === 'string') return data.error;
+      if (data?.details) return JSON.stringify(data.details);
+    } catch {
+      // ignore parsing errors
+    }
+    let text = '';
+    try {
+      text = await response.text();
+    } catch {
+      // ignore
+    }
+    return `${fallback} (status ${response.status}${text ? `: ${text}` : ''})`;
+  };
+
   // React Query hooks for data fetching
   const { data: savedCareers = [], isLoading: isLoadingCareers } = useUserGraphs(!!session?.user?.id);
   const { data: profile, isLoading: isLoadingProfile } = useUserProfile(!!session?.user?.id);
@@ -69,19 +90,35 @@ export default function DashboardPage() {
   // Local state synced with profile query
   const [bio, setBio] = useState('');
   const [originalBio, setOriginalBio] = useState('');
+  const [phone, setPhone] = useState('');
+  const [originalPhone, setOriginalPhone] = useState('');
+  const [address, setAddress] = useState<UserAddress>({});
+  const [originalAddress, setOriginalAddress] = useState<UserAddress>({});
   const [experience, setExperience] = useState<WorkExperience[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [education, setEducation] = useState<Education[]>([]);
 
   // Sync local state when profile data loads
   useEffect(() => {
     if (profile) {
       setBio(profile.bio || '');
       setOriginalBio(profile.bio || '');
+      setPhone(profile.phone || '');
+      setOriginalPhone(profile.phone || '');
+      const cleanAddress = sanitizeAddress(profile.address || {});
+      setAddress(cleanAddress);
+      setOriginalAddress(cleanAddress);
       setExperience(profile.experience || []);
+      setProjects(profile.projects || []);
+      setEducation(profile.education || []);
     }
   }, [profile]);
 
-  // Track if bio has unsaved changes
+  // Track if fields have unsaved changes
   const hasBioChanges = bio !== originalBio;
+  const hasPhoneChanges = phone !== originalPhone;
+  const hasAddressChanges = JSON.stringify(address) !== JSON.stringify(originalAddress);
+  const hasContactChanges = hasPhoneChanges || hasAddressChanges;
 
   // UI state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -94,14 +131,17 @@ export default function DashboardPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Profile UI state
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [isEditingContact, setIsEditingContact] = useState(false);
   const [isSavingBio, setIsSavingBio] = useState(false);
+  const [isSavingContact, setIsSavingContact] = useState(false);
   const [showExperienceEditor, setShowExperienceEditor] = useState(false);
+  const [showProjectEditor, setShowProjectEditor] = useState(false);
+  const [showEducationEditor, setShowEducationEditor] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
 
   // Save bio explicitly
   const handleSaveBio = useCallback(async () => {
-    if (!hasBioChanges) return;
-
     setIsSavingBio(true);
     try {
       const response = await fetch(API_ROUTES.USER_PROFILE, {
@@ -112,36 +152,103 @@ export default function DashboardPage() {
 
       if (response.ok) {
         setOriginalBio(bio);
+        setIsEditingBio(false);
         showToast.success(t('dashboard.bioSaved'));
       } else {
-        showToast.error(t('dashboard.bioSaveFailed'));
+        showToast.error(await extractErrorMessage(response, t('dashboard.bioSaveFailed')));
       }
     } catch {
       showToast.error(t('dashboard.bioSaveFailed'));
     } finally {
       setIsSavingBio(false);
     }
-  }, [bio, hasBioChanges, t]);
+  }, [bio, t]);
 
-  // Handle bio change (no auto-save)
-  const handleBioChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setBio(e.target.value);
-  }, []);
+  // Cancel bio editing
+  const handleCancelBioEdit = useCallback(() => {
+    setBio(originalBio);
+    setIsEditingBio(false);
+  }, [originalBio]);
+
+  // Save contact info (phone + address)
+  const handleSaveContact = useCallback(async () => {
+    setIsSavingContact(true);
+    try {
+      const cleanAddress = sanitizeAddress(address);
+      const response = await fetch(API_ROUTES.USER_PROFILE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, address: cleanAddress }),
+      });
+
+      if (response.ok) {
+        setOriginalPhone(phone);
+        setOriginalAddress(cleanAddress);
+        setIsEditingContact(false);
+        showToast.success(t('dashboard.contactSaved'));
+      } else {
+        showToast.error(await extractErrorMessage(response, t('dashboard.contactSaveFailed')));
+      }
+    } catch {
+      showToast.error(t('dashboard.contactSaveFailed'));
+    } finally {
+      setIsSavingContact(false);
+    }
+  }, [phone, address, t]);
+
+  // Cancel contact editing
+  const handleCancelContactEdit = useCallback(() => {
+    setPhone(originalPhone);
+    setAddress(originalAddress);
+    setIsEditingContact(false);
+  }, [originalPhone, originalAddress]);
 
   // Save experience
   const handleSaveExperience = useCallback(async (newExperience: WorkExperience[]) => {
     const response = await fetch(API_ROUTES.USER_PROFILE, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ experience: newExperience }),
+      body: JSON.stringify({ experience: newExperience.map(normalizeExperience) }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to save experience');
+      throw new Error(await extractErrorMessage(response, 'Failed to save experience'));
     }
 
     setExperience(newExperience);
     showToast.success(t('dashboard.experienceSaved'));
+  }, [t]);
+
+  // Save projects
+  const handleSaveProjects = useCallback(async (newProjects: Project[]) => {
+    const response = await fetch(API_ROUTES.USER_PROFILE, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projects: newProjects.map(normalizeProject) }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await extractErrorMessage(response, 'Failed to save projects'));
+    }
+
+    setProjects(newProjects);
+    showToast.success(t('dashboard.projectsSaved'));
+  }, [t]);
+
+  // Save education
+  const handleSaveEducation = useCallback(async (newEducation: Education[]) => {
+    const response = await fetch(API_ROUTES.USER_PROFILE, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ education: newEducation.map(normalizeEducation) }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await extractErrorMessage(response, 'Failed to save education'));
+    }
+
+    setEducation(newEducation);
+    showToast.success(t('dashboard.educationSaved'));
   }, [t]);
 
   // Open delete confirmation modal
@@ -252,13 +359,39 @@ export default function DashboardPage() {
         throw new Error(mapData.error || 'Failed to create map');
       }
 
-      // If bio or experience were extracted, update the user profile
-      if (result.bio || (result.experience && result.experience.length > 0)) {
-        const profileUpdate: { bio?: string; experience?: WorkExperience[] } = {};
+      // If any profile data was extracted, update the user profile
+      const hasProfileData = result.bio || result.phone || result.address ||
+        (result.experience && result.experience.length > 0) ||
+        (result.projects && result.projects.length > 0);
 
-        // Update bio if extracted and user doesn't have one
-        if (result.bio && !bio) {
-          profileUpdate.bio = result.bio;
+      if (hasProfileData) {
+        const profileUpdate: {
+          bio?: string;
+          phone?: string;
+          address?: UserAddress;
+          experience?: WorkExperience[];
+          projects?: Project[];
+          education?: Education[];
+        } = {};
+
+        // Update bio if extracted (always update from import)
+        if (result.bio) {
+          profileUpdate.bio = clampString(result.bio, RESUME_CONFIG.bioMaxLength);
+        }
+
+        // Update phone if extracted (always update from import)
+        if (result.phone) {
+          profileUpdate.phone = clampString(result.phone, RESUME_CONFIG.phoneMaxLength);
+        }
+
+        // Merge address fields - update any extracted fields
+        if (result.address) {
+          profileUpdate.address = sanitizeAddress({
+            ...address,
+            ...Object.fromEntries(
+              Object.entries(result.address).filter(([, v]) => v)
+            ),
+          });
         }
 
         // Merge extracted experience with existing experience
@@ -266,12 +399,12 @@ export default function DashboardPage() {
           // Convert ExtractedExperience to WorkExperience by adding unique IDs
           const newExperiences: WorkExperience[] = result.experience.map((exp, idx) => ({
             id: `imported-${Date.now()}-${idx}`,
-            company: exp.company,
-            title: exp.title,
+            company: clampString(exp.company, RESUME_CONFIG.experienceCompanyMaxLength),
+            title: clampString(exp.title, RESUME_CONFIG.experienceTitleMaxLength),
             startDate: exp.startDate,
             endDate: exp.endDate,
-            description: exp.description,
-            location: exp.location,
+            description: clampString(exp.description, RESUME_CONFIG.experienceDescriptionMaxLength),
+            location: exp.location ? clampString(exp.location, RESUME_CONFIG.experienceLocationMaxLength) : undefined,
           }));
 
           // Merge with existing, avoiding duplicates (by company + title + startDate)
@@ -291,6 +424,65 @@ export default function DashboardPage() {
           }
         }
 
+        // Merge extracted projects with existing projects
+        if (result.projects && result.projects.length > 0) {
+          // Convert ExtractedProject to Project by adding unique IDs
+          const newProjects: Project[] = result.projects.map((proj, idx) =>
+            normalizeProject({
+              id: `imported-${Date.now()}-${idx}`,
+              name: proj.name,
+              description: proj.description ?? '',
+              url: proj.url ?? undefined,
+              technologies: proj.technologies ?? [],
+              startDate: proj.startDate || undefined,
+              endDate: proj.endDate ?? null,
+            })
+          );
+
+          // Merge with existing, avoiding duplicates (by name)
+          const existingNames = new Set(projects.map(p => p.name.toLowerCase()));
+          const uniqueNewProjects = newProjects.filter(
+            p => !existingNames.has(p.name.toLowerCase())
+          );
+
+          if (uniqueNewProjects.length > 0) {
+            // Combine and limit to max projects
+            const combinedProjects = [...projects, ...uniqueNewProjects]
+              .slice(0, RESUME_CONFIG.projectsMaxItems);
+            profileUpdate.projects = combinedProjects;
+          }
+        }
+
+        // Merge extracted education with existing education
+        if (result.education && result.education.length > 0) {
+          const newEducation: Education[] = result.education.map((edu, idx) =>
+            normalizeEducation({
+              id: `edu-imported-${Date.now()}-${idx}`,
+              school: edu.school,
+              degree: edu.degree ?? undefined,
+              fieldOfStudy: edu.fieldOfStudy ?? undefined,
+              startDate: edu.startDate || undefined,
+              endDate: edu.endDate ?? null,
+              description: edu.description ?? undefined,
+              location: edu.location ?? undefined,
+            })
+          );
+
+          const existingKeys = new Set(
+            education.map(e => `${e.school}-${e.degree ?? ''}-${e.startDate ?? ''}`.toLowerCase())
+          );
+
+          const uniqueNewEducation = newEducation.filter(
+            e => !existingKeys.has(`${e.school}-${e.degree ?? ''}-${e.startDate ?? ''}`.toLowerCase())
+          );
+
+          if (uniqueNewEducation.length > 0) {
+            const combinedEducation = [...education, ...uniqueNewEducation]
+              .slice(0, RESUME_CONFIG.educationMaxItems);
+            profileUpdate.education = combinedEducation;
+          }
+        }
+
         // Save profile updates if any
         if (Object.keys(profileUpdate).length > 0) {
           const profileResponse = await fetch(API_ROUTES.USER_PROFILE, {
@@ -303,11 +495,29 @@ export default function DashboardPage() {
             // Update local state
             if (profileUpdate.bio) {
               setBio(profileUpdate.bio);
+              setOriginalBio(profileUpdate.bio);
+            }
+            if (profileUpdate.phone) {
+              setPhone(profileUpdate.phone);
+              setOriginalPhone(profileUpdate.phone);
+            }
+            if (profileUpdate.address) {
+              setAddress(profileUpdate.address);
+              setOriginalAddress(profileUpdate.address);
             }
             if (profileUpdate.experience) {
               setExperience(profileUpdate.experience);
             }
+            if (profileUpdate.projects) {
+              setProjects(profileUpdate.projects);
+            }
+            if (profileUpdate.education) {
+              setEducation(profileUpdate.education);
+            }
             showToast.success(t('import.profileUpdated'));
+          } else {
+            showToast.error(await extractErrorMessage(profileResponse, t('import.importFailed')));
+            console.error('Profile update failed after import:', profileResponse.status);
           }
         }
       }
@@ -320,7 +530,7 @@ export default function DashboardPage() {
     } finally {
       setIsCreatingMap(false);
     }
-  }, [router, t, bio, experience]);
+  }, [router, t, address, experience, projects, education]);
 
   // Calculate stats from saved careers
   const stats = {
@@ -434,53 +644,189 @@ export default function DashboardPage() {
           <div className="mt-4 pt-4 border-t border-slate-700">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-slate-400">{t('dashboard.bio')}</label>
-              <div className="flex items-center gap-2">
-                {hasBioChanges && !isSavingBio && (
-                  <span className="text-xs text-amber-400">{t('dashboard.unsavedChanges')}</span>
-                )}
-                {isSavingBio && (
-                  <span className="text-xs text-slate-500">{t('dashboard.saving')}</span>
-                )}
-              </div>
-            </div>
-            {isLoadingProfile ? (
-              <div className="w-full h-[100px] bg-slate-800/50 border border-slate-700 rounded-lg animate-pulse" />
-            ) : (
-              <textarea
-                value={bio}
-                onChange={handleBioChange}
-                placeholder={t('dashboard.bioPlaceholder')}
-                maxLength={RESUME_CONFIG.bioMaxLength}
-                rows={4}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
-              />
-            )}
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-slate-500">
-                {bio.length}/{RESUME_CONFIG.bioMaxLength}
-              </p>
-              {hasBioChanges && (
+              {!isEditingBio && !isLoadingProfile && (
                 <button
-                  onClick={handleSaveBio}
-                  disabled={isSavingBio}
-                  className="flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded transition-colors disabled:opacity-50"
+                  onClick={() => setIsEditingBio(true)}
+                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-amber-400 transition-colors"
                 >
-                  {isSavingBio ? (
-                    <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <SaveIcon className="w-3 h-3" />
-                  )}
-                  {t('dashboard.saveBio')}
+                  <EditIcon className="w-3 h-3" />
+                  {t('dashboard.edit')}
                 </button>
               )}
             </div>
+            {isLoadingProfile ? (
+              <div className="w-full h-[60px] bg-slate-800/50 border border-slate-700 rounded-lg animate-pulse" />
+            ) : isEditingBio ? (
+              <>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder={t('dashboard.bioPlaceholder')}
+                  maxLength={RESUME_CONFIG.bioMaxLength}
+                  rows={4}
+                  className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+                  autoFocus
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs text-slate-500">
+                    {bio.length}/{RESUME_CONFIG.bioMaxLength}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCancelBioEdit}
+                      disabled={isSavingBio}
+                      className="px-3 py-1 text-xs text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                    <button
+                      onClick={handleSaveBio}
+                      disabled={isSavingBio}
+                      className="flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded transition-colors disabled:opacity-50"
+                    >
+                      {isSavingBio ? (
+                        <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <SaveIcon className="w-3 h-3" />
+                      )}
+                      {t('dashboard.saveBio')}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-slate-300 whitespace-pre-wrap">
+                {bio || <span className="text-slate-500 italic">{t('dashboard.bioPlaceholder')}</span>}
+              </p>
+            )}
           </div>
 
-          {/* Experience and Resume Actions */}
-          <div className="mt-4 flex flex-wrap gap-3">
+          {/* Contact Info Section (Phone & Address) */}
+          <div className="mt-4 pt-4 border-t border-slate-700">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-slate-400">{t('dashboard.contactInfo')}</label>
+              {!isEditingContact && !isLoadingProfile && (
+                <button
+                  onClick={() => setIsEditingContact(true)}
+                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-amber-400 transition-colors"
+                >
+                  <EditIcon className="w-3 h-3" />
+                  {t('dashboard.edit')}
+                </button>
+              )}
+            </div>
+            {isLoadingProfile ? (
+              <div className="h-6 w-48 bg-slate-800/50 border border-slate-700 rounded animate-pulse" />
+            ) : isEditingContact ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1">
+                      <PhoneIcon className="w-3 h-3 inline mr-1" />
+                      {t('dashboard.phone')}
+                    </label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder={t('dashboard.phonePlaceholder')}
+                      maxLength={RESUME_CONFIG.phoneMaxLength}
+                      className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  {/* City */}
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1">
+                      <MapPinIcon className="w-3 h-3 inline mr-1" />
+                      {t('dashboard.city')}
+                    </label>
+                    <input
+                      type="text"
+                      value={address.city || ''}
+                      onChange={(e) => setAddress(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder={t('dashboard.cityPlaceholder')}
+                      maxLength={RESUME_CONFIG.addressCityMaxLength}
+                      className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* State/Province */}
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1">{t('dashboard.state')}</label>
+                    <input
+                      type="text"
+                      value={address.state || ''}
+                      onChange={(e) => setAddress(prev => ({ ...prev, state: e.target.value }))}
+                      placeholder={t('dashboard.statePlaceholder')}
+                      maxLength={RESUME_CONFIG.addressStateMaxLength}
+                      className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                    />
+                  </div>
+                  {/* Country */}
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1">{t('dashboard.country')}</label>
+                    <input
+                      type="text"
+                      value={address.country || ''}
+                      onChange={(e) => setAddress(prev => ({ ...prev, country: e.target.value }))}
+                      placeholder={t('dashboard.countryPlaceholder')}
+                      maxLength={RESUME_CONFIG.addressCountryMaxLength}
+                      className="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end mt-3 gap-2">
+                  <button
+                    onClick={handleCancelContactEdit}
+                    disabled={isSavingContact}
+                    className="px-3 py-1 text-xs text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button
+                    onClick={handleSaveContact}
+                    disabled={isSavingContact}
+                    className="flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded transition-colors disabled:opacity-50"
+                  >
+                    {isSavingContact ? (
+                      <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <SaveIcon className="w-3 h-3" />
+                    )}
+                    {t('dashboard.saveContact')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-300">
+                {phone && (
+                  <span className="flex items-center gap-1">
+                    <PhoneIcon className="w-3.5 h-3.5 text-slate-500" />
+                    {phone}
+                  </span>
+                )}
+                {(address.city || address.state || address.country) && (
+                  <span className="flex items-center gap-1">
+                    <MapPinIcon className="w-3.5 h-3.5 text-slate-500" />
+                    {[address.city, address.state, address.country].filter(Boolean).join(', ')}
+                  </span>
+                )}
+                {!phone && !address.city && !address.country && (
+                  <span className="text-slate-500 italic">{t('dashboard.noContactInfo')}</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Experience, Projects and Resume Actions */}
+          <div className="mt-4 pt-4 border-t border-slate-700 flex flex-wrap gap-3">
             {isLoadingProfile ? (
               <>
                 <div className="h-10 w-44 bg-slate-800 rounded-lg animate-pulse" />
+                <div className="h-10 w-40 bg-slate-800 rounded-lg animate-pulse" />
                 <div className="h-10 w-36 bg-amber-500/30 rounded-lg animate-pulse" />
               </>
             ) : (
@@ -494,6 +840,30 @@ export default function DashboardPage() {
                   {experience.length > 0 && (
                     <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
                       {experience.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowProjectEditor(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                >
+                  <FolderIcon className="w-4 h-4" />
+                  <span>{t('dashboard.manageProjects')}</span>
+                  {projects.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                      {projects.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowEducationEditor(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                >
+                  <BookOpenIcon className="w-4 h-4" />
+                  <span>{t('dashboard.manageEducation')}</span>
+                  {education.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                      {education.length}
                     </span>
                   )}
                 </button>
@@ -747,6 +1117,22 @@ export default function DashboardPage() {
         onClose={() => setShowExperienceEditor(false)}
         experience={experience}
         onSave={handleSaveExperience}
+      />
+
+      {/* Project Editor Modal */}
+      <ProjectEditor
+        isOpen={showProjectEditor}
+        onClose={() => setShowProjectEditor(false)}
+        projects={projects}
+        onSave={handleSaveProjects}
+      />
+
+      {/* Education Editor Modal */}
+      <EducationEditor
+        isOpen={showEducationEditor}
+        onClose={() => setShowEducationEditor(false)}
+        education={education}
+        onSave={handleSaveEducation}
       />
 
       {/* Resume Export Modal */}

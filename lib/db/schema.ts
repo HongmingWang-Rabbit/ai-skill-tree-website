@@ -13,6 +13,36 @@ export interface WorkExperience {
   location?: string;
 }
 
+// Type for user's projects (stored in users.projects JSONB)
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  url?: string; // Project URL (GitHub, live demo, etc.)
+  technologies: string[]; // Technologies/skills used
+  startDate?: string; // ISO date string (YYYY-MM)
+  endDate?: string | null; // null = ongoing
+}
+
+// Type for user's education (stored in users.education JSONB)
+export interface Education {
+  id: string;
+  school: string;
+  degree?: string;
+  fieldOfStudy?: string;
+  startDate?: string;
+  endDate?: string | null;
+  description?: string;
+  location?: string;
+}
+
+// Type for user's address (stored in users.address JSONB)
+export interface UserAddress {
+  city?: string;
+  state?: string;
+  country?: string;
+}
+
 export const careers = pgTable('careers', {
   id: uuid('id').primaryKey().defaultRandom(),
   canonicalKey: text('canonical_key').notNull(),
@@ -77,7 +107,11 @@ export const users = pgTable('users', {
   walletAddress: text('wallet_address').unique(),
   // Resume profile fields
   bio: text('bio'),
+  phone: text('phone'),
+  address: jsonb('address').$type<UserAddress>(),
   experience: jsonb('experience').$type<WorkExperience[]>(),
+  projects: jsonb('projects').$type<Project[]>(),
+  education: jsonb('education').$type<Education[]>(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ['@react-pdf/renderer'],
+  // Exclude pdf-parse and pdfjs-dist from server bundling to avoid worker issues
+  serverExternalPackages: ['pdf-parse', 'pdfjs-dist'],
 };
 
 export default withNextIntl(nextConfig);
