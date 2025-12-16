@@ -1,8 +1,33 @@
 import { defineRouting } from 'next-intl/routing';
 
+// Supported locales - add new locales here and create corresponding folder in /locales
 export const locales = ['en', 'zh', 'ja'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'en';
+
+// Translation namespaces - add new namespaces here when creating new translation files
+// Each namespace corresponds to a JSON file in /locales/{locale}/{namespace}.json
+export const i18nNamespaces = [
+  'common',
+  'header',
+  'home',
+  'career',
+  'dashboard',
+  'featuredCareers',
+  'languageSwitcher',
+  'auth',
+  'masterMap',
+  'seo',
+  'skillGraph',
+  'aiChat',
+  'import',
+  'resume',
+  'coverLetter',
+  'learning',
+  'billing',
+  'pricing',
+] as const;
+export type I18nNamespace = (typeof i18nNamespaces)[number];
 
 // Mapping from app locales to Open Graph locale codes
 export const ogLocaleMap: Record<Locale, string> = {

@@ -248,8 +248,11 @@ function isValidDateString(dateStr: string | null | undefined): boolean {
   return !isNaN(yearNum) && !isNaN(monthNum) && monthNum >= 1 && monthNum <= 12;
 }
 
+// Type for PDF labels (any locale)
+type PDFLabels = (typeof PDF_LABELS)[keyof typeof PDF_LABELS];
+
 // Format date for display (locale-aware)
-function formatDate(dateStr: string | null | undefined, labels: typeof PDF_LABELS['en']): string {
+function formatDate(dateStr: string | null | undefined, labels: PDFLabels): string {
   if (!isValidDateString(dateStr)) return labels.present;
   const [year, month] = dateStr!.split('-');
   const monthIndex = parseInt(month, 10) - 1;
@@ -257,7 +260,7 @@ function formatDate(dateStr: string | null | undefined, labels: typeof PDF_LABEL
 }
 
 // Format project date for display (with ongoing support, locale-aware)
-function formatProjectDate(dateStr: string | null | undefined, labels: typeof PDF_LABELS['en']): string {
+function formatProjectDate(dateStr: string | null | undefined, labels: PDFLabels): string {
   // null explicitly means "ongoing"
   if (dateStr === null) return labels.ongoing;
   // Invalid or undefined means no date to show

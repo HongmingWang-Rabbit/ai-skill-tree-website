@@ -22,7 +22,32 @@ pnpm db:studio    # Drizzle Studio GUI
 | Subscriptions | `canCreateMap()`, `shouldHaveWatermark()` |
 | Lazy load | `next/dynamic` with `ssr: false` for React Flow, PDFs |
 | i18n | Import `Link`, `useRouter` from `@/i18n/navigation` |
-| Locales | `en`, `zh`, `ja` in `i18n/routing.ts` |
+| Locales | `locales`, `i18nNamespaces` from `@/i18n/routing` |
+| Translations | `useTranslations('namespace')` from `next-intl` |
+
+## i18n Structure
+
+```
+locales/
+├── en/           # English
+├── zh/           # Chinese
+└── ja/           # Japanese
+    ├── common.json
+    ├── home.json
+    ├── dashboard.json
+    └── ... (18 namespace files per locale)
+```
+
+**Adding translations:**
+1. Add keys to all 3 locale files: `locales/{en,zh,ja}/{namespace}.json`
+2. For new namespaces: create files + add to `i18nNamespaces` in `i18n/routing.ts`
+
+**Using translations:**
+```tsx
+import { useTranslations } from 'next-intl';
+const t = useTranslations('dashboard');
+<span>{t('saveButton')}</span>
+```
 
 ## UI Patterns
 
@@ -42,19 +67,21 @@ import { DropdownMenu } from '@/components/ui';
 
 ## Key Files
 
-- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `PDF_FONT_CONFIG`, `PDF_STYLES`)
+- `i18n/routing.ts` - Locales, namespaces, OG locale mapping
+- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`)
 - `lib/schemas.ts` - Zod schemas and shared types
-- `lib/ai-resume.ts` - Resume/cover letter AI: `analyzeJobPosting()`, `optimizeExperience()`, `optimizeEducation()`, `optimizeProjects()`, `generateResumeContent()`, `generateCoverLetter()`
+- `lib/ai-resume.ts` - Resume/cover letter AI functions
 - `lib/credits.ts` - Credit management
 - `lib/auth.ts` - NextAuth (Google, Twitter, WeChat, Web3)
 - `hooks/useQueryHooks.ts` - React Query hooks
-- `components/resume/pdfFonts.ts` - Centralized PDF font/hyphenation setup (use `initializePDFFonts()` in PDF components)
+- `components/resume/pdfFonts.ts` - PDF font/hyphenation setup
 
 ## Before Completing Tasks
 
 1. No hardcoded values (use constants)
 2. No temp code, unnecessary logs, or comments
 3. Update `locales/{en,zh,ja}/*.json` for new UI strings
+4. Ensure all 3 locales have matching keys
 
 ## Detailed Docs
 

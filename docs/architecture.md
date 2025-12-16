@@ -2,6 +2,21 @@
 
 Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for quick start.
 
+## Internationalization (`i18n/` & `locales/`)
+
+| File | Purpose |
+|------|---------|
+| `i18n/routing.ts` | Locale config: `locales`, `i18nNamespaces`, `ogLocaleMap`, `getLocalePath()` |
+| `i18n/request.ts` | next-intl server config, loads namespace files |
+| `i18n/navigation.ts` | Locale-aware `Link`, `useRouter`, `usePathname` |
+| `locales/{locale}/*.json` | Translation files by namespace (18 files per locale) |
+
+**Namespaces:** `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `skillGraph`, `aiChat`, `import`, `resume`, `coverLetter`, `learning`, `billing`, `pricing`
+
+**Adding new locale:** Create folder in `locales/`, add to `locales` array in `routing.ts`
+
+**Adding new namespace:** Create JSON files in all locale folders, add to `i18nNamespaces` in `routing.ts`
+
 ## Core Libraries (`lib/`)
 
 | File | Purpose |

@@ -223,8 +223,11 @@ An interactive web application that generates and visualizes career skill maps u
 │       ├── ConfirmModal.tsx    # Styled confirmation dialog
 │       ├── Toast.tsx           # Toast notifications wrapper
 │       └── LanguageSwitcher.tsx # Language dropdown selector
-├── i18n/                       # Internationalization config
-├── messages/                   # Translation files (en, zh, ja)
+├── i18n/                       # Internationalization config (routing, request)
+├── locales/                    # Translation files organized by namespace
+│   ├── en/                     # English translations
+│   ├── zh/                     # Chinese translations
+│   └── ja/                     # Japanese translations
 ├── lib/
 │   ├── db/                     # Database connection & schema
 │   ├── mcp/

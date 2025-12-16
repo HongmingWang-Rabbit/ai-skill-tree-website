@@ -1,29 +1,5 @@
 import { getRequestConfig } from 'next-intl/server';
-import { routing } from './routing';
-
-// All available namespaces - add new namespaces here when creating new translation files
-const namespaces = [
-  'common',
-  'header',
-  'home',
-  'career',
-  'dashboard',
-  'featuredCareers',
-  'languageSwitcher',
-  'auth',
-  'masterMap',
-  'seo',
-  'skillGraph',
-  'aiChat',
-  'import',
-  'resume',
-  'coverLetter',
-  'learning',
-  'billing',
-  'pricing',
-] as const;
-
-export type Namespace = (typeof namespaces)[number];
+import { routing, i18nNamespaces } from './routing';
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
@@ -33,10 +9,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
 
-  // Load and merge all namespace files
+  // Load and merge all namespace files from /locales/{locale}/
   const messages = Object.fromEntries(
     await Promise.all(
-      namespaces.map(async (ns) => [
+      i18nNamespaces.map(async (ns) => [
         ns,
         (await import(`../locales/${locale}/${ns}.json`)).default,
       ])
