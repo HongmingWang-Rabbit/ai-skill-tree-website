@@ -12,7 +12,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `ai.ts` | OpenAI (gpt-4o-mini): `generateCareerSkillTree()`, `generateSkillTestQuestions()`, `analyzeCareerQuery()` |
 | `ai-chat.ts` | Chat: `processChatMessage()`, `applyModifications()`, `generateSmartMerge()` |
 | `ai-document.ts` | Document extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()` |
-| `ai-resume.ts` | Resume AI: `analyzeJobPosting()`, `generateResumeContent()`, `optimizeExperience()` |
+| `ai-resume.ts` | Resume/Cover Letter AI: `analyzeJobPosting()`, `analyzeJobTitle()`, `optimizeExperience()`, `generateResumeContent()`, `generateCoverLetter()` |
 | `document-parser.ts` | Parsing: `parsePDF()`, `parseWord()`, `parseImage()`, `parseURL()` |
 | `mcp/tavily.ts` | Web search: `searchTavily()`, `searchLearningResources()` |
 | `auth.ts` | NextAuth config with Google, Twitter, WeChat, Web3 providers |
@@ -40,7 +40,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `auth/` | `AuthModal` (login with social/Web3) |
 | `ai-chat/` | `AIChatPanel`, `ChatMessage`, `ModificationPreview`, `MergeMapModal` |
 | `import/` | `DocumentImportModal`, `ImportPreview` |
-| `resume/` | `ResumePDF`, `ResumeExportModal`, `PDFDownloadButton` |
+| `resume/` | `ResumePDF`, `ResumeExportModal`, `CoverLetterModal`, `PDFDownloadButton` |
 | `learning/` | `LearningResourcesModal` |
 | `dashboard/` | `MasterSkillMap`, `ExperienceEditor`, `ProjectEditor` |
 
@@ -66,6 +66,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 - `/api/user/*` - Profile, graphs, credits
 - `/api/import/*` - Document/URL import
 - `/api/resume/*` - Resume generation
+- `/api/cover-letter/*` - Cover letter generation
 - `/api/stripe/*` - Payments, webhooks
 - `/api/learning/*` - Learning resources
 
@@ -75,6 +76,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 1. Upload resume → `POST /api/import/document` → AI extracts skills
 2. `POST /api/map/fork` creates skill map → View on career page
 3. `POST /api/resume/generate` → Export tailored resume
+4. `POST /api/cover-letter/generate` → Generate personalized cover letter
 
 **Career Exploration:**
 1. Enter query → `POST /api/ai/analyze` → Redirect to `/career/{key}`

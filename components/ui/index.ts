@@ -51,4 +51,7 @@ export {
   PhoneIcon,
   MapPinIcon,
   FolderIcon,
+  // Cover Letter icons
+  CopyIcon,
+  LetterIcon,
 } from './Icons';

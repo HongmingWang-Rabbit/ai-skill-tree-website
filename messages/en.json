@@ -43,7 +43,7 @@
       "step2Title": "Visualize",
       "step2Description": "Watch your skills transform into an interactive map. Identify gaps, track progress, and discover connections.",
       "step3Title": "Export",
-      "step3Description": "Create AI-tailored resumes for any job. Just paste a job posting URL and get a custom PDF in seconds."
+      "step3Description": "Create AI-tailored resumes and cover letters in English, Chinese, or Japanese. Paste a job posting URL and get professional documents in seconds."
     },
     "features": {
       "title": "Everything You Need",
@@ -56,8 +56,8 @@
         "description": "Visualize skills needed for any career path"
       },
       "resume": {
-        "title": "Smart Resume Generation",
-        "description": "AI-tailored PDFs that match job requirements"
+        "title": "Multilingual Resume & Cover Letter",
+        "description": "AI-tailored resumes and cover letters in English, Chinese, and Japanese"
       },
       "education": {
         "title": "Education & Credentials",
@@ -172,6 +172,7 @@
     "saving": "Saving...",
     "manageExperience": "Work Experience",
     "exportResume": "Export Resume",
+    "generateCoverLetter": "Cover Letter",
     "experienceTitle": "Work Experience",
     "addExperience": "Add Experience",
     "editExperience": "Edit",
@@ -423,7 +424,43 @@
     "pdfOptions": "PDF Options",
     "showWatermark": "Show watermark",
     "showFooter": "Show footer text",
-    "subscriberOnly": "Pro"
+    "subscriberOnly": "Pro",
+    "outputLanguageLabel": "Output Language",
+    "includeCoverLetter": "Include Cover Letter",
+    "companyUrlLabel": "Company Website (optional)",
+    "companyUrlPlaceholder": "https://company.com/about",
+    "companyUrlHelp": "Helps personalize the cover letter with company details",
+    "generatingCoverLetter": "Also generating cover letter...",
+    "coverLetterGenerateFailed": "Failed to generate cover letter",
+    "resumeTab": "Resume",
+    "coverLetterTab": "Cover Letter",
+    "keyStrengths": "Key Strengths",
+    "coverLetterPreview": "Cover Letter Preview",
+    "downloadZip": "Download ZIP",
+    "downloadFailed": "Failed to download. Please try again."
+  },
+  "coverLetter": {
+    "modalTitle": "Generate Cover Letter",
+    "modalSubtitle": "Create a personalized cover letter tailored to a specific job. Provide job details for best results.",
+    "jobTitleLabel": "Target Job Title",
+    "jobTitlePlaceholder": "e.g., Senior Software Engineer",
+    "jobUrlLabel": "Job Posting URL (optional)",
+    "jobUrlPlaceholder": "https://example.com/job-posting",
+    "companyUrlLabel": "Company Website (optional)",
+    "companyUrlPlaceholder": "https://company.com/about",
+    "companyUrlHelp": "Helps personalize the letter with company-specific details",
+    "outputLanguageLabel": "Output Language",
+    "generateButton": "Generate Cover Letter",
+    "generating": "Crafting your cover letter...",
+    "analyzingJob": "Analyzing job requirements...",
+    "generateFailed": "Failed to generate cover letter. Please try again.",
+    "targetJob": "Tailored for",
+    "keyStrengths": "Key Strengths Highlighted",
+    "preview": "Cover Letter Preview",
+    "companyConnection": "Why This Company",
+    "back": "Back",
+    "copyToClipboard": "Copy to Clipboard",
+    "copied": "Copied!"
   },
   "learning": {
     "title": "Learn {skill}",

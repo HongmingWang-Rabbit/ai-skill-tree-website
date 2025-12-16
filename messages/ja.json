@@ -43,7 +43,7 @@
       "step2Title": "可視化",
       "step2Description": "スキルがインタラクティブなマップに変換されるのを確認。ギャップを特定し、進捗を追跡し、スキルの関連性を発見。",
       "step3Title": "エクスポート",
-      "step3Description": "どんな職種にもAIカスタマイズの履歴書を作成。求人URLを貼り付けるだけで数秒でカスタムPDFを取得。"
+      "step3Description": "英語・中国語・日本語でAIカスタマイズの履歴書とカバーレターを作成。求人URLを貼り付けるだけで数秒でプロフェッショナルな文書を取得。"
     },
     "features": {
       "title": "必要なものすべて",
@@ -56,8 +56,8 @@
         "description": "あらゆるキャリアパスに必要なスキルを可視化"
       },
       "resume": {
-        "title": "スマート履歴書生成",
-        "description": "求人要件に合わせたAIカスタマイズPDF"
+        "title": "多言語履歴書・カバーレター",
+        "description": "英・中・日対応のAIカスタマイズ履歴書とカバーレター"
       },
       "education": {
         "title": "学歴・資格",
@@ -172,6 +172,7 @@
     "saving": "保存中...",
     "manageExperience": "職務経歴",
     "exportResume": "履歴書を出力",
+    "generateCoverLetter": "カバーレター",
     "experienceTitle": "職務経歴",
     "addExperience": "経歴を追加",
     "editExperience": "編集",
@@ -422,7 +423,43 @@
     "pdfOptions": "PDFオプション",
     "showWatermark": "透かしを表示",
     "showFooter": "フッターを表示",
-    "subscriberOnly": "Pro"
+    "subscriberOnly": "Pro",
+    "outputLanguageLabel": "出力言語",
+    "includeCoverLetter": "カバーレターを含める",
+    "companyUrlLabel": "会社ウェブサイト（任意）",
+    "companyUrlPlaceholder": "https://company.com/about",
+    "companyUrlHelp": "会社の詳細に基づいてカバーレターをパーソナライズします",
+    "generatingCoverLetter": "カバーレターも生成中...",
+    "coverLetterGenerateFailed": "カバーレターの生成に失敗しました",
+    "resumeTab": "履歴書",
+    "coverLetterTab": "カバーレター",
+    "keyStrengths": "主要な強み",
+    "coverLetterPreview": "カバーレタープレビュー",
+    "downloadZip": "ZIPをダウンロード",
+    "downloadFailed": "ダウンロードに失敗しました。もう一度お試しください。"
+  },
+  "coverLetter": {
+    "modalTitle": "カバーレターを生成",
+    "modalSubtitle": "特定の職種に合わせたパーソナライズされたカバーレターを作成します。最良の結果を得るために職種の詳細を入力してください。",
+    "jobTitleLabel": "対象職種",
+    "jobTitlePlaceholder": "例：シニアソフトウェアエンジニア",
+    "jobUrlLabel": "求人情報URL（任意）",
+    "jobUrlPlaceholder": "https://example.com/job-posting",
+    "companyUrlLabel": "会社ウェブサイト（任意）",
+    "companyUrlPlaceholder": "https://company.com/about",
+    "companyUrlHelp": "企業固有の詳細でレターをパーソナライズするのに役立ちます",
+    "outputLanguageLabel": "出力言語",
+    "generateButton": "カバーレターを生成",
+    "generating": "カバーレターを作成中...",
+    "analyzingJob": "求人要件を分析中...",
+    "generateFailed": "カバーレターの生成に失敗しました。もう一度お試しください。",
+    "targetJob": "対象職種",
+    "keyStrengths": "強調される主な強み",
+    "preview": "カバーレタープレビュー",
+    "companyConnection": "この会社を選ぶ理由",
+    "back": "戻る",
+    "copyToClipboard": "クリップボードにコピー",
+    "copied": "コピーしました！"
   },
   "learning": {
     "title": "{skill}を学ぶ",

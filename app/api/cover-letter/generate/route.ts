@@ -1,30 +1,31 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 import { authOptions } from '@/lib/auth';
 import { db, users, userCareerGraphs, careers, skillGraphs, type SkillNodeData } from '@/lib/db';
-import { ResumeGenerateSchema } from '@/lib/schemas';
 import { parseURL } from '@/lib/document-parser';
-import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import {
   analyzeJobPosting,
   analyzeJobTitle,
-  generateResumeContent,
-  optimizeExperience,
-  optimizeEducation,
-  optimizeProjects,
+  generateCoverLetter,
   type CareerSkillData,
   type UserProfile,
   type JobRequirements,
-  type OptimizedExperience,
-  type OptimizedEducation,
-  type OptimizedProject,
 } from '@/lib/ai-resume';
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
-import { shouldHaveWatermark } from '@/lib/subscription';
+import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
 
-// POST /api/resume/generate - Generate resume content
+// Input validation schema
+const CoverLetterGenerateSchema = z.object({
+  locale: z.enum(['en', 'zh', 'ja']),
+  jobTitle: z.string().max(200).optional(),
+  jobUrl: z.string().url().optional(),
+  companyUrl: z.string().url().optional(),
+});
+
+// POST /api/cover-letter/generate - Generate cover letter content
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -36,19 +37,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle aborted requests gracefully
-    let body;
-    try {
-      body = await request.json();
-    } catch {
-      // Request was likely aborted
-      return NextResponse.json(
-        { error: 'Request cancelled' },
-        { status: 499 }
-      );
-    }
-
-    const result = ResumeGenerateSchema.safeParse(body);
+    const body = await request.json();
+    const result = CoverLetterGenerateSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
@@ -57,10 +47,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const { locale, jobTitle, jobUrl } = result.data;
+    const { locale, jobTitle, jobUrl, companyUrl } = result.data;
     const userId = session.user.id;
 
-    // Check credits before AI generation
+    // Check credits before AI generation (same cost as resume)
     const creditCheck = await hasEnoughCredits(userId, 'resume_generate');
     if (!creditCheck.sufficient) {
       return NextResponse.json(
@@ -122,7 +112,6 @@ export async function POST(request: Request) {
     const careerSkillData: CareerSkillData[] = [];
 
     for (const userGraph of userGraphs) {
-      // Use custom nodes if available, otherwise use skill graph nodes
       const nodes = (userGraph.graph.customNodes || userGraph.skillGraph?.nodes || []) as SkillNodeData[];
       if (nodes.length === 0) continue;
 
@@ -140,7 +129,7 @@ export async function POST(request: Request) {
           category: node.category,
           progress,
         };
-      }).filter(skill => skill.progress > 0); // Only include skills with progress
+      }).filter(skill => skill.progress > 0);
 
       if (skills.length > 0) {
         careerSkillData.push({
@@ -150,23 +139,13 @@ export async function POST(request: Request) {
       }
     }
 
-    // Check if user has any skills
-    const totalSkills = careerSkillData.reduce((sum, career) => sum + career.skills.length, 0);
-    if (totalSkills === 0) {
-      return NextResponse.json(
-        { error: 'No skills found. Please add some skills to your career maps first.' },
-        { status: 400 }
-      );
-    }
-
     // Analyze job requirements if job info provided
     let jobRequirements: JobRequirements | null = null;
 
     if (jobUrl) {
       try {
-        // Fetch and parse job URL
         const parsed = await parseURL(jobUrl);
-        if (parsed.content && parsed.content.length > 50) {
+        if (parsed.content && parsed.content.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
           jobRequirements = await analyzeJobPosting(parsed.content, jobTitle, locale as Locale);
         }
       } catch {
@@ -176,63 +155,38 @@ export async function POST(request: Request) {
         }
       }
     } else if (jobTitle) {
-      // Use job title for requirements inference
       jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
     }
 
-    // Optimize and translate content in parallel
-    // This applies: Impact Upgrade, ATS Optimization, Clarity & Tightening, Translation
-    let optimizedExperience: OptimizedExperience[] = [];
-    let optimizedEducation: OptimizedEducation[] = [];
-    let optimizedProjects: OptimizedProject[] = [];
+    // Fetch company info if URL provided
+    let companyInfo: string | null = null;
+    if (companyUrl) {
+      try {
+        const parsed = await parseURL(companyUrl);
+        if (parsed.content && parsed.content.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
+          companyInfo = parsed.content;
+        }
+      } catch {
+        // Company URL parsing failed - continue without company info
+      }
+    }
 
-    const [experienceResult, educationResult, projectsResult, resumeContent] = await Promise.all([
-      // Optimize experience if user has any
-      userProfile.experience.length > 0
-        ? optimizeExperience(userProfile.experience, jobRequirements, locale as Locale)
-        : Promise.resolve([]),
-      // Translate education if user has any
-      userProfile.education && userProfile.education.length > 0
-        ? optimizeEducation(userProfile.education, locale as Locale)
-        : Promise.resolve([]),
-      // Translate projects if user has any
-      userProfile.projects && userProfile.projects.length > 0
-        ? optimizeProjects(userProfile.projects, locale as Locale)
-        : Promise.resolve([]),
-      // Generate resume content with strength highlighting
-      generateResumeContent(userProfile, careerSkillData, jobRequirements, locale as Locale),
-    ]);
-
-    optimizedExperience = experienceResult;
-    optimizedEducation = educationResult;
-    optimizedProjects = projectsResult;
-
-    // Calculate stats
-    const masteredSkills = careerSkillData.reduce(
-      (sum, career) => sum + career.skills.filter(s => s.progress >= SKILL_PASS_THRESHOLD).length,
-      0
+    // Generate cover letter
+    const coverLetterContent = await generateCoverLetter(
+      userProfile,
+      careerSkillData,
+      jobRequirements,
+      companyInfo,
+      locale as Locale
     );
 
     // Deduct credits after successful generation
     const deductResult = await deductCredits(userId, 'resume_generate', {
+      type: 'cover_letter',
       locale,
       jobTitle,
       hasJobUrl: !!jobUrl,
     });
-
-    // Check if resume should have watermark based on subscription
-    const hasWatermark = await shouldHaveWatermark(userId);
-
-    // Use optimized content if available, fallback to original
-    const finalExperience = optimizedExperience.length > 0
-      ? optimizedExperience
-      : userProfile.experience;
-    const finalEducation = optimizedEducation.length > 0
-      ? optimizedEducation
-      : userProfile.education;
-    const finalProjects = optimizedProjects.length > 0
-      ? optimizedProjects
-      : userProfile.projects;
 
     return NextResponse.json({
       success: true,
@@ -240,29 +194,17 @@ export async function POST(request: Request) {
         profile: {
           name: userProfile.name,
           email: userProfile.email,
-          phone: userProfile.phone,
-          address: userProfile.address,
-          bio: userProfile.bio,
         },
-        experience: finalExperience,
-        projects: finalProjects,
-        education: finalEducation,
-        resumeContent,
+        coverLetterContent,
         jobRequirements,
-        hasWatermark,
-        stats: {
-          totalSkills,
-          masteredSkills,
-          careerCount: careerSkillData.length,
-        },
       },
       credits: { balance: deductResult.newBalance },
     });
 
   } catch (error) {
-    console.error('Resume generation error:', error);
+    console.error('Cover letter generation error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate resume' },
+      { error: 'Failed to generate cover letter' },
       { status: 500 }
     );
   }

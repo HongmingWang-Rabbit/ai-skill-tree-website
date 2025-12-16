@@ -43,7 +43,7 @@
       "step2Title": "可视化",
       "step2Description": "看着你的技能转化为交互式地图。发现差距、追踪进度、发现技能关联。",
       "step3Title": "导出",
-      "step3Description": "为任何职位创建 AI 定制简历。只需粘贴招聘链接，几秒钟即可获得定制 PDF。"
+      "step3Description": "创建中英日三语 AI 定制简历和求职信。只需粘贴招聘链接，几秒钟即可获得专业文档。"
     },
     "features": {
       "title": "你需要的一切",
@@ -56,8 +56,8 @@
         "description": "可视化任何职业路径所需的技能"
       },
       "resume": {
-        "title": "智能简历生成",
-        "description": "AI 定制的 PDF，匹配职位要求"
+        "title": "多语言简历与求职信",
+        "description": "中英日三语 AI 定制简历和个性化求职信"
       },
       "education": {
         "title": "教育与认证",
@@ -172,6 +172,7 @@
     "saving": "保存中...",
     "manageExperience": "工作经历",
     "exportResume": "导出简历",
+    "generateCoverLetter": "求职信",
     "experienceTitle": "工作经历",
     "addExperience": "添加经历",
     "editExperience": "编辑",
@@ -422,7 +423,43 @@
     "pdfOptions": "PDF选项",
     "showWatermark": "显示水印",
     "showFooter": "显示页脚文字",
-    "subscriberOnly": "Pro"
+    "subscriberOnly": "Pro",
+    "outputLanguageLabel": "输出语言",
+    "includeCoverLetter": "包含求职信",
+    "companyUrlLabel": "公司网站（可选）",
+    "companyUrlPlaceholder": "https://company.com/about",
+    "companyUrlHelp": "帮助根据公司信息个性化求职信",
+    "generatingCoverLetter": "同时生成求职信...",
+    "coverLetterGenerateFailed": "生成求职信失败",
+    "resumeTab": "简历",
+    "coverLetterTab": "求职信",
+    "keyStrengths": "核心优势",
+    "coverLetterPreview": "求职信预览",
+    "downloadZip": "下载ZIP",
+    "downloadFailed": "下载失败，请重试。"
+  },
+  "coverLetter": {
+    "modalTitle": "生成求职信",
+    "modalSubtitle": "创建针对特定职位的个性化求职信。提供职位详情以获得最佳效果。",
+    "jobTitleLabel": "目标职位",
+    "jobTitlePlaceholder": "例如：高级软件工程师",
+    "jobUrlLabel": "招聘信息链接（可选）",
+    "jobUrlPlaceholder": "https://example.com/job-posting",
+    "companyUrlLabel": "公司网站（可选）",
+    "companyUrlPlaceholder": "https://company.com/about",
+    "companyUrlHelp": "帮助根据公司具体信息个性化求职信",
+    "outputLanguageLabel": "输出语言",
+    "generateButton": "生成求职信",
+    "generating": "正在撰写求职信...",
+    "analyzingJob": "正在分析职位要求...",
+    "generateFailed": "生成求职信失败，请重试。",
+    "targetJob": "目标职位",
+    "keyStrengths": "突出的核心优势",
+    "preview": "求职信预览",
+    "companyConnection": "为什么选择这家公司",
+    "back": "返回",
+    "copyToClipboard": "复制到剪贴板",
+    "copied": "已复制！"
   },
   "learning": {
     "title": "学习 {skill}",

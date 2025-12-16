@@ -5,6 +5,7 @@ import { ResumePDF } from './ResumePDF';
 import { type ResumeContent } from '@/lib/ai-resume';
 import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
 import { DownloadIcon } from '@/components/ui';
+import { type Locale } from '@/i18n/routing';
 
 export interface PDFDownloadButtonProps {
   userName: string;
@@ -20,6 +21,7 @@ export interface PDFDownloadButtonProps {
   showFooter?: boolean;
   fileName: string;
   buttonText: string;
+  locale?: Locale;
 }
 
 export function PDFDownloadButton({
@@ -36,6 +38,7 @@ export function PDFDownloadButton({
   showFooter = true,
   fileName,
   buttonText,
+  locale = 'en',
 }: PDFDownloadButtonProps) {
   return (
     <PDFDownloadLink
@@ -52,6 +55,7 @@ export function PDFDownloadButton({
           targetJob={targetJob}
           hasWatermark={hasWatermark}
           showFooter={showFooter}
+          locale={locale}
         />
       }
       fileName={fileName}

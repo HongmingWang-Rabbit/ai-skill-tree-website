@@ -42,11 +42,13 @@ import { DropdownMenu } from '@/components/ui';
 
 ## Key Files
 
-- `lib/constants.ts` - All constants (routes, billing, configs)
+- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `PDF_FONT_CONFIG`, `PDF_STYLES`)
 - `lib/schemas.ts` - Zod schemas and shared types
+- `lib/ai-resume.ts` - Resume/cover letter AI: `analyzeJobPosting()`, `optimizeExperience()`, `optimizeEducation()`, `optimizeProjects()`, `generateResumeContent()`, `generateCoverLetter()`
 - `lib/credits.ts` - Credit management
 - `lib/auth.ts` - NextAuth (Google, Twitter, WeChat, Web3)
 - `hooks/useQueryHooks.ts` - React Query hooks
+- `components/resume/pdfFonts.ts` - Centralized PDF font/hyphenation setup (use `initializePDFFonts()` in PDF components)
 
 ## Before Completing Tasks
 

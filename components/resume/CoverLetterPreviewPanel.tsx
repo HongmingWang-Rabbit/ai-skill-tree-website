@@ -1,41 +1,34 @@
 'use client';
 
 import { PDFViewer } from '@react-pdf/renderer';
-import { ResumePDF } from './ResumePDF';
-import { type ResumeContent } from '@/lib/ai-resume';
-import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
+import { CoverLetterPDF } from './CoverLetterPDF';
+import { type CoverLetterContent } from '@/lib/ai-resume';
 import { type Locale } from '@/i18n/routing';
 import { PDF_STYLES } from '@/lib/constants';
 
-export interface PDFPreviewPanelProps {
+export interface CoverLetterPreviewPanelProps {
   userName: string;
   email: string;
   phone?: string;
-  address?: UserAddress;
-  resumeContent: ResumeContent;
-  experience: WorkExperience[];
-  projects?: Project[];
-  education?: Education[];
-  targetJob?: string;
+  coverLetterContent: CoverLetterContent;
+  targetJob?: string | null;
+  companyName?: string | null;
   hasWatermark?: boolean;
   showFooter?: boolean;
   locale?: Locale;
 }
 
-export function PDFPreviewPanel({
+export function CoverLetterPreviewPanel({
   userName,
   email,
   phone,
-  address,
-  resumeContent,
-  experience,
-  projects,
-  education,
+  coverLetterContent,
   targetJob,
+  companyName,
   hasWatermark = false,
   showFooter = true,
   locale = 'en',
-}: PDFPreviewPanelProps) {
+}: CoverLetterPreviewPanelProps) {
   return (
     <PDFViewer
       style={{
@@ -46,16 +39,13 @@ export function PDFPreviewPanel({
       }}
       showToolbar={false}
     >
-      <ResumePDF
+      <CoverLetterPDF
         userName={userName}
         email={email}
         phone={phone}
-        address={address}
-        resumeContent={resumeContent}
-        experience={experience}
-        projects={projects}
-        education={education}
+        coverLetterContent={coverLetterContent}
         targetJob={targetJob}
+        companyName={companyName}
         hasWatermark={hasWatermark}
         showFooter={showFooter}
         locale={locale}
