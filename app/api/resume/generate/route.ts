@@ -10,9 +10,11 @@ import {
   analyzeJobPosting,
   analyzeJobTitle,
   generateResumeContent,
+  optimizeExperience,
   type CareerSkillData,
   type UserProfile,
   type JobRequirements,
+  type OptimizedExperience,
 } from '@/lib/ai-resume';
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
@@ -164,13 +166,20 @@ export async function POST(request: Request) {
       jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
     }
 
-    // Generate resume content
-    const resumeContent = await generateResumeContent(
-      userProfile,
-      careerSkillData,
-      jobRequirements,
-      locale as Locale
-    );
+    // Optimize work experience descriptions (parallel with resume content)
+    // This applies: Impact Upgrade, ATS Optimization, Clarity & Tightening
+    let optimizedExperience: OptimizedExperience[] = [];
+
+    const [experienceResult, resumeContent] = await Promise.all([
+      // Optimize experience if user has any
+      userProfile.experience.length > 0
+        ? optimizeExperience(userProfile.experience, jobRequirements, locale as Locale)
+        : Promise.resolve([]),
+      // Generate resume content with strength highlighting
+      generateResumeContent(userProfile, careerSkillData, jobRequirements, locale as Locale),
+    ]);
+
+    optimizedExperience = experienceResult;
 
     // Calculate stats
     const masteredSkills = careerSkillData.reduce(
@@ -188,6 +197,11 @@ export async function POST(request: Request) {
     // Check if resume should have watermark based on subscription
     const hasWatermark = await shouldHaveWatermark(userId);
 
+    // Use optimized experience if available, fallback to original
+    const finalExperience = optimizedExperience.length > 0
+      ? optimizedExperience
+      : userProfile.experience;
+
     return NextResponse.json({
       success: true,
       data: {
@@ -198,7 +212,7 @@ export async function POST(request: Request) {
           address: userProfile.address,
           bio: userProfile.bio,
         },
-        experience: userProfile.experience,
+        experience: finalExperience,
         projects: userProfile.projects,
         education: userProfile.education,
         resumeContent,
