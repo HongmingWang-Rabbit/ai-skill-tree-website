@@ -1,0 +1,12 @@
+{
+  "accountStatus": "账户状态",
+  "credits": "积分",
+  "plan": "套餐",
+  "skillMaps": "技能地图",
+  "buyCredits": "购买更多积分",
+  "upgradePlan": "升级套餐",
+  "managePlan": "管理套餐",
+  "renewsOn": "续费日期",
+  "expiresOn": "到期日期",
+  "mapLimitReached": "升级解锁无限地图"
+}

@@ -1,0 +1,59 @@
+{
+  "title": "Choose Your Plan",
+  "subtitle": "Start free and scale as you grow. All plans include AI-powered skill mapping.",
+  "monthly": "Monthly",
+  "yearly": "Yearly",
+  "yearlyDiscount": "Save 20%",
+  "currentPlan": "Current Plan",
+  "subscribe": "Subscribe",
+  "getStarted": "Get Started",
+  "mostPopular": "Most Popular",
+  "perMonth": "/month",
+  "perYear": "/year",
+  "free": {
+    "name": "Free",
+    "description": "Perfect for getting started",
+    "features": ["500 credits on signup", "1 skill map", "AI career generation", "Basic resume export", "Watermark on exports"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "For active learners",
+    "features": ["Everything in Free", "1,000 monthly credits", "Unlimited skill maps", "No watermarks", "Priority support"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "For professionals",
+    "features": ["Everything in Pro", "3,000 monthly credits", "Advanced AI features", "Export to multiple formats", "Dedicated support"]
+  },
+  "creditsTitle": "Need More Credits?",
+  "creditsSubtitle": "Purchase credit packs for additional AI operations",
+  "credits500": "500 Credits",
+  "credits2000": "2,000 Credits",
+  "credits2000Save": "Save 10%",
+  "credits5000": "5,000 Credits",
+  "credits5000Save": "Save 20%",
+  "buyNow": "Buy Now",
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "q1": "What are credits?",
+    "a1": "Credits are used for AI operations like generating skill maps, analyzing careers, importing documents, and creating resumes. Each operation costs a certain number of credits.",
+    "q2": "Do credits expire?",
+    "a2": "No, purchased credits never expire. Monthly subscription credits reset each billing cycle.",
+    "q3": "Can I cancel anytime?",
+    "a3": "Yes, you can cancel your subscription at any time. You'll keep access until the end of your billing period."
+  },
+  "manageBilling": "Manage Billing",
+  "signInRequired": "Please sign in to manage your subscription",
+  "currentStatus": "Your Current Plan",
+  "subscription": "Subscription",
+  "creditsBalance": "Credits Balance",
+  "creditsAvailable": "credits available",
+  "manageSubscription": "Cancel or Change Plan",
+  "updatePaymentMethod": "Update Payment Method",
+  "renewsOn": "Renews on",
+  "expiresOn": "Expires on",
+  "planUpdated": "Your plan has been updated successfully!",
+  "priceNotConfigured": "Price not configured",
+  "checkoutFailed": "Failed to start checkout",
+  "portalFailed": "Failed to open billing portal"
+}

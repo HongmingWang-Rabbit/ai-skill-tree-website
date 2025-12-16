@@ -1,0 +1,11 @@
+{
+  "title": "Learn {skill}",
+  "subtitle": "Resources to help you master this skill",
+  "searching": "Finding learning resources...",
+  "fetchFailed": "Failed to load resources. Please try again.",
+  "tryAgain": "Try Again",
+  "recommended": "Recommended Resources",
+  "moreResources": "More Resources",
+  "noResults": "No resources found. Try searching on Google for tutorials.",
+  "startLearning": "Start Learning"
+}

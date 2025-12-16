@@ -1,0 +1,17 @@
+{
+  "appName": "个人技能地图",
+  "home": "首页",
+  "dashboard": "仪表盘",
+  "explore": "探索",
+  "signIn": "登录",
+  "signOut": "退出",
+  "profile": "个人资料",
+  "billing": "订阅管理",
+  "loading": "加载中...",
+  "error": "错误",
+  "goBack": "返回",
+  "goBackHome": "返回首页",
+  "saved": "已保存",
+  "saving": "保存中...",
+  "cancel": "取消"
+}

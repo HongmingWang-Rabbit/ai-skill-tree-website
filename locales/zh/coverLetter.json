@@ -1,0 +1,23 @@
+{
+  "modalTitle": "生成求职信",
+  "modalSubtitle": "创建针对特定职位的个性化求职信。提供职位详情以获得最佳效果。",
+  "jobTitleLabel": "目标职位",
+  "jobTitlePlaceholder": "例如：高级软件工程师",
+  "jobUrlLabel": "招聘信息链接（可选）",
+  "jobUrlPlaceholder": "https://example.com/job-posting",
+  "companyUrlLabel": "公司网站（可选）",
+  "companyUrlPlaceholder": "https://company.com/about",
+  "companyUrlHelp": "帮助根据公司具体信息个性化求职信",
+  "outputLanguageLabel": "输出语言",
+  "generateButton": "生成求职信",
+  "generating": "正在撰写求职信...",
+  "analyzingJob": "正在分析职位要求...",
+  "generateFailed": "生成求职信失败，请重试。",
+  "targetJob": "目标职位",
+  "keyStrengths": "突出的核心优势",
+  "preview": "求职信预览",
+  "companyConnection": "为什么选择这家公司",
+  "back": "返回",
+  "copyToClipboard": "复制到剪贴板",
+  "copied": "已复制！"
+}

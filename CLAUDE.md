@@ -54,7 +54,7 @@ import { DropdownMenu } from '@/components/ui';
 
 1. No hardcoded values (use constants)
 2. No temp code, unnecessary logs, or comments
-3. Update `messages/*.json` for new UI strings
+3. Update `locales/{en,zh,ja}/*.json` for new UI strings
 
 ## Detailed Docs
 

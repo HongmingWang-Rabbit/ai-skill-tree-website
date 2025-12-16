@@ -1,0 +1,23 @@
+{
+  "modalTitle": "カバーレターを生成",
+  "modalSubtitle": "特定の職種に合わせたパーソナライズされたカバーレターを作成します。最良の結果を得るために職種の詳細を入力してください。",
+  "jobTitleLabel": "対象職種",
+  "jobTitlePlaceholder": "例：シニアソフトウェアエンジニア",
+  "jobUrlLabel": "求人情報URL（任意）",
+  "jobUrlPlaceholder": "https://example.com/job-posting",
+  "companyUrlLabel": "会社ウェブサイト（任意）",
+  "companyUrlPlaceholder": "https://company.com/about",
+  "companyUrlHelp": "企業固有の詳細でレターをパーソナライズするのに役立ちます",
+  "outputLanguageLabel": "出力言語",
+  "generateButton": "カバーレターを生成",
+  "generating": "カバーレターを作成中...",
+  "analyzingJob": "求人要件を分析中...",
+  "generateFailed": "カバーレターの生成に失敗しました。もう一度お試しください。",
+  "targetJob": "対象職種",
+  "keyStrengths": "強調される主な強み",
+  "preview": "カバーレタープレビュー",
+  "companyConnection": "この会社を選ぶ理由",
+  "back": "戻る",
+  "copyToClipboard": "クリップボードにコピー",
+  "copied": "コピーしました！"
+}

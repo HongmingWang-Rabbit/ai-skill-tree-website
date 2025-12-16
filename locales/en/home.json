@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Your Personal Skill Map",
+    "subtitle": "Build your career roadmap. Import skills from your resume or explore any career path. Visualize progress and generate tailored resumes.",
+    "importLabel": "Have a resume?",
+    "importCta": "Import Skills",
+    "exploreLabel": "Or explore careers",
+    "searchPlaceholder": "Try \"Software Engineer\" or \"I want to work remotely\""
+  },
+  "twoPaths": {
+    "importTitle": "Start from Your Resume",
+    "importDescription": "Already have a resume or LinkedIn profile? Let AI extract your existing skills and build your map automatically.",
+    "importCta": "Upload Document",
+    "exploreTitle": "Explore Career Paths",
+    "exploreDescription": "Discover what skills you need for any career. Search thousands of roles and see the complete skill map.",
+    "exploreCta": "Search Careers"
+  },
+  "workflow": {
+    "title": "How It Works",
+    "step1Title": "Import",
+    "step1Description": "Upload any document - PDF, Word, images, or paste a LinkedIn URL. Our AI extracts skills, contact info, education, experience, projects, and professional summary.",
+    "step2Title": "Visualize",
+    "step2Description": "Watch your skills transform into an interactive map. Identify gaps, track progress, and discover connections.",
+    "step3Title": "Export",
+    "step3Description": "Create AI-tailored resumes and cover letters in English, Chinese, or Japanese. Paste a job posting URL and get professional documents in seconds."
+  },
+  "features": {
+    "title": "Everything You Need",
+    "import": {
+      "title": "Import from Anywhere",
+      "description": "PDF resumes, Word docs, images, LinkedIn, GitHub, and more"
+    },
+    "skillMaps": {
+      "title": "AI-Generated Skill Maps",
+      "description": "Visualize skills needed for any career path"
+    },
+    "resume": {
+      "title": "Multilingual Resume & Cover Letter",
+      "description": "AI-tailored resumes and cover letters in English, Chinese, and Japanese"
+    },
+    "education": {
+      "title": "Education & Credentials",
+      "description": "Keep degrees and certifications alongside work history"
+    },
+    "chat": {
+      "title": "AI Chat Assistant",
+      "description": "Modify your skill map with natural language"
+    },
+    "universe": {
+      "title": "Skill Universe Dashboard",
+      "description": "See all your skills across every career path"
+    },
+    "share": {
+      "title": "Share Your Progress",
+      "description": "Public skill maps with unique URLs"
+    }
+  },
+  "demo": {
+    "title": "See Your Skills Come to Life",
+    "description": "Here's what a skill map looks like. Yours is waiting to be discovered.",
+    "cta": "Create Yours Now",
+    "coreSkill": "Your Career",
+    "relatedSkill": "Skill"
+  },
+  "stats": {
+    "skillsMapped": "Skills Mapped",
+    "careerPaths": "Career Paths",
+    "resumesGenerated": "Resumes Generated",
+    "fileTypes": "Supported File Types"
+  },
+  "secondaryCta": {
+    "title": "Explore Career Paths",
+    "description": "Search for any career and discover the skills you need to succeed. AI generates comprehensive skill maps for thousands of roles.",
+    "searchPlaceholder": "Try \"Software Engineer\" or \"I want to work remotely\"",
+    "popularCareers": "Popular careers to explore"
+  },
+  "footer": "Built with Next.js, React Flow, and OpenAI.",
+  "footerPowered": "Powered by AI skill map generation.",
+  "suggestions": {
+    "title": "Career Suggestions",
+    "subtitle": "Based on your preferences, here are some careers you might enjoy:"
+  }
+}

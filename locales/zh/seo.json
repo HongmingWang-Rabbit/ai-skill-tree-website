@@ -1,0 +1,11 @@
+{
+  "title": "个人技能地图 - AI驱动的职业技能图谱",
+  "description": "使用AI生成的技能地图发现并可视化你的职业道路。探索掌握梦想职业所需的技能。",
+  "keywords": "职业技能, 技能地图, 职业路径, AI学习, 个人发展, 职业成长, 技能树",
+  "dashboardTitle": "仪表盘 - 个人技能地图",
+  "dashboardDescription": "追踪你的技能进度并管理你的职业道路。查看你的个性化技能地图和学习旅程。",
+  "careerTitle": "{career}技能地图 - 个人技能地图",
+  "careerDescription": "探索{career}的完整技能地图。发现你需要掌握的技能并追踪你的进度。",
+  "pricingTitle": "定价 - 个人技能地图",
+  "pricingDescription": "选择您的方案，解锁无限技能地图、AI功能和专业简历导出。免费开始或升级获取更多功能。"
+}

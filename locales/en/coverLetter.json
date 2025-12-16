@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Generate Cover Letter",
+  "modalSubtitle": "Create a personalized cover letter tailored to a specific job. Provide job details for best results.",
+  "jobTitleLabel": "Target Job Title",
+  "jobTitlePlaceholder": "e.g., Senior Software Engineer",
+  "jobUrlLabel": "Job Posting URL (optional)",
+  "jobUrlPlaceholder": "https://example.com/job-posting",
+  "companyUrlLabel": "Company Website (optional)",
+  "companyUrlPlaceholder": "https://company.com/about",
+  "companyUrlHelp": "Helps personalize the letter with company-specific details",
+  "outputLanguageLabel": "Output Language",
+  "generateButton": "Generate Cover Letter",
+  "generating": "Crafting your cover letter...",
+  "analyzingJob": "Analyzing job requirements...",
+  "generateFailed": "Failed to generate cover letter. Please try again.",
+  "targetJob": "Tailored for",
+  "keyStrengths": "Key Strengths Highlighted",
+  "preview": "Cover Letter Preview",
+  "companyConnection": "Why This Company",
+  "back": "Back",
+  "copyToClipboard": "Copy to Clipboard",
+  "copied": "Copied!"
+}

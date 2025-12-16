@@ -1,0 +1,17 @@
+{
+  "appName": "Personal Skill Map",
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "explore": "Explore",
+  "signIn": "Sign In",
+  "signOut": "Sign Out",
+  "profile": "Profile",
+  "billing": "Billing",
+  "loading": "Loading...",
+  "error": "Error",
+  "goBack": "Go Back",
+  "goBackHome": "Go Back Home",
+  "saved": "Saved",
+  "saving": "Saving...",
+  "cancel": "Cancel"
+}

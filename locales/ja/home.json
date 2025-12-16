@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "あなたのスキルマップ",
+    "subtitle": "キャリアロードマップを構築。履歴書からスキルをインポート、または任意のキャリアパスを探索。進捗を可視化し、カスタマイズされた履歴書を生成。",
+    "importLabel": "履歴書をお持ちですか？",
+    "importCta": "スキルをインポート",
+    "exploreLabel": "またはキャリアを探索",
+    "searchPlaceholder": "「ソフトウェアエンジニア」や「リモートで働きたい」を試してください"
+  },
+  "twoPaths": {
+    "importTitle": "履歴書から始める",
+    "importDescription": "履歴書やLinkedInプロフィールがありますか？AIが既存のスキルを自動抽出してマップを構築します。",
+    "importCta": "ドキュメントをアップロード",
+    "exploreTitle": "キャリアパスを探索",
+    "exploreDescription": "あらゆるキャリアに必要なスキルを発見。数千の職種を検索して完全なスキルマップを確認。",
+    "exploreCta": "キャリアを検索"
+  },
+  "workflow": {
+    "title": "仕組み",
+    "step1Title": "インポート",
+    "step1Description": "任意のドキュメントをアップロード - PDF、Word、画像、またはLinkedIn URLを貼り付け。AIがスキル、連絡先情報、学歴、職務経歴、プロジェクト、自己紹介を抽出します。",
+    "step2Title": "可視化",
+    "step2Description": "スキルがインタラクティブなマップに変換されるのを確認。ギャップを特定し、進捗を追跡し、スキルの関連性を発見。",
+    "step3Title": "エクスポート",
+    "step3Description": "英語・中国語・日本語でAIカスタマイズの履歴書とカバーレターを作成。求人URLを貼り付けるだけで数秒でプロフェッショナルな文書を取得。"
+  },
+  "features": {
+    "title": "必要なものすべて",
+    "import": {
+      "title": "あらゆるソースからインポート",
+      "description": "PDF履歴書、Wordドキュメント、画像、LinkedIn、GitHubなど"
+    },
+    "skillMaps": {
+      "title": "AI生成スキルマップ",
+      "description": "あらゆるキャリアパスに必要なスキルを可視化"
+    },
+    "resume": {
+      "title": "多言語履歴書・カバーレター",
+      "description": "英・中・日対応のAIカスタマイズ履歴書とカバーレター"
+    },
+    "education": {
+      "title": "学歴・資格",
+      "description": "学位や資格を職歴と一緒に管理"
+    },
+    "chat": {
+      "title": "AIチャットアシスタント",
+      "description": "自然言語でスキルマップを編集"
+    },
+    "universe": {
+      "title": "スキルユニバースダッシュボード",
+      "description": "すべてのキャリアパスの全スキルを一覧"
+    },
+    "share": {
+      "title": "進捗を共有",
+      "description": "ユニークURLで公開スキルマップ"
+    }
+  },
+  "demo": {
+    "title": "スキルが動き出す",
+    "description": "スキルマップはこのように表示されます。あなたのマップが発見を待っています。",
+    "cta": "今すぐ作成",
+    "coreSkill": "あなたのキャリア",
+    "relatedSkill": "スキル"
+  },
+  "stats": {
+    "skillsMapped": "マッピング済みスキル",
+    "careerPaths": "キャリアパス",
+    "resumesGenerated": "生成済み履歴書",
+    "fileTypes": "対応ファイル形式"
+  },
+  "secondaryCta": {
+    "title": "キャリアパスを探索",
+    "description": "任意のキャリアを検索して成功に必要なスキルを発見。AIが数千の職種の包括的なスキルマップを生成します。",
+    "searchPlaceholder": "「ソフトウェアエンジニア」や「リモートで働きたい」を試す",
+    "popularCareers": "人気のキャリア"
+  },
+  "footer": "Next.js、React Flow、OpenAIで構築。",
+  "footerPowered": "AIスキルマップ生成技術で駆動。",
+  "suggestions": {
+    "title": "キャリア提案",
+    "subtitle": "あなたの希望に基づいて、おすすめのキャリアをご紹介します："
+  }
+}
