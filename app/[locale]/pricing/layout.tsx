@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { locales, defaultLocale } from '@/i18n/routing';
-import { SITE_URL } from '@/lib/constants';
+import { locales, getLocaleUrl } from '@/i18n/routing';
+import { SITE_URL, APP_NAME } from '@/lib/constants';
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -15,25 +15,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = t('pricingTitle');
   const description = t('pricingDescription');
 
-  // Generate alternate language links
+  // Generate alternate language links (respects as-needed locale prefix)
   const languages: Record<string, string> = {};
   for (const loc of locales) {
-    languages[loc] = `${SITE_URL}/${loc}/pricing`;
+    languages[loc] = getLocaleUrl(SITE_URL, loc, '/pricing');
   }
-  languages['x-default'] = `${SITE_URL}/${defaultLocale}/pricing`;
+  // x-default points to English version (root URL for default locale)
+  languages['x-default'] = getLocaleUrl(SITE_URL, 'en', '/pricing');
+
+  const currentUrl = getLocaleUrl(SITE_URL, locale, '/pricing');
 
   return {
     title,
     description,
     alternates: {
-      canonical: `${SITE_URL}/${locale}/pricing`,
+      canonical: currentUrl,
       languages,
     },
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}/${locale}/pricing`,
-      siteName: 'Personal Skill Map',
+      url: currentUrl,
+      siteName: APP_NAME,
       type: 'website',
     },
     twitter: {

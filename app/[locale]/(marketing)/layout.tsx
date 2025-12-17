@@ -1,4 +1,5 @@
 import { JsonLd } from '@/components/seo';
+import { getLocaleUrl } from '@/i18n/routing';
 import { SITE_URL, SEO_CONFIG } from '@/lib/constants';
 
 interface MarketingLayoutProps {
@@ -8,6 +9,7 @@ interface MarketingLayoutProps {
 
 export default async function MarketingLayout({ children, params }: MarketingLayoutProps) {
   const { locale } = await params;
+  const baseUrl = getLocaleUrl(SITE_URL, locale);
 
   return (
     <>
@@ -26,7 +28,7 @@ export default async function MarketingLayout({ children, params }: MarketingLay
           howToDescription: SEO_CONFIG.howToMeta.description,
           howToSteps: SEO_CONFIG.howToSteps.map((step, index) => ({
             ...step,
-            url: `${SITE_URL}/${locale}#step-${index + 1}`,
+            url: `${baseUrl}#step-${index + 1}`,
           })),
         }}
       />

@@ -2,7 +2,7 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { routing, locales, defaultLocale, getOgLocale } from '@/i18n/routing';
+import { routing, locales, getOgLocale, getLocaleUrl } from '@/i18n/routing';
 import { AuthProvider, Web3Provider, QueryProvider } from '@/components/providers';
 import { Header } from '@/components/layout';
 import { JsonLd, OrganizationJsonLd, SoftwareAppJsonLd } from '@/components/seo';
@@ -21,25 +21,28 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'seo' });
 
-  // Generate alternate language links for hreflang
+  // Generate alternate language links for hreflang (respects as-needed locale prefix)
   const languages: Record<string, string> = {};
   for (const loc of locales) {
-    languages[loc] = `${SITE_URL}/${loc}`;
+    languages[loc] = getLocaleUrl(SITE_URL, loc);
   }
-  languages['x-default'] = `${SITE_URL}/${defaultLocale}`;
+  // x-default points to root URL (English content without locale prefix)
+  languages['x-default'] = SITE_URL.endsWith('/') ? SITE_URL.slice(0, -1) : SITE_URL;
+
+  const currentUrl = getLocaleUrl(SITE_URL, locale);
 
   return {
     title: t('title'),
     description: t('description'),
     keywords: t('keywords'),
     alternates: {
-      canonical: `${SITE_URL}/${locale}`,
+      canonical: currentUrl,
       languages,
     },
     openGraph: {
       title: t('title'),
       description: t('description'),
-      url: `${SITE_URL}/${locale}`,
+      url: currentUrl,
       locale: getOgLocale(locale),
       alternateLocale: locales
         .filter((l) => l !== locale)

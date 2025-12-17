@@ -42,20 +42,42 @@ export function getOgLocale(locale: string): string {
 }
 
 /**
- * Constructs a locale-prefixed path for use in auth callbacks (signIn/signOut).
- * Use this when next-intl's Link/router can't be used (e.g., NextAuth callbacks).
+ * Constructs a locale-prefixed path respecting the 'as-needed' locale prefix mode.
+ * Default locale (English) gets no prefix; other locales get /{locale} prefix.
+ * Use this when next-intl's Link/router can't be used (e.g., NextAuth callbacks, metadata).
  * @param locale - Current locale (from useLocale())
  * @param path - Path to prefix (should start with "/", e.g., "/dashboard")
- * @returns Locale-prefixed path (e.g., "/zh/dashboard")
+ * @returns Path with locale prefix only for non-default locales
  */
 export function getLocalePath(locale: string, path: string = '/'): string {
-  // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  // For root path, just return /{locale}
+  // Default locale: no prefix (as-needed mode)
+  if (locale === defaultLocale) {
+    return normalizedPath;
+  }
+  // Other locales: add prefix
   if (normalizedPath === '/') {
     return `/${locale}`;
   }
   return `/${locale}${normalizedPath}`;
+}
+
+/**
+ * Constructs a full URL with locale prefix respecting the 'as-needed' mode.
+ * Default locale (English) uses root URL; other locales get /{locale} prefix.
+ * @param baseUrl - Base URL (e.g., SITE_URL)
+ * @param locale - Locale code
+ * @param path - Optional path (should start with "/")
+ * @returns Full URL with appropriate locale prefix
+ */
+export function getLocaleUrl(baseUrl: string, locale: string, path: string = ''): string {
+  // Ensure baseUrl doesn't have trailing slash
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
+  if (locale === defaultLocale) {
+    return path ? `${cleanBaseUrl}${path}` : cleanBaseUrl;
+  }
+  return `${cleanBaseUrl}/${locale}${path}`;
 }
 
 export const routing = defineRouting({

@@ -1,16 +1,12 @@
 import { MetadataRoute } from 'next';
-import { locales, defaultLocale } from '@/i18n/routing';
+import { locales, getLocaleUrl as getLocaleUrlBase } from '@/i18n/routing';
 import { db } from '@/lib/db';
 import { careers } from '@/lib/db/schema';
 import { SITE_URL } from '@/lib/constants';
 
-// Helper to get URL for a locale (root for default, prefixed for others)
-function getLocaleUrl(locale: string, path: string = ''): string {
-  if (locale === defaultLocale) {
-    return path ? `${SITE_URL}${path}` : SITE_URL;
-  }
-  return `${SITE_URL}/${locale}${path}`;
-}
+// Bind SITE_URL to the centralized helper for convenience
+const getLocaleUrl = (locale: string, path: string = '') =>
+  getLocaleUrlBase(SITE_URL, locale, path);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];

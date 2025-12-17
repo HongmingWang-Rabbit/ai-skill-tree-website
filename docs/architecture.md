@@ -6,10 +6,16 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 
 | File | Purpose |
 |------|---------|
-| `i18n/routing.ts` | Locale config: `locales`, `i18nNamespaces`, `ogLocaleMap`, `getLocalePath()` |
+| `i18n/routing.ts` | Locale config: `locales`, `i18nNamespaces`, `ogLocaleMap`, `getLocalePath()`, `getLocaleUrl()` |
 | `i18n/request.ts` | next-intl server config, loads namespace files |
 | `i18n/navigation.ts` | Locale-aware `Link`, `useRouter`, `usePathname` |
 | `locales/{locale}/*.json` | Translation files by namespace (18 files per locale) |
+
+**Locale prefix mode:** `as-needed` - English (default) uses root URL, other locales get `/{locale}` prefix
+
+**URL Helpers:**
+- `getLocalePath(locale, path)` - Returns path with locale prefix (respects as-needed mode)
+- `getLocaleUrl(baseUrl, locale, path)` - Returns full URL with locale prefix (for metadata/sitemap)
 
 **Namespaces:** `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `skillGraph`, `aiChat`, `import`, `resume`, `coverLetter`, `learning`, `billing`, `pricing`
 

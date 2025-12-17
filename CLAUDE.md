@@ -29,13 +29,29 @@ pnpm db:studio    # Drizzle Studio GUI
 
 ```
 locales/
-├── en/           # English
-├── zh/           # Chinese
-└── ja/           # Japanese
+├── en/           # English (served at root URL)
+├── zh/           # Chinese (served at /zh/)
+└── ja/           # Japanese (served at /ja/)
     ├── common.json
     ├── home.json
     ├── dashboard.json
     └── ... (18 namespace files per locale)
+```
+
+**Locale prefix mode:** `as-needed` - English uses root URL, other locales get `/{locale}` prefix
+
+**URL helpers for metadata/sitemap:**
+```tsx
+import { getLocaleUrl, getLocalePath } from '@/i18n/routing';
+import { SITE_URL } from '@/lib/constants';
+
+// Full URLs (for metadata, sitemap, hreflang)
+getLocaleUrl(SITE_URL, 'en', '/pricing')  // → https://personalskillmap.com/pricing
+getLocaleUrl(SITE_URL, 'zh', '/pricing')  // → https://personalskillmap.com/zh/pricing
+
+// Paths (for internal navigation when next-intl Link unavailable)
+getLocalePath('en', '/dashboard')  // → /dashboard
+getLocalePath('zh', '/dashboard')  // → /zh/dashboard
 ```
 
 **Adding translations:**
@@ -67,7 +83,7 @@ import { DropdownMenu } from '@/components/ui';
 
 ## Key Files
 
-- `i18n/routing.ts` - Locales, namespaces, OG locale mapping
+- `i18n/routing.ts` - Locales, namespaces, OG locale mapping, `getLocaleUrl()`, `getLocalePath()`
 - `lib/constants.ts` - All constants (routes, billing, configs, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`)
 - `lib/schemas.ts` - Zod schemas and shared types
 - `lib/ai-resume.ts` - Resume/cover letter AI functions

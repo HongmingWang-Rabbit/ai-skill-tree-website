@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { careers, userCareerGraphs } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { SITE_URL, APP_NAME } from '@/lib/constants';
-import { locales, defaultLocale, getOgLocale } from '@/i18n/routing';
+import { locales, getOgLocale, getLocaleUrl } from '@/i18n/routing';
 import { isUUID, isShareSlug, formatCareerTitle } from '@/lib/normalize-career';
 import { JsonLd } from '@/components/seo';
 
@@ -76,24 +76,27 @@ export async function generateMetadata({
   const pageTitle = t('careerTitle', { career: title });
   const pageDescription = description || t('careerDescription', { career: title });
 
-  // Generate alternate language links
+  // Generate alternate language links (respects as-needed locale prefix)
   const languages: Record<string, string> = {};
   for (const loc of locales) {
-    languages[loc] = `${SITE_URL}/${loc}/career/${canonicalKey}`;
+    languages[loc] = getLocaleUrl(SITE_URL, loc, `/career/${canonicalKey}`);
   }
-  languages['x-default'] = `${SITE_URL}/${defaultLocale}/career/${canonicalKey}`;
+  // x-default points to English version (root URL for default locale)
+  languages['x-default'] = getLocaleUrl(SITE_URL, 'en', `/career/${canonicalKey}`);
+
+  const currentUrl = getLocaleUrl(SITE_URL, locale, `/career/${canonicalKey}`);
 
   return {
     title: pageTitle,
     description: pageDescription,
     alternates: {
-      canonical: `${SITE_URL}/${locale}/career/${canonicalKey}`,
+      canonical: currentUrl,
       languages,
     },
     openGraph: {
       title: pageTitle,
       description: pageDescription,
-      url: `${SITE_URL}/${locale}/career/${canonicalKey}`,
+      url: currentUrl,
       type: 'website',
       locale: getOgLocale(locale),
       alternateLocale: locales.filter((l) => l !== locale).map((l) => getOgLocale(l)),
@@ -128,8 +131,8 @@ export default async function CareerLayout({ children, params }: LayoutProps) {
         type="breadcrumb"
         data={{
           breadcrumbs: [
-            { name: t('home'), url: `${SITE_URL}/${locale}` },
-            { name: careerName, url: `${SITE_URL}/${locale}/career/${careerId}` },
+            { name: t('home'), url: getLocaleUrl(SITE_URL, locale) },
+            { name: careerName, url: getLocaleUrl(SITE_URL, locale, `/career/${careerId}`) },
           ],
         }}
       />

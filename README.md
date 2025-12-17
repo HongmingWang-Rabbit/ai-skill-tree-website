@@ -58,7 +58,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **PDF Generation**: @react-pdf/renderer (client-side)
 - **Styling**: Tailwind CSS v4
 - **Animation**: Framer Motion
-- **i18n**: next-intl (locale-prefixed URLs)
+- **i18n**: next-intl (as-needed locale prefix - English at root, `/zh/` and `/ja/` for others)
 - **Validation**: Zod
 - **Package Manager**: pnpm
 
@@ -154,7 +154,7 @@ An interactive web application that generates and visualizes career skill maps u
 
 ```
 ├── app/
-│   ├── [locale]/           # Locale-prefixed pages (en, zh, ja)
+│   ├── [locale]/           # Locale pages (en at root, zh/ja prefixed)
 │   │   ├── (marketing)/
 │   │   │   └── page.tsx        # Landing page (Hero, TwoPaths, Workflow, Features, Demo, Stats sections)
 │   │   ├── career/
