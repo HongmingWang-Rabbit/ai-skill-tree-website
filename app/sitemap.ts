@@ -1,8 +1,16 @@
 import { MetadataRoute } from 'next';
-import { locales } from '@/i18n/routing';
+import { locales, defaultLocale } from '@/i18n/routing';
 import { db } from '@/lib/db';
 import { careers } from '@/lib/db/schema';
 import { SITE_URL } from '@/lib/constants';
+
+// Helper to get URL for a locale (root for default, prefixed for others)
+function getLocaleUrl(locale: string, path: string = ''): string {
+  if (locale === defaultLocale) {
+    return path ? `${SITE_URL}${path}` : SITE_URL;
+  }
+  return `${SITE_URL}/${locale}${path}`;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
@@ -10,39 +18,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Add homepage for each locale
   for (const locale of locales) {
     entries.push({
-      url: `${SITE_URL}/${locale}`,
+      url: getLocaleUrl(locale),
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1.0,
       alternates: {
         languages: Object.fromEntries(
-          locales.map((l) => [l, `${SITE_URL}/${l}`])
+          locales.map((l) => [l, getLocaleUrl(l)])
         ),
       },
     });
 
     // Add dashboard page for each locale
     entries.push({
-      url: `${SITE_URL}/${locale}/dashboard`,
+      url: getLocaleUrl(locale, '/dashboard'),
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
       alternates: {
         languages: Object.fromEntries(
-          locales.map((l) => [l, `${SITE_URL}/${l}/dashboard`])
+          locales.map((l) => [l, getLocaleUrl(l, '/dashboard')])
         ),
       },
     });
 
     // Add pricing page for each locale
     entries.push({
-      url: `${SITE_URL}/${locale}/pricing`,
+      url: getLocaleUrl(locale, '/pricing'),
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
       alternates: {
         languages: Object.fromEntries(
-          locales.map((l) => [l, `${SITE_URL}/${l}/pricing`])
+          locales.map((l) => [l, getLocaleUrl(l, '/pricing')])
         ),
       },
     });
@@ -78,11 +86,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       for (const { locale } of localeData) {
         const alternateLanguages: Record<string, string> = {};
         for (const { locale: altLocale } of localeData) {
-          alternateLanguages[altLocale] = `${SITE_URL}/${altLocale}/career/${canonicalKey}`;
+          alternateLanguages[altLocale] = getLocaleUrl(altLocale, `/career/${canonicalKey}`);
         }
 
         entries.push({
-          url: `${SITE_URL}/${locale}/career/${canonicalKey}`,
+          url: getLocaleUrl(locale, `/career/${canonicalKey}`),
           lastModified: lastModified > new Date(0) ? lastModified : new Date(),
           changeFrequency: 'weekly',
           priority: 0.7,

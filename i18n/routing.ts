@@ -61,7 +61,7 @@ export function getLocalePath(locale: string, path: string = '/'): string {
 export const routing = defineRouting({
   locales,
   defaultLocale,
-  localePrefix: 'always',
+  localePrefix: 'as-needed',
   // Disable locale detection to prevent cookie-based locale from conflicting
   // with URL-based locale, which can cause hydration mismatches.
   // The locale is always determined by the URL prefix.
