@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { API_ROUTES, QUERY_CONFIG } from '@/lib/constants';
-import type { WorkExperience, Project, UserAddress, Education } from '@/lib/schemas';
+import type { WorkExperience, Project, UserAddress, Education, MapUpdateInput } from '@/lib/schemas';
 
 // ============================================
 // Types
@@ -197,6 +197,34 @@ export function useDeleteMap() {
     },
     onSuccess: () => {
       // Invalidate queries to refetch
+      queryClient.invalidateQueries({ queryKey: queryKeys.userGraphs });
+      queryClient.invalidateQueries({ queryKey: queryKeys.masterMap });
+    },
+  });
+}
+
+/**
+ * Update a skill map (title, isPublic, nodeData, customNodes, customEdges)
+ * Invalidates masterMap cache so Skill Universe updates
+ */
+export function useUpdateMap() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ mapId, updates }: { mapId: string; updates: MapUpdateInput }) => {
+      const response = await fetch(`${API_ROUTES.MAP}/${mapId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update map');
+      }
+      return data;
+    },
+    onSuccess: () => {
+      // Invalidate queries to refetch - ensures Skill Universe updates
       queryClient.invalidateQueries({ queryKey: queryKeys.userGraphs });
       queryClient.invalidateQueries({ queryKey: queryKeys.masterMap });
     },

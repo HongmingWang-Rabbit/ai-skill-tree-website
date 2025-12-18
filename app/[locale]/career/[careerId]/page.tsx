@@ -11,6 +11,7 @@ import { XPProgressRing } from '@/components/ui/XPProgressRing';
 import { ShareModal } from '@/components/ui/ShareModal';
 import { DropdownMenu, type DropdownMenuItem, MergeIcon, TrashIcon, SortIcon, ShareIcon, ConfirmModal, showToast } from '@/components/ui';
 import { useShareScreenshot, type ShareSlideType } from '@/hooks/useShareScreenshot';
+import { useUpdateMap } from '@/hooks/useQueryHooks';
 
 // Lazy load heavy AI chat components
 const AIChatPanel = dynamic(
@@ -127,6 +128,9 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const graphContainerRef = useRef<HTMLDivElement>(null);
   const skillGraphRef = useRef<SkillGraphHandle>(null);
   const { isCapturing, capturePreview, downloadFromDataUrl, copyFromDataUrl, shareFromDataUrl } = useShareScreenshot();
+
+  // Mutations
+  const updateMapMutation = useUpdateMap();
 
   // Auto-open merge modal if ?merge=true query param is present
   useEffect(() => {
@@ -307,22 +311,18 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
 
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/map/${userMap.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodeData }),
+      await updateMapMutation.mutateAsync({
+        mapId: userMap.id,
+        updates: { nodeData },
       });
-
-      if (response.ok) {
-        setIsSaved(true);
-        setUserMap(prev => prev ? { ...prev, nodeData } : null);
-      }
+      setIsSaved(true);
+      setUserMap(prev => prev ? { ...prev, nodeData } : null);
     } catch {
       // Save failed silently - will retry on next change
     } finally {
       setIsSaving(false);
     }
-  }, [session?.user?.id, userMap?.id]);
+  }, [session?.user?.id, userMap?.id, updateMapMutation]);
 
   // Handle graph changes
   const handleGraphChange = useCallback(async (nodes: Node[]) => {
@@ -447,26 +447,22 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     if (!session?.user?.id || !userMap?.id) return false;
 
     try {
-      const response = await fetch(`/api/map/${userMap.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await updateMapMutation.mutateAsync({
+        mapId: userMap.id,
+        updates: {
           title,
           customNodes: nodes,
           customEdges: edges,
           deleteSourceMapId: sourceMapIdToDelete,
-        }),
+        },
       });
-
-      if (response.ok) {
-        setIsSaved(true);
-        return true;
-      }
+      setIsSaved(true);
+      return true;
     } catch {
       // Save failed silently
     }
     return false;
-  }, [session?.user?.id, userMap?.id]);
+  }, [session?.user?.id, userMap?.id, updateMapMutation]);
 
   // Handle merge complete
   const handleMergeComplete = useCallback(async (

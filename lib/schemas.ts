@@ -169,6 +169,7 @@ export type ProfileUpdate = z.infer<typeof ProfileUpdateSchema>;
 export type ResumeGenerateInput = z.infer<typeof ResumeGenerateSchema>;
 export type LearningResourcesInput = z.infer<typeof LearningResourcesSchema>;
 export type AffiliatedLinkInput = z.infer<typeof AffiliatedLinkSchema>;
+export type MapUpdateInput = z.infer<typeof MapUpdateSchema>;
 
 // Learning resource type (shared between API and components)
 export interface LearningResource {
