@@ -62,7 +62,7 @@ export default async function BlogLayout({ children, params }: Props) {
         data={{
           breadcrumbs: [
             { name: t('home'), url: getLocaleUrl(SITE_URL, locale) },
-            { name: 'Blog', url: getLocaleUrl(SITE_URL, locale, '/blog') },
+            { name: t('blog'), url: getLocaleUrl(SITE_URL, locale, '/blog') },
           ],
         }}
       />

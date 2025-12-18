@@ -119,7 +119,9 @@ author: "Author Name"  # Defaults to BLOG_CONFIG.defaultAuthor
 ---
 ```
 
-**Features:** Auto-generated Table of Contents (h2-h4), reading time estimate (supports CJK), SEO with Article schema
+**Features:** Auto-generated Table of Contents (h2-h4), reading time estimate (supports CJK), SEO with Article schema, server-side markdown rendering with `marked`
+
+**Config:** `BLOG_CONFIG` in `lib/constants.ts` - `contentDir`, `defaultAuthor`, `wordsPerMinute`, `cjkCharsPerWord`, `tocMinLevel`, `tocMaxLevel`, `cardMaxTags`
 
 **Adding a new post:**
 1. Create `.md` file in `content/blog/{en,zh,ja}/`

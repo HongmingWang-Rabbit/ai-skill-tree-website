@@ -439,6 +439,7 @@ BLOG_CONFIG.wordsPerMinute              // Reading speed for time estimate (200)
 BLOG_CONFIG.cjkCharsPerWord             // CJK chars per word equivalent (2)
 BLOG_CONFIG.tocMinLevel                 // Minimum heading level for TOC (2)
 BLOG_CONFIG.tocMaxLevel                 // Maximum heading level for TOC (4)
+BLOG_CONFIG.cardMaxTags                 // Max tags to display on blog card (3)
 
 // Document Import
 DOCUMENT_IMPORT_CONFIG.maxFileSizeBytes           // Max file size (20MB)

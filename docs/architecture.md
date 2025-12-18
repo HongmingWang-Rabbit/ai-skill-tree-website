@@ -40,7 +40,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `stripe.ts` | Stripe client: `getStripe()`, `getTierFromPriceId()` |
 | `credits.ts` | Credit management: `hasEnoughCredits()`, `deductCredits()`, `addCredits()` |
 | `subscription.ts` | Subscription: `canCreateMap()`, `shouldHaveWatermark()`, webhook handlers |
-| `blog.ts` | Blog utilities: `getBlogPosts()`, `getBlogPost()`, `calculateReadingTime()`, `extractToc()`, `formatBlogDate()` |
+| `blog.ts` | Blog utilities: `getBlogPosts()`, `getBlogPost()`, `calculateReadingTime()`, `extractToc()`, `formatBlogDate()`, `renderMarkdown()` |
 | `constants.ts` | All app constants (routes, billing, configs, `BLOG_CONFIG`) |
 
 ## Constants (`lib/constants.ts`)
@@ -64,7 +64,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `import/` | `DocumentImportModal`, `ImportPreview` |
 | `resume/` | `ResumePDF`, `ResumeExportModal`, `CoverLetterModal`, `PDFDownloadButton` |
 | `learning/` | `LearningResourcesModal` |
-| `blog/` | `BlogCard`, `BlogPost` (with TOC, reading time, markdown rendering) |
+| `blog/` | `BlogCard`, `BlogPost` (TOC, reading time, server-side markdown via `marked`) |
 | `dashboard/` | `MasterSkillMap`, `ExperienceEditor`, `ProjectEditor` |
 
 ## Hooks (`hooks/`)

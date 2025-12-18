@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { BlogPostPreview, formatBlogDate } from '@/lib/blog';
-import { ROUTES } from '@/lib/constants';
+import { ROUTES, BLOG_CONFIG } from '@/lib/constants';
 
 interface BlogCardProps {
   post: BlogPostPreview;
@@ -34,7 +34,7 @@ export function BlogCard({ post }: BlogCardProps) {
         {/* Tags */}
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
-            {post.tags.slice(0, 3).map((tag) => (
+            {post.tags.slice(0, BLOG_CONFIG.cardMaxTags).map((tag) => (
               <span
                 key={tag}
                 className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-full"

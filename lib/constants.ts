@@ -594,6 +594,8 @@ export const BLOG_CONFIG = {
   // TOC settings
   tocMinLevel: 2,
   tocMaxLevel: 4,
+  // UI settings
+  cardMaxTags: 3, // Max tags to display on blog card
 } as const;
 
 // SEO & GEO Configuration
