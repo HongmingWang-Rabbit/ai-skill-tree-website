@@ -23,6 +23,10 @@ const ResumeExportModal = dynamic(
   () => import('@/components/resume/ResumeExportModal').then(mod => mod.ResumeExportModal),
   { ssr: false }
 );
+const AuthModal = dynamic(
+  () => import('@/components/auth/AuthModal').then(mod => mod.AuthModal),
+  { ssr: false }
+);
 import { type Locale } from '@/i18n/routing';
 import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
 import { clampString, sanitizeAddress, normalizeExperience, normalizeProject, normalizeEducation } from '@/lib/profile-normalize';
@@ -148,6 +152,7 @@ export default function DashboardPage() {
   const [showProjectEditor, setShowProjectEditor] = useState(false);
   const [showEducationEditor, setShowEducationEditor] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Save bio explicitly
   const handleSaveBio = useCallback(async () => {
@@ -594,12 +599,13 @@ export default function DashboardPage() {
             {t('dashboard.signInDescription')}
           </p>
           <button
-            onClick={() => router.push('/?signin=true')}
+            onClick={() => setShowAuthModal(true)}
             className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors"
           >
             {t('common.signIn')}
           </button>
         </div>
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </div>
     );
   }
