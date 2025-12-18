@@ -42,13 +42,14 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   PROFILE: "/profile",
   CAREER: "/career",
+  BLOG: "/blog",
 } as const;
 
 // Navigation links (used in Header for both desktop and mobile)
 export const NAV_LINKS = [
   { href: ROUTES.HOME, labelKey: "common.home" },
   { href: ROUTES.DASHBOARD, labelKey: "common.dashboard" },
-  { href: ROUTES.HOME, labelKey: "common.explore" },
+  { href: ROUTES.BLOG, labelKey: "common.blog" },
 ] as const;
 
 // Background animation constants
@@ -580,6 +581,19 @@ export const LANDING_PAGE_CONFIG = {
     staggerDelay: 0.1,
     duration: 0.5,
   },
+} as const;
+
+// Blog Configuration
+export const BLOG_CONFIG = {
+  // Content settings
+  contentDir: 'content/blog',
+  defaultAuthor: 'Personal Skill Map Team',
+  // Reading time calculation
+  wordsPerMinute: 200,
+  cjkCharsPerWord: 2, // CJK characters count as ~2 chars per word equivalent
+  // TOC settings
+  tocMinLevel: 2,
+  tocMaxLevel: 4,
 } as const;
 
 // SEO & GEO Configuration

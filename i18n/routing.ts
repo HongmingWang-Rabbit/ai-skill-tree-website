@@ -26,6 +26,7 @@ export const i18nNamespaces = [
   'learning',
   'billing',
   'pricing',
+  'blog',
 ] as const;
 export type I18nNamespace = (typeof i18nNamespaces)[number];
 

@@ -34,7 +34,8 @@ An interactive web application that generates and visualizes career skill maps u
 - **Quick Actions Menu**: 3-dots dropdown on dashboard cards and career page for merge, organize, share, and delete
 - **Toast Notifications**: Non-intrusive success/error feedback via react-hot-toast with custom styling
 - **Multi-Language Support**: Full internationalization with English, Chinese, and Japanese
-- **SEO & GEO Optimized**: Dynamic sitemap, AI crawler-friendly robots.txt (GPTBot, Claude, Perplexity), hreflang tags, Open Graph/Twitter cards, JSON-LD structured data (FAQ, HowTo schemas for AI search engines)
+- **Blog**: Markdown-based blog with multi-language support, SEO-optimized with Article schema
+- **SEO & GEO Optimized**: Dynamic sitemap, AI crawler-friendly robots.txt (GPTBot, Claude, Perplexity), hreflang tags, Open Graph/Twitter cards, JSON-LD structured data (FAQ, HowTo, Article schemas for AI search engines)
 - **Smart Caching**: Redis caching prevents redundant API calls and speeds up repeat queries
 - **Persistent Storage**: Generated skill maps are saved to PostgreSQL for future access
 - **Education & Credentials**: Track academic history alongside work experience for cleaner resume exports
@@ -157,6 +158,10 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── [locale]/           # Locale pages (en at root, zh/ja prefixed)
 │   │   ├── (marketing)/
 │   │   │   └── page.tsx        # Landing page (Hero, TwoPaths, Workflow, Features, Demo, Stats sections)
+│   │   ├── blog/
+│   │   │   ├── page.tsx        # Blog listing
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx    # Individual blog post
 │   │   ├── career/
 │   │   │   └── [careerId]/
 │   │   │       └── page.tsx    # Career detail with skill graph
@@ -203,6 +208,9 @@ An interactive web application that generates and visualizes career skill maps u
 │   │   ├── CoverLetterPreviewPanel.tsx # Inline PDF viewer for cover letter (SSR-safe)
 │   │   ├── PDFDownloadButton.tsx # Dynamic PDF download wrapper (SSR-safe)
 │   │   └── pdfFonts.ts         # Centralized font registration and CJK hyphenation
+│   ├── blog/
+│   │   ├── BlogCard.tsx        # Blog post preview card
+│   │   └── BlogPost.tsx        # Full blog post with markdown rendering
 │   ├── dashboard/
 │   │   ├── ExperienceEditor.tsx # Work experience management modal
 │   │   └── ProjectEditor.tsx    # Portfolio projects management modal
@@ -228,6 +236,11 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── en/                     # English translations
 │   ├── zh/                     # Chinese translations
 │   └── ja/                     # Japanese translations
+├── content/
+│   └── blog/                   # Markdown blog posts
+│       ├── en/                 # English posts
+│       ├── zh/                 # Chinese posts
+│       └── ja/                 # Japanese posts
 ├── lib/
 │   ├── db/                     # Database connection & schema
 │   ├── mcp/
@@ -236,6 +249,7 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── ai-chat.ts              # AI chat utilities (modifications, merge)
 │   ├── ai-document.ts          # Document skill extraction with vision
 │   ├── ai-resume.ts            # Resume generation AI functions
+│   ├── blog.ts                 # Blog utilities (markdown parsing)
 │   ├── document-parser.ts      # PDF, Word, image, URL parsing
 │   ├── cache.ts                # Redis cache utilities
 │   ├── constants.ts            # Centralized app constants
@@ -417,6 +431,14 @@ PDF_STYLES.borderRadius                 // Border radius values (sm: 3, md: 4, l
 AI_LOCALE_INSTRUCTIONS.en               // "Generate all content in English."
 AI_LOCALE_INSTRUCTIONS.zh               // "Generate all content in Simplified Chinese."
 AI_LOCALE_INSTRUCTIONS.ja               // "Generate all content in Japanese."
+
+// Blog Configuration (lib/constants.ts)
+BLOG_CONFIG.contentDir                  // Blog content directory ('content/blog')
+BLOG_CONFIG.defaultAuthor               // Default author name
+BLOG_CONFIG.wordsPerMinute              // Reading speed for time estimate (200)
+BLOG_CONFIG.cjkCharsPerWord             // CJK chars per word equivalent (2)
+BLOG_CONFIG.tocMinLevel                 // Minimum heading level for TOC (2)
+BLOG_CONFIG.tocMaxLevel                 // Maximum heading level for TOC (4)
 
 // Document Import
 DOCUMENT_IMPORT_CONFIG.maxFileSizeBytes           // Max file size (20MB)

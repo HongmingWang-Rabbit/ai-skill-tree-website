@@ -1,0 +1,15 @@
+{
+  "title": "博客",
+  "description": "职业发展、技能培养和职业成长的见解",
+  "keywords": "职业博客, 技能发展, 职业成长, 职业建议",
+  "readMore": "阅读更多",
+  "publishedOn": "发布于 {date}",
+  "by": "作者",
+  "taggedWith": "标签",
+  "backToBlog": "返回博客",
+  "noPosts": "暂无博客文章，敬请期待！",
+  "relatedPosts": "相关文章",
+  "sharePost": "分享文章",
+  "minuteRead": "{minutes} 分钟阅读",
+  "tableOfContents": "目录"
+}

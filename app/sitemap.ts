@@ -3,6 +3,7 @@ import { locales, getLocaleUrl as getLocaleUrlBase } from '@/i18n/routing';
 import { db } from '@/lib/db';
 import { careers } from '@/lib/db/schema';
 import { SITE_URL } from '@/lib/constants';
+import { getAllBlogSlugs, getBlogPost } from '@/lib/blog';
 
 // Bind SITE_URL to the centralized helper for convenience
 const getLocaleUrl = (locale: string, path: string = '') =>
@@ -50,6 +51,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
       },
     });
+
+    // Add blog index page for each locale
+    entries.push({
+      url: getLocaleUrl(locale, '/blog'),
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, getLocaleUrl(l, '/blog')])
+        ),
+      },
+    });
+  }
+
+  // Add blog posts
+  const blogSlugs = getAllBlogSlugs();
+  for (const { slug, locales: postLocales } of blogSlugs) {
+    for (const locale of postLocales) {
+      const post = getBlogPost(slug, locale);
+      const alternateLanguages: Record<string, string> = {};
+      for (const altLocale of postLocales) {
+        alternateLanguages[altLocale] = getLocaleUrl(altLocale, `/blog/${slug}`);
+      }
+
+      entries.push({
+        url: getLocaleUrl(locale, `/blog/${slug}`),
+        lastModified: post?.date ? new Date(post.date) : new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+        alternates: {
+          languages: alternateLanguages,
+        },
+      });
+    }
   }
 
   // Fetch all public careers from database

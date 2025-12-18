@@ -84,13 +84,47 @@ import { DropdownMenu } from '@/components/ui';
 ## Key Files
 
 - `i18n/routing.ts` - Locales, namespaces, OG locale mapping, `getLocaleUrl()`, `getLocalePath()`
-- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`)
+- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `BLOG_CONFIG`)
 - `lib/schemas.ts` - Zod schemas and shared types
 - `lib/ai-resume.ts` - Resume/cover letter AI functions
+- `lib/blog.ts` - Blog utilities (`getBlogPosts()`, `getBlogPost()`, `calculateReadingTime()`, `extractToc()`)
 - `lib/credits.ts` - Credit management
 - `lib/auth.ts` - NextAuth (Google, Twitter, WeChat, Web3)
 - `hooks/useQueryHooks.ts` - React Query hooks
 - `components/resume/pdfFonts.ts` - PDF font/hyphenation setup
+
+## Blog
+
+Blog posts are markdown files stored in `content/blog/{locale}/`:
+
+```
+content/blog/
+├── en/
+│   └── my-post.md
+├── zh/
+│   └── my-post.md
+└── ja/
+    └── my-post.md
+```
+
+**Frontmatter format:**
+```yaml
+---
+title: "Post Title"
+description: "SEO description"
+date: "2025-01-15"
+tags: ["career", "skills"]
+image: "/blog/cover.jpg"  # Optional
+author: "Author Name"  # Defaults to BLOG_CONFIG.defaultAuthor
+---
+```
+
+**Features:** Auto-generated Table of Contents (h2-h4), reading time estimate (supports CJK), SEO with Article schema
+
+**Adding a new post:**
+1. Create `.md` file in `content/blog/{en,zh,ja}/`
+2. Use same filename for all locales (translations)
+3. Deploy - posts are statically generated at build time
 
 ## Before Completing Tasks
 

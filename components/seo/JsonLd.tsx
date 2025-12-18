@@ -14,7 +14,7 @@ interface HowToStep {
 }
 
 interface JsonLdProps {
-  type: 'website' | 'career' | 'breadcrumb' | 'faq' | 'howto';
+  type: 'website' | 'career' | 'breadcrumb' | 'faq' | 'howto' | 'article';
   data?: {
     careerName?: string;
     careerDescription?: string;
@@ -24,6 +24,13 @@ interface JsonLdProps {
     howToName?: string;
     howToDescription?: string;
     howToSteps?: readonly HowToStep[];
+    // Article fields
+    headline?: string;
+    description?: string;
+    datePublished?: string;
+    author?: string;
+    image?: string;
+    url?: string;
   };
 }
 
@@ -113,6 +120,39 @@ export function JsonLd({ type, data }: JsonLdProps) {
           text: step.text,
           url: step.url,
         })) || [],
+      };
+      break;
+
+    case 'article':
+      jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: data?.headline,
+        description: data?.description,
+        datePublished: data?.datePublished,
+        author: {
+          '@type': 'Person',
+          name: data?.author || APP_NAME,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: APP_NAME,
+          url: SITE_URL,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${SITE_URL}${ASSETS.ICON}`,
+          },
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': data?.url,
+        },
+        ...(data?.image && {
+          image: {
+            '@type': 'ImageObject',
+            url: data.image.startsWith('http') ? data.image : `${SITE_URL}${data.image}`,
+          },
+        }),
       };
       break;
 

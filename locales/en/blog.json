@@ -1,0 +1,15 @@
+{
+  "title": "Blog",
+  "description": "Insights on career development, skill building, and professional growth",
+  "keywords": "career blog, skill development, professional growth, career tips",
+  "readMore": "Read more",
+  "publishedOn": "Published on {date}",
+  "by": "by",
+  "taggedWith": "Tagged with",
+  "backToBlog": "Back to Blog",
+  "noPosts": "No blog posts yet. Check back soon!",
+  "relatedPosts": "Related Posts",
+  "sharePost": "Share this post",
+  "minuteRead": "{minutes} min read",
+  "tableOfContents": "Table of Contents"
+}

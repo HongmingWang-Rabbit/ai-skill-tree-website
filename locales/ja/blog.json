@@ -1,0 +1,15 @@
+{
+  "title": "ブログ",
+  "description": "キャリア開発、スキル構築、プロフェッショナルな成長についての洞察",
+  "keywords": "キャリアブログ, スキル開発, キャリア成長, キャリアのヒント",
+  "readMore": "続きを読む",
+  "publishedOn": "{date}に公開",
+  "by": "著者",
+  "taggedWith": "タグ",
+  "backToBlog": "ブログに戻る",
+  "noPosts": "ブログ記事はまだありません。お楽しみに！",
+  "relatedPosts": "関連記事",
+  "sharePost": "記事をシェア",
+  "minuteRead": "{minutes}分で読める",
+  "tableOfContents": "目次"
+}

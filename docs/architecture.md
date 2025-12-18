@@ -17,7 +17,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 - `getLocalePath(locale, path)` - Returns path with locale prefix (respects as-needed mode)
 - `getLocaleUrl(baseUrl, locale, path)` - Returns full URL with locale prefix (for metadata/sitemap)
 
-**Namespaces:** `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `skillGraph`, `aiChat`, `import`, `resume`, `coverLetter`, `learning`, `billing`, `pricing`
+**Namespaces:** `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `skillGraph`, `aiChat`, `import`, `resume`, `coverLetter`, `learning`, `billing`, `pricing`, `blog`
 
 **Adding new locale:** Create folder in `locales/`, add to `locales` array in `routing.ts`
 
@@ -40,14 +40,15 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `stripe.ts` | Stripe client: `getStripe()`, `getTierFromPriceId()` |
 | `credits.ts` | Credit management: `hasEnoughCredits()`, `deductCredits()`, `addCredits()` |
 | `subscription.ts` | Subscription: `canCreateMap()`, `shouldHaveWatermark()`, webhook handlers |
-| `constants.ts` | All app constants (routes, billing, configs) |
+| `blog.ts` | Blog utilities: `getBlogPosts()`, `getBlogPost()`, `calculateReadingTime()`, `extractToc()`, `formatBlogDate()` |
+| `constants.ts` | All app constants (routes, billing, configs, `BLOG_CONFIG`) |
 
 ## Constants (`lib/constants.ts`)
 
 - **Routes**: `ROUTES`, `API_ROUTES`
 - **Assets**: `ASSETS.ICON`, `ASSETS.ICON_LARGE`
 - **Billing**: `BILLING_CONFIG` (tiers, creditCosts, signupBonus)
-- **Features**: `AI_CHAT_CONFIG`, `DOCUMENT_IMPORT_CONFIG`, `RESUME_CONFIG`, `LEARNING_CONFIG`
+- **Features**: `AI_CHAT_CONFIG`, `DOCUMENT_IMPORT_CONFIG`, `RESUME_CONFIG`, `LEARNING_CONFIG`, `BLOG_CONFIG`
 - **Layout**: `MASTER_GRAPH_CONFIG`, `LANDING_PAGE_CONFIG`
 - **SEO**: `SEO_CONFIG`, `SITE_URL`
 
@@ -63,6 +64,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `import/` | `DocumentImportModal`, `ImportPreview` |
 | `resume/` | `ResumePDF`, `ResumeExportModal`, `CoverLetterModal`, `PDFDownloadButton` |
 | `learning/` | `LearningResourcesModal` |
+| `blog/` | `BlogCard`, `BlogPost` (with TOC, reading time, markdown rendering) |
 | `dashboard/` | `MasterSkillMap`, `ExperienceEditor`, `ProjectEditor` |
 
 ## Hooks (`hooks/`)
