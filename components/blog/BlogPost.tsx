@@ -123,7 +123,7 @@ export function BlogPost({ post }: BlogPostProps) {
 
       {/* Content - Pre-rendered HTML */}
       <div
-        className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-p:text-slate-300 prose-a:text-purple-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-code:text-purple-300 prose-code:bg-slate-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700 prose-blockquote:border-purple-500 prose-blockquote:text-slate-400 prose-li:text-slate-300 prose-img:rounded-xl"
+        className="blog-content"
         dangerouslySetInnerHTML={{ __html: post.htmlContent }}
       />
     </article>
