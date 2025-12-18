@@ -187,3 +187,9 @@ CJK fonts and hyphenation are managed centrally in `pdfFonts.ts`:
 - Uses `PDF_FONT_CONFIG.fontFamilies` for consistent font family names
 - Smart hyphenation: CJK characters split individually, English words stay together
 - AI prompts include instructions to use non-breaking spaces for compound terms (best effort)
+
+**Font Selection by Locale:**
+- All locales use Noto Sans fonts (loaded from Google Fonts CDN)
+- English/Chinese: `NotoSansSC` - supports Latin + CJK, handles untranslated Chinese in English resumes
+- Japanese: `NotoSansJP` - optimized for Japanese with full Latin support
+- This ensures mixed-language content renders correctly even when AI translation is incomplete

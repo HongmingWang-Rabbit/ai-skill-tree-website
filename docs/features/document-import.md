@@ -27,11 +27,16 @@ Users can import skills, contact info, professional bio, work experience, and pr
 
 1. User uploads file or enters URL
 2. `POST /api/import/document` or `POST /api/import/url` parses content
-3. `lib/document-parser.ts` extracts text (pdf-parse for PDFs, cheerio + @extractus/article-extractor for URLs)
+3. `lib/document-parser.ts` extracts text:
+   - PDF: `pdf-parse` (dynamically imported for serverless compatibility)
+   - Word: `mammoth`
+   - URLs: `cheerio` + `@extractus/article-extractor`
 4. `lib/ai-document.ts` uses OpenAI to extract skills, contact info, bio, experience, and projects
 5. For LinkedIn/login-walled sites, Tavily API provides fallback content extraction
 6. Preview modal shows extracted data with confidence indicators
 7. User confirms → skills converted to SkillNodes, profile data saved
+
+**Note:** `pdf-parse` uses dynamic import (`await import('pdf-parse')`) to prevent `pdfjs-dist` from loading in serverless environments where canvas APIs aren't available. This avoids `DOMMatrix is not defined` errors in routes that import `document-parser.ts` but don't parse PDFs.
 
 ## Components
 

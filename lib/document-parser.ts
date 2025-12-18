@@ -1,12 +1,18 @@
 import * as cheerio from 'cheerio';
 import { extract } from '@extractus/article-extractor';
-import { PDFParse } from 'pdf-parse';
 import mammoth from 'mammoth';
 import {
   DOCUMENT_IMPORT_CONFIG,
   IMAGE_EXTENSIONS,
   EXTENSION_TO_MIME,
 } from './constants';
+
+// Dynamic import for pdf-parse to avoid loading pdfjs-dist (which requires canvas)
+// in serverless environments where it's not needed
+async function getPDFParse() {
+  const { PDFParse } = await import('pdf-parse');
+  return PDFParse;
+}
 
 export interface ParsedDocument {
   content: string;
@@ -42,6 +48,7 @@ const {
  */
 export async function parsePDF(buffer: Buffer): Promise<ParsedDocument> {
   try {
+    const PDFParse = await getPDFParse();
     const parser = new PDFParse({ data: buffer });
     const textResult = await parser.getText();
     const infoResult = await parser.getInfo();

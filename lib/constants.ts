@@ -332,14 +332,16 @@ export const PDF_FONT_CONFIG = {
     regular: 'https://fonts.gstatic.com/s/notosansjp/v52/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFBEj75vY0rw-oME.ttf',
     bold: 'https://fonts.gstatic.com/s/notosansjp/v52/-F6jfjtqLzI2JPCgQBnw7HFyzSD-AsregP8VFJUi75vY0rw-oME.ttf',
   },
-  // Font family names for registration
+  // Font family names for registration (referenced by families below)
   fontFamilies: {
     notoSansSC: 'NotoSansSC',
     notoSansJP: 'NotoSansJP',
   },
   // Font family mapping by locale
+  // Uses Noto Sans SC for en/zh (supports Latin + CJK) to handle mixed-language content
+  // Uses Noto Sans JP for ja (optimized for Japanese with Latin support)
   families: {
-    en: { regular: 'Helvetica', bold: 'Helvetica-Bold' },
+    en: { regular: 'NotoSansSC', bold: 'NotoSansSC' }, // SC includes Latin chars, handles untranslated CJK
     zh: { regular: 'NotoSansSC', bold: 'NotoSansSC' },
     ja: { regular: 'NotoSansJP', bold: 'NotoSansJP' },
   },

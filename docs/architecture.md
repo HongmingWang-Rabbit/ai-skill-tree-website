@@ -34,7 +34,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `ai-chat.ts` | Chat: `processChatMessage()`, `applyModifications()`, `generateSmartMerge()` |
 | `ai-document.ts` | Document extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()` |
 | `ai-resume.ts` | Resume/Cover Letter AI: `analyzeJobPosting()`, `analyzeJobTitle()`, `optimizeExperience()`, `generateResumeContent()`, `generateCoverLetter()` |
-| `document-parser.ts` | Parsing: `parsePDF()`, `parseWord()`, `parseImage()`, `parseURL()` |
+| `document-parser.ts` | Parsing: `parsePDF()` (dynamic import), `parseWord()`, `parseImage()`, `parseURL()` |
 | `mcp/tavily.ts` | Web search: `searchTavily()`, `searchLearningResources()` |
 | `auth.ts` | NextAuth config with Google, Twitter, WeChat, Web3 providers |
 | `stripe.ts` | Stripe client: `getStripe()`, `getTierFromPriceId()` |
