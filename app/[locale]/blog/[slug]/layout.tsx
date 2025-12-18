@@ -6,6 +6,9 @@ import { SITE_URL, APP_NAME } from '@/lib/constants';
 import { getBlogPost, getAllBlogSlugs } from '@/lib/blog';
 import { JsonLd } from '@/components/seo';
 
+// Force static generation for blog post layout
+export const dynamic = 'force-static';
+
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
   children: React.ReactNode;

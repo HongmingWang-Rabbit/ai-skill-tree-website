@@ -4,6 +4,9 @@ import { locales, getLocaleUrl } from '@/i18n/routing';
 import { SITE_URL, APP_NAME } from '@/lib/constants';
 import { JsonLd } from '@/components/seo';
 
+// Force static generation for blog layout
+export const dynamic = 'force-static';
+
 interface Props {
   params: Promise<{ locale: string }>;
   children: React.ReactNode;

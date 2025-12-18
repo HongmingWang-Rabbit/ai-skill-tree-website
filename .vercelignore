@@ -1,0 +1,9 @@
+# Ignore cache directories
+.next/cache
+.pnpm-store
+.git
+
+# Ignore development files
+*.log
+.env.local
+.env*.local

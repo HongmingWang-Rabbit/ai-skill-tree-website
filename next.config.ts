@@ -19,6 +19,16 @@ const nextConfig: NextConfig = {
   transpilePackages: ['@react-pdf/renderer'],
   // Exclude pdf-parse and pdfjs-dist from server bundling to avoid worker issues
   serverExternalPackages: ['pdf-parse', 'pdfjs-dist'],
+  // Exclude unnecessary files from serverless function bundles
+  outputFileTracingExcludes: {
+    '*': [
+      '.next/cache/**/*',
+      '.pnpm-store/**/*',
+      '.git/**/*',
+      'node_modules/@swc/**/*',
+      'node_modules/esbuild/**/*',
+    ],
+  },
 };
 
 export default withNextIntl(nextConfig);
