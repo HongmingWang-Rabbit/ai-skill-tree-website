@@ -2,10 +2,19 @@ import { use } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getBlogPosts } from '@/lib/blog';
 import { BlogCard } from '@/components/blog';
+import { routing } from '@/i18n/routing';
 
 interface Props {
   params: Promise<{ locale: string }>;
 }
+
+// Generate static params for all locales
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+// Disable dynamic params - return 404 for non-generated paths
+export const dynamicParams = false;
 
 export default function BlogPage({ params }: Props) {
   const { locale } = use(params);

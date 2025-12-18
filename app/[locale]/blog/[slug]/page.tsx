@@ -23,6 +23,9 @@ export function generateStaticParams() {
   return params;
 }
 
+// Disable dynamic params - return 404 for non-generated paths
+export const dynamicParams = false;
+
 export default function BlogPostPage({ params }: Props) {
   const { locale, slug } = use(params);
   setRequestLocale(locale);
