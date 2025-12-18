@@ -15,8 +15,9 @@ Users can generate professional PDF resumes and personalized cover letters based
 - `PDFPreviewPanel` - Inline PDF viewer for resume using `PDFViewer`
 - `CoverLetterPreviewPanel` - Inline PDF viewer for cover letter
 - `pdfFonts.ts` - Centralized font registration and CJK hyphenation callback (prevents duplicate registration)
-- `ExperienceEditor` - Modal for managing work experience entries
-- `ProjectEditor` - Modal for managing portfolio projects
+- `ExperienceEditor` - Modal for managing work experience entries (auto-saves on delete)
+- `ProjectEditor` - Modal for managing portfolio projects (auto-saves on delete)
+- `EducationEditor` - Modal for managing education entries (auto-saves on delete)
 
 ## Data Flow
 
@@ -33,13 +34,14 @@ Users can generate professional PDF resumes and personalized cover letters based
 
 ## Resume Optimization (Automatic)
 
-All resumes are automatically optimized with 5 techniques:
+All resumes are automatically optimized with 6 techniques:
 
-1. **Role-Targeted Rewrite** - Matches language and priorities from job description
-2. **Impact Upgrade** - Rewrites experience with metrics, outcomes, strong verbs
-3. **ATS Optimization** - Injects exact keywords from job description naturally
-4. **Clarity & Tightening** - Removes filler, repetition, vague claims
-5. **Strength Highlighting** - Identifies top 5 strengths, structures resume around them
+1. **Job-Targeted Relevance Filtering** - Excludes irrelevant work experiences and projects that don't match the target position (e.g., retail jobs excluded when applying for tech roles)
+2. **Role-Targeted Rewrite** - Matches language and priorities from job description
+3. **Impact Upgrade** - Rewrites experience with metrics, outcomes, strong verbs
+4. **ATS Optimization** - Injects exact keywords from job description naturally
+5. **Clarity & Tightening** - Removes filler, repetition, vague claims
+6. **Strength Highlighting** - Identifies top 5 strengths, structures resume around them
 
 ## Language Selection & Translation
 
@@ -90,9 +92,9 @@ Users can select output language independent of UI language:
 |----------|---------|
 | `analyzeJobPosting()` | Extract requirements from job posting URL |
 | `analyzeJobTitle()` | Infer requirements from job title only |
-| `optimizeExperience()` | Rewrite experience with impact/ATS/clarity + translate |
+| `optimizeExperience()` | Filter irrelevant + rewrite with impact/ATS/clarity + translate |
 | `optimizeEducation()` | Translate education entries (degree, field, location) |
-| `optimizeProjects()` | Translate project entries (name, description) |
+| `optimizeProjects()` | Filter irrelevant + translate project entries (name, description) |
 | `generateResumeContent()` | Generate summary, skills, highlights, strengths |
 | `generateCoverLetter()` | Generate personalized cover letter with company connection |
 
@@ -120,6 +122,9 @@ The cover letter feature creates personalized letters with:
 | `aiTemperature` | 0.5 | Temperature for content generation |
 | `aiOptimizationTemperature` | 0.6 | Higher temp for creative rewrites |
 | `maxKeywordsToInject` | 20 | Max ATS keywords per experience |
+| `maxRequiredSkillsInContext` | 10 | Max required skills in AI filtering context |
+| `maxPreferredSkillsInContext` | 5 | Max preferred skills in AI filtering context |
+| `maxResponsibilitiesInContext` | 5 | Max responsibilities in AI filtering context |
 | `pdfMaxProjects` | 5 | Projects shown in PDF |
 
 ## Types

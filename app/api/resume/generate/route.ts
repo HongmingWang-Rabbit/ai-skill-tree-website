@@ -195,9 +195,9 @@ export async function POST(request: Request) {
       userProfile.education && userProfile.education.length > 0
         ? optimizeEducation(userProfile.education, locale as Locale)
         : Promise.resolve([]),
-      // Translate projects if user has any
+      // Translate and filter projects if user has any
       userProfile.projects && userProfile.projects.length > 0
-        ? optimizeProjects(userProfile.projects, locale as Locale)
+        ? optimizeProjects(userProfile.projects, jobRequirements, locale as Locale)
         : Promise.resolve([]),
       // Generate resume content with strength highlighting
       generateResumeContent(userProfile, careerSkillData, jobRequirements, locale as Locale),

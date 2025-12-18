@@ -263,7 +263,19 @@ export async function optimizeExperience(
   const systemPrompt = `You are an expert resume writer specializing in transforming plain job descriptions into compelling, ATS-optimized content.
 ${AI_LOCALE_INSTRUCTIONS[locale]}
 
-For each work experience entry, rewrite the description to be more impactful while preserving all factual information.
+${jobRequirements ? `TARGET POSITION CONTEXT:
+The candidate is applying for a position requiring these skills: ${[...jobRequirements.requiredSkills.slice(0, RESUME_CONFIG.maxRequiredSkillsInContext), ...jobRequirements.preferredSkills.slice(0, RESUME_CONFIG.maxPreferredSkillsInContext)].join(', ')}
+Key responsibilities include: ${jobRequirements.responsibilities.slice(0, RESUME_CONFIG.maxResponsibilitiesInContext).join('; ')}
+
+CRITICAL - RELEVANCE FILTERING:
+- ONLY include work experiences that are RELEVANT to the target position
+- EXCLUDE experiences that have NO transferable skills or relevance to the target role
+- Examples of what to EXCLUDE for a tech role: retail positions (cashier, sales associate), food service, general labor, unrelated part-time jobs
+- Examples of what to INCLUDE: Any tech-related roles, leadership positions, project management, analytical roles, or positions with transferable skills
+- When in doubt about relevance, consider if the experience demonstrates: technical skills, problem-solving, leadership, communication, or domain knowledge applicable to the target role
+- It's better to have 2-4 highly relevant experiences than 6+ with irrelevant padding
+
+` : ''}For each RELEVANT work experience entry, rewrite the description to be more impactful while preserving all factual information.
 
 OPTIMIZATION GUIDELINES:
 
@@ -343,7 +355,8 @@ IMPORTANT:
 - Keep id, company name, and dates exactly as provided
 - ALL text output (job title, description, location) MUST be in ${LOCALE_NAMES[locale]}
 - If any source content is in Chinese/Japanese, translate it to ${LOCALE_NAMES[locale]}
-- Return entries in the same order as input
+- ONLY return experiences that are RELEVANT to the target position - EXCLUDE irrelevant ones entirely
+- Order returned experiences by relevance (most relevant first)
 - Use bullet points (•) at the start of each achievement
 - Separate bullet points with newlines`;
 
@@ -475,6 +488,7 @@ IMPORTANT:
  */
 export async function optimizeProjects(
   projects: Project[],
+  jobRequirements: JobRequirements | null,
   locale: Locale = 'en'
 ): Promise<OptimizedProject[]> {
   // Skip if no projects to optimize
@@ -482,8 +496,8 @@ export async function optimizeProjects(
     return [];
   }
 
-  // If locale is English and no CJK content, return original data without AI call
-  if (locale === 'en' && !projectsContainCJK(projects)) {
+  // If locale is English, no CJK content, and no job requirements for filtering, return original data
+  if (locale === 'en' && !projectsContainCJK(projects) && !jobRequirements) {
     return projects.map(proj => ({
       id: proj.id,
       name: proj.name,
@@ -498,7 +512,16 @@ export async function optimizeProjects(
   const systemPrompt = `You are a professional translator specializing in technical and project documentation.
 ${AI_LOCALE_INSTRUCTIONS[locale]}
 
-Your task is to translate project entries while maintaining technical accuracy.
+${jobRequirements ? `TARGET POSITION CONTEXT:
+The candidate is applying for a position requiring these skills: ${[...jobRequirements.requiredSkills.slice(0, RESUME_CONFIG.maxRequiredSkillsInContext), ...jobRequirements.preferredSkills.slice(0, RESUME_CONFIG.maxPreferredSkillsInContext)].join(', ')}
+
+CRITICAL - RELEVANCE FILTERING:
+- ONLY include projects that are RELEVANT to the target position
+- EXCLUDE projects that demonstrate no relevant skills or technologies
+- Prioritize projects that showcase skills matching the job requirements
+- It's better to have 2-4 highly relevant projects than many irrelevant ones
+
+` : ''}Your task is to translate project entries while maintaining technical accuracy.
 
 TRANSLATION GUIDELINES:
 1. Translate project names to be descriptive in the target language
@@ -543,7 +566,8 @@ IMPORTANT:
 - Translate name and description to ${LOCALE_NAMES[locale]}
 - Technology names should NOT be translated (React, Python, etc. stay in English)
 - Return null for any field that was 'Not specified' in input
-- Return entries in the same order as input`;
+- ONLY return projects that are RELEVANT to the target position - EXCLUDE irrelevant ones entirely
+- Order returned projects by relevance (most relevant first)`;
 
   const response = await openai.chat.completions.create({
     model: RESUME_CONFIG.aiModel,

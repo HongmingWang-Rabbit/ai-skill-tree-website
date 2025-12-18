@@ -247,6 +247,10 @@ export const RESUME_CONFIG = {
   aiOptimizationTemperature: 0.6, // Slightly higher for creative experience rewrites
   maxKeywordsToInject: 20, // Max ATS keywords to inject into experience
   maxSkillsInPrompt: 30, // Max skills to include in AI prompts
+  // AI filtering context limits
+  maxRequiredSkillsInContext: 10, // Max required skills to include in AI filtering context
+  maxPreferredSkillsInContext: 5, // Max preferred skills to include in AI filtering context
+  maxResponsibilitiesInContext: 5, // Max responsibilities to include in AI filtering context
   // Job analysis
   jobUrlTimeout: 30000,
   jobContentMaxChars: 10000,

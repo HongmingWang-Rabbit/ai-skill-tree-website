@@ -51,6 +51,7 @@ export function ExperienceEditor({
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState<ExperienceFormData>(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Generate a unique ID for new experience
@@ -88,13 +89,23 @@ export function ExperienceEditor({
     setError(null);
   }, []);
 
-  // Delete an item
-  const handleDelete = useCallback((id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
-    if (editingId === id) {
-      handleCancel();
+  // Delete an item and auto-save
+  const handleDelete = useCallback(async (id: string) => {
+    setDeletingId(id);
+    setError(null);
+    try {
+      const newItems = items.filter(item => item.id !== id);
+      await onSave(newItems);
+      setItems(newItems);
+      if (editingId === id) {
+        handleCancel();
+      }
+    } catch {
+      setError(t('saveFailed'));
+    } finally {
+      setDeletingId(null);
     }
-  }, [editingId, handleCancel]);
+  }, [items, editingId, handleCancel, onSave, t]);
 
   // Save current form
   const handleSaveForm = useCallback(() => {
@@ -362,10 +373,15 @@ export function ExperienceEditor({
                           </button>
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
+                            disabled={deletingId === item.id || isSaving}
+                            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors disabled:opacity-50"
                             title={t('deleteExperience')}
                           >
-                            <TrashIcon className="w-4 h-4" />
+                            {deletingId === item.id ? (
+                              <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <TrashIcon className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                       </div>
