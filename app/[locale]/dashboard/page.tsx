@@ -26,7 +26,15 @@ const ResumeExportModal = dynamic(
 import { type Locale } from '@/i18n/routing';
 import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
 import { clampString, sanitizeAddress, normalizeExperience, normalizeProject, normalizeEducation } from '@/lib/profile-normalize';
-import { useUserGraphs, useUserProfile, useDeleteMap, useUserCredits, useUserSubscription } from '@/hooks/useQueryHooks';
+import { useUserGraphs, useUserProfile, useDeleteMap, useUpdateMap, useUserCredits, useUserSubscription } from '@/hooks/useQueryHooks';
+import {
+  mergeBio,
+  mergeExperienceArrays,
+  mergeProjectArrays,
+  mergeEducationArrays,
+  findSimilarSkillMap,
+  type SavedCareerInfo,
+} from '@/lib/import-merge';
 
 interface SavedGraph {
   id: string;
@@ -86,6 +94,7 @@ export default function DashboardPage() {
   const { data: credits, isLoading: isLoadingCredits } = useUserCredits(!!session?.user?.id);
   const { data: subscription, isLoading: isLoadingSubscription } = useUserSubscription(!!session?.user?.id);
   const deleteMapMutation = useDeleteMap();
+  const updateMapMutation = useUpdateMap();
 
   // Local state synced with profile query
   const [bio, setBio] = useState('');
@@ -338,31 +347,64 @@ export default function DashboardPage() {
     }
   }, [saveEditedName, cancelEditingName]);
 
-  // Handle import completion - create new map with imported skills and update profile
+  // Handle import completion - smart merge with existing data or create new
   const handleImportComplete = useCallback(async (result: ImportResult) => {
     setIsCreatingMap(true);
     try {
-      // Create a new map with the imported skills as custom nodes/edges
-      const mapResponse = await fetch(`${API_ROUTES.MAP}/fork`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: result.suggestedTitle,
-          customNodes: result.nodes,
-          customEdges: result.edges,
-        }),
-      });
+      // Build existing maps info for similarity checking
+      const existingMapsInfo: SavedCareerInfo[] = savedCareers.map(sc => ({
+        mapId: sc.graph.id,
+        title: sc.graph.title || sc.career?.title || '',
+        skills: sc.graph.nodeData?.map(n => n.skillId) || [],
+      }));
 
-      const mapData = await mapResponse.json();
+      // Check for similar existing skill map
+      const similarMap = findSimilarSkillMap(
+        result.suggestedTitle,
+        result.nodes,
+        existingMapsInfo
+      );
 
-      if (!mapResponse.ok || !mapData.mapId) {
-        throw new Error(mapData.error || 'Failed to create map');
+      let targetMapId: string;
+
+      if (similarMap) {
+        // Update existing map instead of creating new
+        await updateMapMutation.mutateAsync({
+          mapId: similarMap.mapId,
+          updates: {
+            title: result.suggestedTitle,
+            customNodes: result.nodes,
+            customEdges: result.edges,
+          },
+        });
+        targetMapId = similarMap.mapId;
+        showToast.success(t('import.mapUpdated'));
+      } else {
+        // Create a new map with the imported skills
+        const mapResponse = await fetch(`${API_ROUTES.MAP}/fork`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: result.suggestedTitle,
+            customNodes: result.nodes,
+            customEdges: result.edges,
+          }),
+        });
+
+        const mapData = await mapResponse.json();
+
+        if (!mapResponse.ok || !mapData.mapId) {
+          throw new Error(mapData.error || 'Failed to create map');
+        }
+        targetMapId = mapData.mapId;
+        showToast.success(t('import.success'));
       }
 
-      // If any profile data was extracted, update the user profile
+      // If any profile data was extracted, update the user profile with smart merging
       const hasProfileData = result.bio || result.phone || result.address ||
         (result.experience && result.experience.length > 0) ||
-        (result.projects && result.projects.length > 0);
+        (result.projects && result.projects.length > 0) ||
+        (result.education && result.education.length > 0);
 
       if (hasProfileData) {
         const profileUpdate: {
@@ -374,13 +416,16 @@ export default function DashboardPage() {
           education?: Education[];
         } = {};
 
-        // Update bio if extracted (always update from import)
+        // Smart bio merging - merge instead of replace
         if (result.bio) {
-          profileUpdate.bio = clampString(result.bio, RESUME_CONFIG.bioMaxLength);
+          const bioResult = mergeBio(bio, result.bio);
+          if (bioResult.action !== 'kept') {
+            profileUpdate.bio = clampString(bioResult.bio, RESUME_CONFIG.bioMaxLength);
+          }
         }
 
-        // Update phone if extracted (always update from import)
-        if (result.phone) {
+        // Update phone if extracted and not already set
+        if (result.phone && !phone) {
           profileUpdate.phone = clampString(result.phone, RESUME_CONFIG.phoneMaxLength);
         }
 
@@ -394,39 +439,33 @@ export default function DashboardPage() {
           });
         }
 
-        // Merge extracted experience with existing experience
+        // Smart experience merging with fuzzy matching
         if (result.experience && result.experience.length > 0) {
-          // Convert ExtractedExperience to WorkExperience by adding unique IDs
-          const newExperiences: WorkExperience[] = result.experience.map((exp, idx) => ({
-            id: `imported-${Date.now()}-${idx}`,
-            company: clampString(exp.company, RESUME_CONFIG.experienceCompanyMaxLength),
-            title: clampString(exp.title, RESUME_CONFIG.experienceTitleMaxLength),
-            startDate: exp.startDate,
-            endDate: exp.endDate,
-            description: clampString(exp.description, RESUME_CONFIG.experienceDescriptionMaxLength),
-            location: exp.location ? clampString(exp.location, RESUME_CONFIG.experienceLocationMaxLength) : undefined,
-          }));
-
-          // Merge with existing, avoiding duplicates (by company + title + startDate)
-          const existingKeys = new Set(
-            experience.map(e => `${e.company}-${e.title}-${e.startDate}`)
-          );
-          const uniqueNewExps = newExperiences.filter(
-            e => !existingKeys.has(`${e.company}-${e.title}-${e.startDate}`)
+          const newExperiences: WorkExperience[] = result.experience.map((exp, idx) =>
+            normalizeExperience({
+              id: `imported-${Date.now()}-${idx}`,
+              company: exp.company,
+              title: exp.title,
+              startDate: exp.startDate,
+              endDate: exp.endDate,
+              description: exp.description,
+              location: exp.location,
+            })
           );
 
-          if (uniqueNewExps.length > 0) {
-            // Combine and sort by start date (most recent first)
-            const combinedExperience = [...experience, ...uniqueNewExps]
-              .sort((a, b) => (b.startDate || '').localeCompare(a.startDate || ''))
-              .slice(0, RESUME_CONFIG.experienceMaxItems);
-            profileUpdate.experience = combinedExperience;
+          const expResult = mergeExperienceArrays(
+            experience,
+            newExperiences,
+            RESUME_CONFIG.experienceMaxItems
+          );
+
+          if (expResult.added > 0 || expResult.updated > 0) {
+            profileUpdate.experience = expResult.merged;
           }
         }
 
-        // Merge extracted projects with existing projects
+        // Smart project merging with fuzzy matching
         if (result.projects && result.projects.length > 0) {
-          // Convert ExtractedProject to Project by adding unique IDs
           const newProjects: Project[] = result.projects.map((proj, idx) =>
             normalizeProject({
               id: `imported-${Date.now()}-${idx}`,
@@ -439,21 +478,18 @@ export default function DashboardPage() {
             })
           );
 
-          // Merge with existing, avoiding duplicates (by name)
-          const existingNames = new Set(projects.map(p => p.name.toLowerCase()));
-          const uniqueNewProjects = newProjects.filter(
-            p => !existingNames.has(p.name.toLowerCase())
+          const projResult = mergeProjectArrays(
+            projects,
+            newProjects,
+            RESUME_CONFIG.projectsMaxItems
           );
 
-          if (uniqueNewProjects.length > 0) {
-            // Combine and limit to max projects
-            const combinedProjects = [...projects, ...uniqueNewProjects]
-              .slice(0, RESUME_CONFIG.projectsMaxItems);
-            profileUpdate.projects = combinedProjects;
+          if (projResult.added > 0 || projResult.updated > 0) {
+            profileUpdate.projects = projResult.merged;
           }
         }
 
-        // Merge extracted education with existing education
+        // Smart education merging with fuzzy matching
         if (result.education && result.education.length > 0) {
           const newEducation: Education[] = result.education.map((edu, idx) =>
             normalizeEducation({
@@ -468,18 +504,14 @@ export default function DashboardPage() {
             })
           );
 
-          const existingKeys = new Set(
-            education.map(e => `${e.school}-${e.degree ?? ''}-${e.startDate ?? ''}`.toLowerCase())
+          const eduResult = mergeEducationArrays(
+            education,
+            newEducation,
+            RESUME_CONFIG.educationMaxItems
           );
 
-          const uniqueNewEducation = newEducation.filter(
-            e => !existingKeys.has(`${e.school}-${e.degree ?? ''}-${e.startDate ?? ''}`.toLowerCase())
-          );
-
-          if (uniqueNewEducation.length > 0) {
-            const combinedEducation = [...education, ...uniqueNewEducation]
-              .slice(0, RESUME_CONFIG.educationMaxItems);
-            profileUpdate.education = combinedEducation;
+          if (eduResult.added > 0 || eduResult.updated > 0) {
+            profileUpdate.education = eduResult.merged;
           }
         }
 
@@ -517,20 +549,18 @@ export default function DashboardPage() {
             showToast.success(t('import.profileUpdated'));
           } else {
             showToast.error(await extractErrorMessage(profileResponse, t('import.importFailed')));
-            console.error('Profile update failed after import:', profileResponse.status);
           }
         }
       }
 
-      showToast.success(t('import.success'));
-      // Redirect to the new map
-      router.push(`/career/${mapData.mapId}`);
+      // Redirect to the map
+      router.push(`/career/${targetMapId}`);
     } catch (err) {
       showToast.error(err instanceof Error ? err.message : t('import.createFailed'));
     } finally {
       setIsCreatingMap(false);
     }
-  }, [router, t, address, experience, projects, education]);
+  }, [router, t, bio, phone, address, experience, projects, education, savedCareers, updateMapMutation]);
 
   // Calculate stats from saved careers
   const stats = {

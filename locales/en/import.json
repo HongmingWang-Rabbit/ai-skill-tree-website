@@ -18,6 +18,7 @@
   "importFailed": "Failed to import skills",
   "createFailed": "Failed to create skill map",
   "success": "Skills imported successfully!",
+  "mapUpdated": "Existing skill map updated with imported skills",
   "profileUpdated": "Profile updated with imported info",
   "back": "Back",
   "confirm": "Create Map",

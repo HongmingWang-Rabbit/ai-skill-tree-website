@@ -18,6 +18,7 @@
   "importFailed": "スキルのインポートに失敗しました",
   "createFailed": "スキルマップの作成に失敗しました",
   "success": "スキルを正常にインポートしました！",
+  "mapUpdated": "既存のスキルマップを更新しました",
   "profileUpdated": "プロフィールを更新しました",
   "back": "戻る",
   "confirm": "マップを作成",

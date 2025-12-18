@@ -80,7 +80,30 @@ Users can import skills, contact info, professional bio, work experience, and pr
 - `EXTENSION_TO_MIME`: Extension to MIME type mapping
 - `SUPPORTED_FILE_ACCEPT`: HTML file input accept attribute string
 
+## Smart Merge Behavior
+
+When importing, the system uses fuzzy matching to intelligently merge with existing data instead of creating duplicates.
+
+### Skill Maps
+- Checks existing maps for similar title (60%+ similarity) or skill overlap (60%+ Jaccard similarity)
+- If similar map found → updates it with new skills
+- If no match → creates new map
+
+### Profile Data Merging (`lib/import-merge.ts`)
+- **Bio**: Merges if different, keeps if too similar (70%+ threshold)
+- **Work Experience**: Fuzzy matches by company+title (weighted 60%/40%), updates similar entries
+- **Projects**: Fuzzy matches by name or exact URL match, merges technologies
+- **Education**: Fuzzy matches by school name, updates similar entries
+- **Contact Info**: Phone only updated if not already set; address fields merged
+
+### Configuration (`IMPORT_MERGE_CONFIG` in `lib/constants.ts`)
+- `similarityThreshold`: 0.6 (60% for general matching)
+- `bioSimilarityThreshold`: 0.7 (70% for bio - only merge if significantly different)
+- `dateMatchBoost`: 0.8 (effective similarity when dates match exactly)
+- `degreeMatchThreshold`: 0.5 (more lenient for degree matching)
+- `companyWeight`/`titleWeight`: 0.6/0.4 (company name weighted higher)
+
 ## Update vs Create Mode
 
-- Dashboard: Creates new skill maps (`mode='create'`)
+- Dashboard: Smart merge with existing maps or create new (`mode='create'`)
 - AI Chat: Updates existing maps (`mode='update'`), filtering out duplicate skills

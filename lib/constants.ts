@@ -161,6 +161,18 @@ export const MERGE_CONFIG = {
   similarityThreshold: 0.3, // Minimum similarity score to highlight as "recommended"
 } as const;
 
+// Import Merge Configuration (for smart deduplication during imports)
+export const IMPORT_MERGE_CONFIG = {
+  // Fuzzy matching thresholds (0-1 scale)
+  similarityThreshold: 0.6, // General threshold for matching items (company, title, school, etc.)
+  bioSimilarityThreshold: 0.7, // Higher threshold for bio - only merge if significantly different
+  dateMatchBoost: 0.8, // Effective similarity when dates match exactly
+  degreeMatchThreshold: 0.5, // Lower threshold for degree matching (more lenient)
+  // Weights for combined similarity scores
+  companyWeight: 0.6, // Company name is more important than title
+  titleWeight: 0.4, // Job title weight in experience matching
+} as const;
+
 // Learning Resources Configuration
 export const LEARNING_CONFIG = {
   // Platform domains for Tavily search (grouped by type)

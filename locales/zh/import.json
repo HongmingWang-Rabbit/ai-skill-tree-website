@@ -18,6 +18,7 @@
   "importFailed": "导入技能失败",
   "createFailed": "创建技能地图失败",
   "success": "技能导入成功！",
+  "mapUpdated": "已更新现有技能地图",
   "profileUpdated": "个人资料已更新",
   "back": "返回",
   "confirm": "创建地图",
