@@ -286,9 +286,10 @@ OPTIMIZATION GUIDELINES:
    - Separate multiple achievements into distinct bullet points using line breaks
 
 4. TRANSLATION & LOCALIZATION:
-   - Translate the job title to the target language (e.g., "Software Engineer" → "软件工程师" for Chinese, "ソフトウェアエンジニア" for Japanese)
+   - ALL output must be in ${LOCALE_NAMES[locale]}
+   - Translate job titles to ${LOCALE_NAMES[locale]} (e.g., "产品经理" → "Product Manager" for English, "Software Engineer" → "软件工程师" for Chinese)
    - Keep company names in their original form (do not translate company names)
-   - Ensure all output text is in the target language
+   - If source content is in a different language, translate it to ${LOCALE_NAMES[locale]}
 
 5. TEXT FORMATTING:
    - Use non-breaking space (\\u00A0) between words that should stay together:
@@ -329,20 +330,19 @@ Return a JSON object with this exact structure:
     {
       "id": "same id as input",
       "company": "same company as input (do not translate)",
-      "title": "translated job title in target language",
+      "title": "job title in ${LOCALE_NAMES[locale]}",
       "startDate": "same start date as input",
       "endDate": "same end date as input or null",
-      "description": "optimized description in target language with bullet points separated by newlines",
-      "location": "translated location if provided (city, state, country names should be in target language)"
+      "description": "optimized description in ${LOCALE_NAMES[locale]} with bullet points separated by newlines",
+      "location": "location in ${LOCALE_NAMES[locale]} if provided"
     }
   ]
 }
 
 IMPORTANT:
 - Keep id, company name, and dates exactly as provided
-- Translate the job title to the target language
-- Translate location names to the target language (e.g., "Richmond, BC, Canada" → "列治文, 卑诗省, 加拿大" for Chinese)
-- Write the description entirely in the target language
+- ALL text output (job title, description, location) MUST be in ${LOCALE_NAMES[locale]}
+- If any source content is in Chinese/Japanese, translate it to ${LOCALE_NAMES[locale]}
 - Return entries in the same order as input
 - Use bullet points (•) at the start of each achievement
 - Separate bullet points with newlines`;
