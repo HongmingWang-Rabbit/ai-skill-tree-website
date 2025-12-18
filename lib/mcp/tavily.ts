@@ -157,6 +157,51 @@ export async function searchLearningResources(
 }
 
 /**
+ * Search for company information for cover letter personalization
+ * @param companyName - Name of the company to research
+ */
+export async function searchCompanyInfo(
+  companyName: string
+): Promise<TavilySearchResponse | null> {
+  const { searchDepth, maxResults } = TAVILY_CONFIG.companyResearch;
+  const year = new Date().getFullYear();
+  const query = `${companyName} company about mission products services ${year}`;
+
+  return searchTavily(query, {
+    searchDepth,
+    maxResults,
+  });
+}
+
+/**
+ * Format company search results for cover letter AI context
+ */
+export function formatCompanyResearchForAI(
+  searchResponse: TavilySearchResponse | null,
+  companyName: string
+): string {
+  if (!searchResponse || searchResponse.results.length === 0) {
+    return '';
+  }
+
+  const { maxResultsToInclude, contentPreviewLength } = TAVILY_CONFIG.companyResearch;
+  const { results, answer } = searchResponse;
+
+  let formatted = `\nCOMPANY RESEARCH FOR ${companyName.toUpperCase()}:\n`;
+
+  if (answer) {
+    formatted += `Overview: ${answer}\n\n`;
+  }
+
+  formatted += 'Key Information:\n';
+  results.slice(0, maxResultsToInclude).forEach((result) => {
+    formatted += `- ${result.content.slice(0, contentPreviewLength)}...\n`;
+  });
+
+  return formatted;
+}
+
+/**
  * Detect platform from URL hostname
  */
 export function detectPlatformFromUrl(url: string): string {

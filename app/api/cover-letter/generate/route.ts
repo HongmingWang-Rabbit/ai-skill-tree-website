@@ -13,6 +13,7 @@ import {
   type UserProfile,
   type JobRequirements,
 } from '@/lib/ai-resume';
+import { searchCompanyInfo, formatCompanyResearchForAI } from '@/lib/mcp/tavily';
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
@@ -141,11 +142,14 @@ export async function POST(request: Request) {
 
     // Analyze job requirements if job info provided
     let jobRequirements: JobRequirements | null = null;
+    let jobPostingContent: string | null = null;
 
     if (jobUrl) {
       try {
         const parsed = await parseURL(jobUrl);
         if (parsed.content && parsed.content.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
+          // Store the raw job posting content for cover letter personalization
+          jobPostingContent = parsed.content;
           jobRequirements = await analyzeJobPosting(parsed.content, jobTitle, locale as Locale);
         }
       } catch {
@@ -171,12 +175,25 @@ export async function POST(request: Request) {
       }
     }
 
-    // Generate cover letter
+    // Do company background research if we have a company name
+    let companyResearch: string | null = null;
+    if (jobRequirements?.companyName) {
+      try {
+        const searchResults = await searchCompanyInfo(jobRequirements.companyName);
+        companyResearch = formatCompanyResearchForAI(searchResults, jobRequirements.companyName);
+      } catch {
+        // Company research failed - continue without it
+      }
+    }
+
+    // Generate cover letter with job posting content and company research for personalization
     const coverLetterContent = await generateCoverLetter(
       userProfile,
       careerSkillData,
       jobRequirements,
       companyInfo,
+      jobPostingContent,
+      companyResearch,
       locale as Locale
     );
 

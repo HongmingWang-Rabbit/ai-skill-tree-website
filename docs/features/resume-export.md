@@ -102,10 +102,17 @@ Users can select output language independent of UI language:
 
 The cover letter feature creates personalized letters with:
 
-1. **Opening Hook** - Compelling intro that shows immediate relevance
-2. **Body Paragraphs** - 2-3 achievement highlights with metrics
-3. **Company Connection** - Shows research and genuine interest
-4. **Strong Closing** - Call to action with enthusiasm
+1. **Opening Hook** - Compelling intro that shows immediate relevance to the specific company
+2. **Body Paragraphs** - 2-3 achievement highlights with metrics tailored to job requirements
+3. **Company Connection** - References specific details from the job posting (products, mission, challenges)
+4. **Strong Closing** - Call to action mentioning the specific role and company
+
+**Personalization:** When a job URL is provided:
+1. Full job posting content is passed to the AI for context
+2. Company name is extracted from job requirements
+3. **Automatic company research via Tavily web search** - fetches company mission, products, services, and recent news
+4. AI uses all this context to tailor every paragraph to that specific company
+5. No placeholder text like "[Company Name]" is ever used
 
 ### Cover Letter API
 
