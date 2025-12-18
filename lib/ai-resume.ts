@@ -1,10 +1,34 @@
 import OpenAI from 'openai';
 import { z } from 'zod';
 import { type Locale } from '@/i18n/routing';
-import { RESUME_CONFIG, AI_LOCALE_INSTRUCTIONS } from './constants';
+import { RESUME_CONFIG, AI_LOCALE_INSTRUCTIONS, LOCALE_NAMES, PDF_FONT_CONFIG } from './constants';
 import { type WorkExperience, type Project, type UserAddress, type Education } from './schemas';
 
 const openai = new OpenAI();
+
+// Helper to detect if content contains CJK characters (needs translation)
+function containsCJK(text: string | null | undefined): boolean {
+  if (!text) return false;
+  return PDF_FONT_CONFIG.cjkPattern.test(text);
+}
+
+// Check if any field in education entries contains CJK
+function educationContainsCJK(education: Education[]): boolean {
+  return education.some(edu =>
+    containsCJK(edu.degree) ||
+    containsCJK(edu.fieldOfStudy) ||
+    containsCJK(edu.location) ||
+    containsCJK(edu.description)
+  );
+}
+
+// Check if any field in project entries contains CJK
+function projectsContainCJK(projects: Project[]): boolean {
+  return projects.some(proj =>
+    containsCJK(proj.name) ||
+    containsCJK(proj.description)
+  );
+}
 
 // Types for job requirements extracted from job postings
 export interface JobRequirements {
@@ -356,8 +380,8 @@ export async function optimizeEducation(
     return [];
   }
 
-  // If locale is English, return the original data without AI call
-  if (locale === 'en') {
+  // If locale is English and no CJK content, return original data without AI call
+  if (locale === 'en' && !educationContainsCJK(education)) {
     return education.map(edu => ({
       id: edu.id,
       school: edu.school,
@@ -376,8 +400,11 @@ ${AI_LOCALE_INSTRUCTIONS[locale]}
 Your task is to translate education entries while maintaining accuracy and professional standards.
 
 TRANSLATION GUIDELINES:
-1. Translate degree names to standard equivalents in target language (e.g., "Bachelor of Science" → "理学学士" for Chinese, "理学士" for Japanese)
-2. Translate field of study to standard academic terminology
+1. Translate degree names to standard equivalents in target language:
+   - For English: "学士" → "Bachelor's", "硕士" → "Master's", "博士" → "Ph.D.", "理学" → "Science", "工学" → "Engineering", "文学" → "Arts"
+   - For Chinese: "Bachelor of Science" → "理学学士"
+   - For Japanese: "Bachelor of Science" → "理学士"
+2. Translate field of study to standard academic terminology in target language
 3. Translate location names (city, state, country) to target language
 4. Keep school names in their original form (do not translate institution names)
 5. Translate any description text
@@ -385,7 +412,7 @@ TRANSLATION GUIDELINES:
 
 Return valid JSON only.`;
 
-  const userPrompt = `Translate the following education entries to the target language.
+  const userPrompt = `Translate the following education entries to ${LOCALE_NAMES[locale]}.
 
 EDUCATION ENTRIES:
 ${education.map((edu, idx) => `
@@ -410,7 +437,7 @@ Return a JSON object with this exact structure:
       "fieldOfStudy": "translated field of study in target language",
       "startDate": "same start date as input or null",
       "endDate": "same end date as input or null",
-      "location": "translated location in target language (e.g., 'Vancouver, BC, Canada' → '温哥华, 卑诗省, 加拿大')",
+      "location": "translated location in target language",
       "description": "translated description or null"
     }
   ]
@@ -418,7 +445,7 @@ Return a JSON object with this exact structure:
 
 IMPORTANT:
 - Keep id, school name, and dates exactly as provided
-- Translate degree, fieldOfStudy, location, and description
+- Translate degree, fieldOfStudy, location, and description to ${LOCALE_NAMES[locale]}
 - Return null for any field that was 'Not specified' in input
 - Return entries in the same order as input`;
 
@@ -455,8 +482,8 @@ export async function optimizeProjects(
     return [];
   }
 
-  // If locale is English, return the original data without AI call
-  if (locale === 'en') {
+  // If locale is English and no CJK content, return original data without AI call
+  if (locale === 'en' && !projectsContainCJK(projects)) {
     return projects.map(proj => ({
       id: proj.id,
       name: proj.name,
@@ -482,7 +509,7 @@ TRANSLATION GUIDELINES:
 
 Return valid JSON only.`;
 
-  const userPrompt = `Translate the following project entries to the target language.
+  const userPrompt = `Translate the following project entries to ${LOCALE_NAMES[locale]}.
 
 PROJECT ENTRIES:
 ${projects.map((proj, idx) => `
@@ -513,7 +540,7 @@ Return a JSON object with this exact structure:
 
 IMPORTANT:
 - Keep id, url, technologies, and dates exactly as provided
-- Translate name and description to target language
+- Translate name and description to ${LOCALE_NAMES[locale]}
 - Technology names should NOT be translated (React, Python, etc. stay in English)
 - Return null for any field that was 'Not specified' in input
 - Return entries in the same order as input`;

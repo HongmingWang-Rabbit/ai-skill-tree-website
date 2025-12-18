@@ -51,6 +51,8 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 - **Features**: `AI_CHAT_CONFIG`, `DOCUMENT_IMPORT_CONFIG`, `RESUME_CONFIG`, `LEARNING_CONFIG`, `BLOG_CONFIG`
 - **Layout**: `MASTER_GRAPH_CONFIG`, `LANDING_PAGE_CONFIG`
 - **SEO**: `SEO_CONFIG`, `SITE_URL`
+- **i18n**: `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `PDF_LABELS`
+- **PDF**: `PDF_FONT_CONFIG` (font URLs, families, CJK pattern), `PDF_STYLES`
 
 ## Components
 

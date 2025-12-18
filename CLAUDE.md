@@ -84,7 +84,7 @@ import { DropdownMenu } from '@/components/ui';
 ## Key Files
 
 - `i18n/routing.ts` - Locales, namespaces, OG locale mapping, `getLocaleUrl()`, `getLocalePath()`
-- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `BLOG_CONFIG`)
+- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `BLOG_CONFIG`)
 - `lib/schemas.ts` - Zod schemas and shared types
 - `lib/ai-resume.ts` - Resume/cover letter AI functions
 - `lib/document-parser.ts` - Document parsing (`parsePDF`, `parseWord`, `parseURL`) with dynamic imports for serverless

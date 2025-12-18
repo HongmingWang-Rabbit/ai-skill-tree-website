@@ -321,6 +321,13 @@ export const AI_LOCALE_INSTRUCTIONS = {
   ja: 'Generate all content in Japanese (日本語).',
 } as const;
 
+// Human-readable locale names for AI prompts
+export const LOCALE_NAMES = {
+  en: 'English',
+  zh: 'Chinese',
+  ja: 'Japanese',
+} as const;
+
 // PDF Font Configuration for CJK support
 export const PDF_FONT_CONFIG = {
   // Google Fonts CDN URLs for Noto Sans CJK fonts

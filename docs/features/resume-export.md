@@ -51,9 +51,11 @@ Users can select output language independent of UI language:
   - Education degrees, fields of study, locations
   - Project names and descriptions
   - Professional summary and highlights
+- **Bidirectional translation**: CJK content is translated to English when English locale is selected (and vice versa)
 - Company names, school names, and technology names are preserved in original form
-- CJK fonts (Noto Sans SC/JP) registered for proper rendering
+- CJK fonts (Noto Sans SC/JP) registered for proper rendering (fallback for any untranslated content)
 - Custom hyphenation callback enables proper Chinese/Japanese text wrapping
+- `LOCALE_NAMES` constant provides human-readable locale names for AI prompts
 
 ## PDF Options
 
