@@ -1,8 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { marked } from 'marked';
 import { Locale, locales } from '@/i18n/routing';
 import { BLOG_CONFIG, PDF_FONT_CONFIG } from '@/lib/constants';
+
+// Configure marked for GFM support
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
 
 // Blog post frontmatter interface
 export interface BlogPostMeta {
@@ -24,7 +31,8 @@ export interface TocItem {
 // Full blog post with content
 export interface BlogPost extends BlogPostMeta {
   slug: string;
-  content: string;
+  content: string; // raw markdown
+  htmlContent: string; // pre-rendered HTML
   locale: string;
   readingTime: number; // minutes
   toc: TocItem[];
@@ -67,6 +75,18 @@ export function calculateReadingTime(content: string): number {
 }
 
 /**
+ * Generate slug ID from heading text
+ */
+export function generateHeadingId(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/**
  * Extract table of contents from markdown content
  */
 export function extractToc(content: string): TocItem[] {
@@ -77,18 +97,29 @@ export function extractToc(content: string): TocItem[] {
   while ((match = headingRegex.exec(content)) !== null) {
     const level = match[1].length; // 2 = h2, 3 = h3, 4 = h4
     const text = match[2].trim();
-    // Generate slug-like ID from heading text
-    const id = text
-      .toLowerCase()
-      .replace(/[^\w\s\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
+    const id = generateHeadingId(text);
     toc.push({ id, text, level });
   }
 
   return toc;
+}
+
+/**
+ * Render markdown to HTML with heading IDs for TOC links
+ */
+export function renderMarkdown(content: string): string {
+  // Custom renderer to add IDs to headings
+  const renderer = new marked.Renderer();
+
+  renderer.heading = ({ text, depth }) => {
+    if (depth >= 2 && depth <= 4) {
+      const id = generateHeadingId(text);
+      return `<h${depth} id="${id}" class="scroll-mt-20">${text}</h${depth}>`;
+    }
+    return `<h${depth}>${text}</h${depth}>`;
+  };
+
+  return marked(content, { renderer }) as string;
 }
 
 const BLOG_DIR = path.join(process.cwd(), BLOG_CONFIG.contentDir);
@@ -147,6 +178,7 @@ export function getBlogPost(slug: string, locale: string): BlogPost | null {
     slug,
     locale,
     content,
+    htmlContent: renderMarkdown(content),
     title: data.title || slug,
     description: data.description || '',
     date: data.date || new Date().toISOString().split('T')[0],

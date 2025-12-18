@@ -1,7 +1,5 @@
 'use client';
 
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
@@ -18,7 +16,7 @@ interface TocItem {
 interface BlogPostData {
   slug: string;
   locale: string;
-  content: string;
+  htmlContent: string; // Pre-rendered HTML from server
   title: string;
   description: string;
   date: string;
@@ -32,31 +30,6 @@ interface BlogPostData {
 
 interface BlogPostProps {
   post: BlogPostData;
-}
-
-// Generate slug from heading text (must match extractToc logic in lib/blog.ts)
-function generateHeadingId(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-// Custom heading components with IDs for TOC anchor links
-function HeadingWithId({
-  level,
-  children,
-  ...props
-}: { level: 2 | 3 | 4 } & React.HTMLAttributes<HTMLHeadingElement>) {
-  const text = typeof children === 'string' ? children : String(children);
-  const id = generateHeadingId(text);
-  const className = 'scroll-mt-20';
-
-  if (level === 2) return <h2 id={id} className={className} {...props}>{children}</h2>;
-  if (level === 3) return <h3 id={id} className={className} {...props}>{children}</h3>;
-  return <h4 id={id} className={className} {...props}>{children}</h4>;
 }
 
 // Table of Contents component
@@ -148,19 +121,11 @@ export function BlogPost({ post }: BlogPostProps) {
       {/* Table of Contents */}
       <TableOfContents items={post.toc} title={t('tableOfContents')} />
 
-      {/* Content */}
-      <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-p:text-slate-300 prose-a:text-purple-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-code:text-purple-300 prose-code:bg-slate-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700 prose-blockquote:border-purple-500 prose-blockquote:text-slate-400 prose-li:text-slate-300 prose-img:rounded-xl">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            h2: (props) => <HeadingWithId level={2} {...props} />,
-            h3: (props) => <HeadingWithId level={3} {...props} />,
-            h4: (props) => <HeadingWithId level={4} {...props} />,
-          }}
-        >
-          {post.content}
-        </ReactMarkdown>
-      </div>
+      {/* Content - Pre-rendered HTML */}
+      <div
+        className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-p:text-slate-300 prose-a:text-purple-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-code:text-purple-300 prose-code:bg-slate-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700 prose-blockquote:border-purple-500 prose-blockquote:text-slate-400 prose-li:text-slate-300 prose-img:rounded-xl"
+        dangerouslySetInnerHTML={{ __html: post.htmlContent }}
+      />
     </article>
   );
 }
