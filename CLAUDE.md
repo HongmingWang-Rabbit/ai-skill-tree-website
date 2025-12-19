@@ -86,7 +86,7 @@ import { DropdownMenu } from '@/components/ui';
 - `i18n/routing.ts` - Locales, namespaces, OG locale mapping, `getLocaleUrl()`, `getLocalePath()`
 - `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `BLOG_CONFIG`, `IMPORT_MERGE_CONFIG`)
 - `lib/schemas.ts` - Zod schemas and shared types
-- `lib/ai-resume.ts` - Resume/cover letter AI functions (job filtering, optimization, personalized cover letters)
+- `lib/ai-resume.ts` - Resume/cover letter AI functions (relevance rating, optimization, personalized cover letters)
 - `lib/document-parser.ts` - Document parsing (`parsePDF`, `parseWord`, `parseURL`) with dynamic imports for serverless
 - `lib/import-merge.ts` - Smart import merging utilities (fuzzy matching, deduplication for bio, experience, projects, education, skill maps)
 - `lib/blog.ts` - Blog utilities (`getBlogPosts()`, `getBlogPost()`, `calculateReadingTime()`, `extractToc()`)

@@ -36,7 +36,7 @@ Users can generate professional PDF resumes and personalized cover letters based
 
 All resumes are automatically optimized with 6 techniques:
 
-1. **Job-Targeted Relevance Filtering** - Excludes irrelevant work experiences and projects that don't match the target position (e.g., retail jobs excluded when applying for tech roles)
+1. **Relevance Rating** - ALL related work experiences, projects, and skills are included with relevance ratings (high/medium/low) based on job requirements. Items are ordered by relevance with most relevant first.
 2. **Role-Targeted Rewrite** - Matches language and priorities from job description
 3. **Impact Upgrade** - Rewrites experience with metrics, outcomes, strong verbs
 4. **ATS Optimization** - Injects exact keywords from job description naturally
@@ -92,9 +92,9 @@ Users can select output language independent of UI language:
 |----------|---------|
 | `analyzeJobPosting()` | Extract requirements from job posting URL |
 | `analyzeJobTitle()` | Infer requirements from job title only |
-| `optimizeExperience()` | Filter irrelevant + rewrite with impact/ATS/clarity + translate |
+| `optimizeExperience()` | Include all related + rewrite with impact/ATS/clarity + translate + rate relevance |
 | `optimizeEducation()` | Translate education entries (degree, field, location) |
-| `optimizeProjects()` | Filter irrelevant + translate project entries (name, description) |
+| `optimizeProjects()` | Include all related + translate project entries (name, description) + rate relevance |
 | `generateResumeContent()` | Generate summary, skills, highlights, strengths |
 | `generateCoverLetter()` | Generate personalized cover letter with company connection |
 

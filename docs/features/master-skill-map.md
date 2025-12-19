@@ -5,8 +5,10 @@ The dashboard displays a "Skill Universe" visualization showing all user's caree
 ## Data Flow
 
 1. User visits dashboard → `GET /api/user/master-map` fetches all career graphs
-2. Data returned directly from database (no AI processing)
-3. `MasterSkillGraph` component renders React Flow graph with radial layout
+2. For each career, uses `customNodes` if present (from AI modifications or merging), otherwise falls back to base `skillGraph.nodes`
+3. User progress from `nodeData` is overlaid on the skills
+4. Data returned directly from database (no AI processing)
+5. `MasterSkillGraph` component renders React Flow graph with radial layout
 
 ## Graph Structure
 
