@@ -623,7 +623,7 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/dashboard')}
               className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
             >
               <svg

@@ -267,13 +267,12 @@ ${jobRequirements ? `TARGET POSITION CONTEXT:
 The candidate is applying for a position requiring these skills: ${[...jobRequirements.requiredSkills.slice(0, RESUME_CONFIG.maxRequiredSkillsInContext), ...jobRequirements.preferredSkills.slice(0, RESUME_CONFIG.maxPreferredSkillsInContext)].join(', ')}
 Key responsibilities include: ${jobRequirements.responsibilities.slice(0, RESUME_CONFIG.maxResponsibilitiesInContext).join('; ')}
 
-CRITICAL - RELEVANCE FILTERING:
-- ONLY include work experiences that are RELEVANT to the target position
-- EXCLUDE experiences that have NO transferable skills or relevance to the target role
-- Examples of what to EXCLUDE for a tech role: retail positions (cashier, sales associate), food service, general labor, unrelated part-time jobs
-- Examples of what to INCLUDE: Any tech-related roles, leadership positions, project management, analytical roles, or positions with transferable skills
-- When in doubt about relevance, consider if the experience demonstrates: technical skills, problem-solving, leadership, communication, or domain knowledge applicable to the target role
-- It's better to have 2-4 highly relevant experiences than 6+ with irrelevant padding
+RELEVANCE HANDLING:
+- Include ALL work experiences that have ANY relevance to the target position
+- Include experiences that demonstrate transferable skills like: technical skills, problem-solving, leadership, communication, teamwork, or domain knowledge
+- Only exclude experiences that are COMPLETELY irrelevant with NO transferable value whatsoever
+- When in doubt, INCLUDE the experience - more relevant content is better than less
+- Order experiences by relevance (most relevant first)
 
 ` : ''}For each RELEVANT work experience entry, rewrite the description to be more impactful while preserving all factual information.
 
@@ -355,7 +354,7 @@ IMPORTANT:
 - Keep id, company name, and dates exactly as provided
 - ALL text output (job title, description, location) MUST be in ${LOCALE_NAMES[locale]}
 - If any source content is in Chinese/Japanese, translate it to ${LOCALE_NAMES[locale]}
-- ONLY return experiences that are RELEVANT to the target position - EXCLUDE irrelevant ones entirely
+- Include ALL experiences that have ANY relevance or transferable skills - only exclude if completely irrelevant
 - Order returned experiences by relevance (most relevant first)
 - Use bullet points (•) at the start of each achievement
 - Separate bullet points with newlines`;
@@ -515,11 +514,12 @@ ${AI_LOCALE_INSTRUCTIONS[locale]}
 ${jobRequirements ? `TARGET POSITION CONTEXT:
 The candidate is applying for a position requiring these skills: ${[...jobRequirements.requiredSkills.slice(0, RESUME_CONFIG.maxRequiredSkillsInContext), ...jobRequirements.preferredSkills.slice(0, RESUME_CONFIG.maxPreferredSkillsInContext)].join(', ')}
 
-CRITICAL - RELEVANCE FILTERING:
-- ONLY include projects that are RELEVANT to the target position
-- EXCLUDE projects that demonstrate no relevant skills or technologies
-- Prioritize projects that showcase skills matching the job requirements
-- It's better to have 2-4 highly relevant projects than many irrelevant ones
+RELEVANCE HANDLING:
+- Include ALL projects that have ANY relevance to the target position
+- Include projects that demonstrate transferable skills or technologies
+- Only exclude projects that are COMPLETELY irrelevant with NO transferable value whatsoever
+- When in doubt, INCLUDE the project - more relevant content is better than less
+- Order projects by relevance (most relevant first)
 
 ` : ''}Your task is to translate project entries while maintaining technical accuracy.
 
@@ -566,7 +566,7 @@ IMPORTANT:
 - Translate name and description to ${LOCALE_NAMES[locale]}
 - Technology names should NOT be translated (React, Python, etc. stay in English)
 - Return null for any field that was 'Not specified' in input
-- ONLY return projects that are RELEVANT to the target position - EXCLUDE irrelevant ones entirely
+- Include ALL projects that have ANY relevance or transferable skills - only exclude if completely irrelevant
 - Order returned projects by relevance (most relevant first)`;
 
   const response = await openai.chat.completions.create({
