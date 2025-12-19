@@ -30,5 +30,14 @@
     "sort": "整理布局",
     "share": "分享",
     "delete": "删除"
+  },
+  "graphComplete": {
+    "title": "恭喜！",
+    "message": "你已掌握此职业路径的所有技能！是否要用更高级的技能来扩展你的技能树？",
+    "expand": "扩展高级技能",
+    "later": "稍后再说",
+    "expanding": "正在生成高级技能...",
+    "expandSuccess": "已添加 {count} 个新高级技能！",
+    "expandFailed": "生成高级技能失败"
   }
 }

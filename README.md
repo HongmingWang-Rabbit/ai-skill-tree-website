@@ -22,6 +22,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Auto-Save**: All changes to your maps are automatically saved
 - **Sharing**: Make maps public with short shareable URLs - others can view and copy your maps
 - **AI Chat Assistant**: Natural language chat to modify skill maps - add skills, merge maps, search trending tech
+- **Skill Tree Expansion**: When you complete all skills in a career map (100% mastery), AI offers to expand your tree with 5-8 advanced expert-level skills (levels 7-10) building on your existing knowledge
 - **Learning Resources**: Click "Start Learning" on any skill to discover courses, tutorials, and documentation from Udemy, Coursera, YouTube, MDN, and more via Tavily search - admin-configurable affiliated links appear first
 - **Document Import**: Extract skills, contact info, bio, work experience, and projects from resumes, portfolios, and profiles (PDF, Word, images, URLs) using AI - imported data updates your profile automatically
 - **Resume Export**: Generate professional PDF resumes from your skill maps - optionally target specific jobs via URL or title for AI-tailored content

@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { z } from 'zod';
 import { SkillNodeSchema, SkillEdgeSchema, CareerResponseSchema } from './schemas';
 import { type Locale } from '@/i18n/routing';
+import { SKILL_EXPAND_CONFIG } from './constants';
 
 const openai = new OpenAI();
 
@@ -376,6 +377,153 @@ For VAGUE/lifestyle queries:
   return {
     type: 'suggestions',
     suggestions: parsed.suggestions || [],
+  };
+}
+
+// Types for advanced skill generation
+export interface AdvancedSkillsResult {
+  nodes: z.infer<typeof SkillNodeSchema>[];
+  edges: z.infer<typeof SkillEdgeSchema>[];
+}
+
+// Response schema for advanced skills
+const AdvancedSkillsResponseSchema = z.object({
+  skills: z.array(SkillNodeSchema),
+  edges: z.array(SkillEdgeSchema),
+});
+
+/**
+ * Generate advanced/next-stage skills for a completed skill tree.
+ * Creates new skills at advanced levels that build upon existing high-level skills.
+ */
+export async function generateAdvancedSkills(
+  existingNodes: z.infer<typeof SkillNodeSchema>[],
+  existingEdges: z.infer<typeof SkillEdgeSchema>[],
+  careerTitle: string,
+  locale: Locale = 'en'
+): Promise<AdvancedSkillsResult> {
+  const {
+    prerequisiteLevelThreshold,
+    minSkillsToGenerate,
+    maxSkillsToGenerate,
+    advancedSkillMinLevel,
+    advancedSkillMaxLevel,
+    model,
+    temperature,
+    maxTokens,
+  } = SKILL_EXPAND_CONFIG;
+
+  // Identify high-level skills as potential prerequisites
+  const highLevelSkills = existingNodes
+    .filter(node => node.level >= prerequisiteLevelThreshold)
+    .map(node => ({
+      id: node.id,
+      name: node.name,
+      level: node.level,
+      category: node.category,
+    }));
+
+  // Get all existing skill IDs to avoid duplicates
+  const existingIds = new Set(existingNodes.map(n => n.id));
+
+  // Get existing categories for consistency
+  const existingCategories = [...new Set(existingNodes.map(n => n.category))];
+
+  const languageInstruction = locale !== 'en'
+    ? `\n\nIMPORTANT: Generate ALL text content (skill names, descriptions, category names) in ${LOCALE_LANGUAGE_NAMES[locale]}. The skill IDs should remain in lowercase English with hyphens.`
+    : '';
+
+  const skillRange = `${minSkillsToGenerate}-${maxSkillsToGenerate}`;
+  const levelRange = `${advancedSkillMinLevel}-${advancedSkillMaxLevel}`;
+
+  const prompt = `Generate ${skillRange} ADVANCED skills to expand this completed skill tree for "${careerTitle}".${languageInstruction}
+
+EXISTING HIGH-LEVEL SKILLS (potential prerequisites for new skills):
+${highLevelSkills.map(s => `- ${s.id}: "${s.name}" (Level ${s.level}, ${s.category})`).join('\n')}
+
+EXISTING CATEGORIES: ${existingCategories.join(', ')}
+
+EXISTING SKILL IDs (DO NOT duplicate these): ${[...existingIds].join(', ')}
+
+Requirements for new skills:
+1. Generate ${skillRange} NEW advanced skills at levels ${levelRange}
+2. Each skill must have at least one prerequisite from the existing high-level skills listed above
+3. Skills should represent cutting-edge, expert-level, or specialized topics in this field
+4. Include emerging trends, technologies, or advanced specializations
+5. Use unique IDs that don't conflict with existing ones (prefix with "adv-" if needed)
+6. Use existing categories when appropriate, or create new advanced categories
+7. Skills should provide meaningful progression beyond the current tree
+
+Return JSON:
+{
+  "skills": [
+    {
+      "id": "unique-skill-id",
+      "name": "Advanced Skill Name",
+      "description": "Brief description",
+      "icon": "emoji",
+      "level": ${levelRange},
+      "category": "Category Name",
+      "progress": 0,
+      "prerequisites": ["existing-skill-id"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-id",
+      "source": "prerequisite-skill-id",
+      "target": "new-skill-id",
+      "animated": true
+    }
+  ]
+}`;
+
+  const response = await openai.chat.completions.create({
+    model,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `You are an expert career advisor generating advanced skill expansions for completed skill trees.
+
+${LOCALE_INSTRUCTIONS[locale]}
+
+Focus on:
+- Cutting-edge technologies and methodologies
+- Expert-level specializations
+- Industry-recognized advanced certifications
+- Leadership and architecture-level skills
+- Emerging trends in the field
+
+Return valid JSON only.`
+      },
+      { role: 'user', content: prompt }
+    ],
+    temperature,
+    max_tokens: maxTokens,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) {
+    throw new Error('No content in AI response');
+  }
+
+  const parsed = JSON.parse(content);
+  const validated = AdvancedSkillsResponseSchema.parse(parsed);
+
+  // Filter out any skills with duplicate IDs (safety check)
+  const newNodes = validated.skills.filter(skill => !existingIds.has(skill.id));
+  const newNodeIds = new Set(newNodes.map(n => n.id));
+
+  // Filter edges to only include valid ones (source exists in original, target is new)
+  const validEdges = validated.edges.filter(edge =>
+    (existingIds.has(edge.source) || newNodeIds.has(edge.source)) &&
+    newNodeIds.has(edge.target)
+  );
+
+  return {
+    nodes: newNodes,
+    edges: validEdges,
   };
 }
 

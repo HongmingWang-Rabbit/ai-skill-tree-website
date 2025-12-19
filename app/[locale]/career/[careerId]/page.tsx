@@ -113,6 +113,11 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     summary: null,
   });
 
+  // Graph expansion state
+  const [showExpandModal, setShowExpandModal] = useState(false);
+  const [hasShownExpandPrompt, setHasShownExpandPrompt] = useState(false);
+  const [isExpanding, setIsExpanding] = useState(false);
+
   // AI Chat state
   const [chatModifiedNodes, setChatModifiedNodes] = useState<SkillNode[] | null>(null);
   const [chatModifiedEdges, setChatModifiedEdges] = useState<SkillEdge[] | null>(null);
@@ -422,6 +427,106 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
   const handleCancelDelete = useCallback(() => {
     setShowDeleteConfirm(false);
   }, []);
+
+  // Check for graph completion and show expand prompt
+  useEffect(() => {
+    // Only for own-map view, logged-in users
+    if (viewMode !== 'own-map' || !session?.user?.id) return;
+    if (hasShownExpandPrompt) return;
+    if (!data?.skillGraph?.nodes || data.skillGraph.nodes.length === 0) return;
+
+    // Get current nodes with progress
+    const currentNodes = chatModifiedNodes || data.skillGraph.nodes;
+    const savedNodeData = userMap?.nodeData || [];
+
+    // Check if all skills are completed (>= SKILL_PASS_THRESHOLD)
+    const allCompleted = currentNodes.length > 0 && currentNodes.every(node => {
+      const saved = savedNodeData.find(s => s.skillId === node.id);
+      const progress = saved?.progress ?? node.progress;
+      return progress >= SKILL_PASS_THRESHOLD;
+    });
+
+    if (allCompleted) {
+      setShowExpandModal(true);
+      setHasShownExpandPrompt(true);
+    }
+  }, [viewMode, session?.user?.id, data?.skillGraph?.nodes, chatModifiedNodes, userMap?.nodeData, hasShownExpandPrompt]);
+
+  // Handle expand skills
+  const handleExpandSkills = useCallback(async () => {
+    if (!data || !userMap?.id) return;
+
+    setShowExpandModal(false);
+    setIsExpanding(true);
+
+    const loadingToast = showToast.loading(t('career.graphComplete.expanding'));
+
+    try {
+      const currentNodes = chatModifiedNodes || data.skillGraph.nodes;
+      const currentEdges = chatModifiedEdges || data.skillGraph.edges;
+
+      const response = await fetch('/api/ai/expand', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          careerTitle: userMap.title || data.career.title,
+          nodes: currentNodes,
+          edges: currentEdges,
+          locale,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        if (result.code === 'INSUFFICIENT_CREDITS') {
+          showToast.dismiss(loadingToast);
+          showToast.error(t('common.insufficientCredits'));
+          return;
+        }
+        throw new Error(result.error || 'Failed to generate advanced skills');
+      }
+
+      if (result.data.nodes.length === 0) {
+        showToast.dismiss(loadingToast);
+        showToast.error(t('career.graphComplete.expandFailed'));
+        return;
+      }
+
+      // Store previous state for undo
+      setPreviousGraphState({
+        nodes: currentNodes as SkillNode[],
+        edges: currentEdges as SkillEdge[],
+      });
+
+      // Merge new skills with existing
+      const mergedNodes = [...currentNodes, ...result.data.nodes];
+      const mergedEdges = [...currentEdges, ...result.data.edges];
+
+      // Apply to local state
+      setChatModifiedNodes(mergedNodes as SkillNode[]);
+      setChatModifiedEdges(mergedEdges as SkillEdge[]);
+
+      // Save to database
+      await updateMapMutation.mutateAsync({
+        mapId: userMap.id,
+        updates: {
+          customNodes: mergedNodes,
+          customEdges: mergedEdges,
+        },
+      });
+
+      setIsSaved(true);
+      showToast.dismiss(loadingToast);
+      showToast.success(t('career.graphComplete.expandSuccess', { count: result.data.nodes.length }));
+    } catch (error) {
+      console.error('Failed to expand skills:', error);
+      showToast.dismiss(loadingToast);
+      showToast.error(t('career.graphComplete.expandFailed'));
+    } finally {
+      setIsExpanding(false);
+    }
+  }, [data, userMap, chatModifiedNodes, chatModifiedEdges, locale, t, updateMapMutation]);
 
   // Sort/organize nodes
   const handleSortNodes = useCallback(() => {
@@ -905,6 +1010,19 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
         cancelText={t('common.cancel')}
         variant="danger"
         isLoading={isDeleting}
+      />
+
+      {/* Graph Completion Expand Modal */}
+      <ConfirmModal
+        isOpen={showExpandModal}
+        onConfirm={handleExpandSkills}
+        onCancel={() => setShowExpandModal(false)}
+        title={t('career.graphComplete.title')}
+        message={t('career.graphComplete.message')}
+        confirmText={t('career.graphComplete.expand')}
+        cancelText={t('career.graphComplete.later')}
+        variant="default"
+        isLoading={isExpanding}
       />
     </div>
   );

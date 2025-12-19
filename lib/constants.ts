@@ -161,6 +161,20 @@ export const MERGE_CONFIG = {
   similarityThreshold: 0.3, // Minimum similarity score to highlight as "recommended"
 } as const;
 
+// Skill Expansion Configuration (for expanding completed skill trees)
+export const SKILL_EXPAND_CONFIG = {
+  // AI generation settings
+  model: 'gpt-4o-mini' as const,
+  temperature: 0.7,
+  maxTokens: 2000,
+  // Skill generation parameters
+  minSkillsToGenerate: 5,
+  maxSkillsToGenerate: 8,
+  prerequisiteLevelThreshold: 5, // Skills at this level or above can be prerequisites for new skills
+  advancedSkillMinLevel: 7, // Minimum level for newly generated advanced skills
+  advancedSkillMaxLevel: 10, // Maximum level for newly generated advanced skills
+} as const;
+
 // Import Merge Configuration (for smart deduplication during imports)
 export const IMPORT_MERGE_CONFIG = {
   // Fuzzy matching thresholds (0-1 scale)

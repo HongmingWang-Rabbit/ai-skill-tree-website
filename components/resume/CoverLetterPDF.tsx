@@ -100,6 +100,11 @@ function getFontFamily(locale: Locale): { regular: string; bold: string } {
   return PDF_FONT_CONFIG.families[locale] || PDF_FONT_CONFIG.families.en;
 }
 
+// Sanitize text by replacing newlines with spaces (prevents unwanted line breaks in paragraphs)
+function sanitizeText(text: string): string {
+  return text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 export interface CoverLetterPDFProps {
   userName: string;
   email: string;
@@ -149,20 +154,20 @@ export function CoverLetterPDF({
         </View>
 
         {/* Greeting */}
-        <Text style={styles.greeting}>{coverLetterContent.greeting}</Text>
+        <Text style={styles.greeting}>{sanitizeText(coverLetterContent.greeting)}</Text>
 
         {/* Opening Paragraph */}
-        <Text style={styles.paragraph}>{coverLetterContent.opening}</Text>
+        <Text style={styles.paragraph}>{sanitizeText(coverLetterContent.opening)}</Text>
 
         {/* Body Paragraphs */}
         {coverLetterContent.body.map((paragraph, index) => (
           <Text key={index} style={styles.paragraph}>
-            {paragraph}
+            {sanitizeText(paragraph)}
           </Text>
         ))}
 
         {/* Closing */}
-        <Text style={styles.closing}>{coverLetterContent.closing}</Text>
+        <Text style={styles.closing}>{sanitizeText(coverLetterContent.closing)}</Text>
 
         {/* Signature */}
         <Text style={{ ...styles.signature, fontFamily: fonts.bold }}>

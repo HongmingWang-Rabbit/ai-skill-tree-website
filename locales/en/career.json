@@ -30,5 +30,14 @@
     "sort": "Organize",
     "share": "Share",
     "delete": "Delete"
+  },
+  "graphComplete": {
+    "title": "Congratulations!",
+    "message": "You've mastered all skills in this career path! Would you like to expand your skill tree with more advanced skills?",
+    "expand": "Expand with Advanced Skills",
+    "later": "Maybe Later",
+    "expanding": "Generating advanced skills...",
+    "expandSuccess": "Added {count} new advanced skills!",
+    "expandFailed": "Failed to generate advanced skills"
   }
 }
