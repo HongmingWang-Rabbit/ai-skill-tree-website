@@ -53,6 +53,7 @@ export async function GET() {
           careerId: userCareerGraphs.careerId,
           title: userCareerGraphs.title,
           nodeData: userCareerGraphs.nodeData,
+          customNodes: userCareerGraphs.customNodes,
         },
         career: {
           id: careers.id,
@@ -74,9 +75,9 @@ export async function GET() {
     let inProgressSkills = 0;
 
     for (const userGraph of userGraphs) {
-      if (!userGraph.skillGraph?.nodes || !userGraph.career) continue;
-
-      const nodes = userGraph.skillGraph.nodes as SkillNodeData[];
+      // Use customNodes if present (from AI modifications or merging), otherwise fall back to base skillGraph
+      const nodes = (userGraph.graph.customNodes || userGraph.skillGraph?.nodes) as SkillNodeData[] | null;
+      if (!nodes || !userGraph.career) continue;
       const nodeDataMap = new Map(
         (userGraph.graph.nodeData || []).map(nd => [nd.skillId, nd])
       );
