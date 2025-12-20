@@ -174,6 +174,61 @@ export async function searchCompanyInfo(
 }
 
 /**
+ * Search for LinkedIn job posting details
+ * LinkedIn job pages are JS-rendered and can't be scraped directly
+ * @param jobUrl - LinkedIn job URL
+ * @param jobTitle - Optional job title to improve search
+ */
+export async function searchLinkedInJob(
+  jobUrl: string,
+  jobTitle?: string
+): Promise<TavilySearchResponse | null> {
+  // Extract job ID from URL for more targeted search
+  const jobIdMatch = jobUrl.match(/currentJobId=(\d+)|jobs\/view\/(\d+)/);
+  const jobId = jobIdMatch?.[1] || jobIdMatch?.[2];
+
+  // Build search query
+  let query = 'linkedin job posting';
+  if (jobTitle) {
+    query = `${jobTitle} job description requirements qualifications`;
+  } else if (jobId) {
+    query = `linkedin job ${jobId} description requirements`;
+  }
+
+  return searchTavily(query, {
+    searchDepth: 'advanced',
+    maxResults: 5,
+    includeDomains: ['linkedin.com'],
+  });
+}
+
+/**
+ * Format LinkedIn job search results for AI context
+ */
+export function formatJobSearchResultsForAI(
+  searchResponse: TavilySearchResponse | null
+): string {
+  if (!searchResponse || searchResponse.results.length === 0) {
+    return '';
+  }
+
+  const { results, answer } = searchResponse;
+  let formatted = '';
+
+  if (answer) {
+    formatted += `Job Overview: ${answer}\n\n`;
+  }
+
+  formatted += 'Job Details from Search:\n';
+  results.forEach((result) => {
+    formatted += `\n--- ${result.title} ---\n`;
+    formatted += `${result.content}\n`;
+  });
+
+  return formatted;
+}
+
+/**
  * Format company search results for cover letter AI context
  */
 export function formatCompanyResearchForAI(

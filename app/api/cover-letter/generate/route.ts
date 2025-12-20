@@ -13,10 +13,16 @@ import {
   type UserProfile,
   type JobRequirements,
 } from '@/lib/ai-resume';
-import { searchCompanyInfo, formatCompanyResearchForAI } from '@/lib/mcp/tavily';
+import { searchCompanyInfo, formatCompanyResearchForAI, searchLinkedInJob, formatJobSearchResultsForAI } from '@/lib/mcp/tavily';
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
+
+// Check if URL is a LinkedIn job posting
+function isLinkedInJobUrl(url: string): boolean {
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.includes('linkedin.com/jobs') || lowerUrl.includes('linkedin.com/job');
+}
 
 // Input validation schema
 const CoverLetterGenerateSchema = z.object({
@@ -145,18 +151,35 @@ export async function POST(request: Request) {
     let jobPostingContent: string | null = null;
 
     if (jobUrl) {
-      try {
-        const parsed = await parseURL(jobUrl);
-        if (parsed.content && parsed.content.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
-          // Store the raw job posting content for cover letter personalization
-          jobPostingContent = parsed.content;
-          jobRequirements = await analyzeJobPosting(parsed.content, jobTitle, locale as Locale);
+      // Check if it's a LinkedIn job URL - these need Tavily search
+      if (isLinkedInJobUrl(jobUrl)) {
+        try {
+          // Use Tavily to search for LinkedIn job details
+          const searchResults = await searchLinkedInJob(jobUrl, jobTitle);
+          if (searchResults && searchResults.results.length > 0) {
+            jobPostingContent = formatJobSearchResultsForAI(searchResults);
+          }
+        } catch {
+          // Tavily search failed
         }
-      } catch {
-        // Fall back to job title analysis if URL parsing fails
-        if (jobTitle) {
-          jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
+      } else {
+        // For non-LinkedIn URLs, try direct parsing
+        try {
+          const parsed = await parseURL(jobUrl);
+          if (parsed.content && parsed.content.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
+            jobPostingContent = parsed.content;
+          }
+        } catch {
+          // Direct parsing failed
         }
+      }
+
+      // Analyze job content if we got any
+      if (jobPostingContent && jobPostingContent.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
+        jobRequirements = await analyzeJobPosting(jobPostingContent, jobTitle, locale as Locale);
+      } else if (jobTitle) {
+        // Fall back to job title analysis
+        jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
       }
     } else if (jobTitle) {
       jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
