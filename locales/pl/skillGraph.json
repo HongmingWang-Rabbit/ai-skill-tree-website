@@ -1,4 +1,10 @@
 {
   "sortNodes": "Organizuj",
-  "sortTooltip": "Uporządkuj węzły w przejrzystym układzie"
+  "sortTooltip": "Uporządkuj węzły w przejrzystym układzie",
+  "categories": "Kategorie",
+  "status": "Status",
+  "completed": "Ukończone",
+  "available": "Dostępne",
+  "locked": "Zablokowane",
+  "complete": "Ukończono"
 }

@@ -1,4 +1,10 @@
 {
   "sortNodes": "Organisieren",
-  "sortTooltip": "Knoten in einem übersichtlichen Layout neu anordnen"
+  "sortTooltip": "Knoten in einem übersichtlichen Layout neu anordnen",
+  "categories": "Kategorien",
+  "status": "Status",
+  "completed": "Abgeschlossen",
+  "available": "Verfügbar",
+  "locked": "Gesperrt",
+  "complete": "Fertig"
 }

@@ -120,7 +120,7 @@ export function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-16 left-0 right-0 z-40 md:hidden bg-slate-900/95 backdrop-blur-md border-b border-slate-800"
+            className="fixed top-16 left-0 right-0 z-[45] md:hidden bg-slate-900/95 backdrop-blur-md border-b border-slate-800"
           >
             <nav className="flex flex-col p-4 gap-2">
               {NAV_LINKS.map((link) => (

@@ -1,4 +1,10 @@
 {
   "sortNodes": "Organizar",
-  "sortTooltip": "Reorganizar os nós em um layout organizado"
+  "sortTooltip": "Reorganizar os nós em um layout organizado",
+  "categories": "Categorias",
+  "status": "Status",
+  "completed": "Concluído",
+  "available": "Disponível",
+  "locked": "Bloqueado",
+  "complete": "Completo"
 }

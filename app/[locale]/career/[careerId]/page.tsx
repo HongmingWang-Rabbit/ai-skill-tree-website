@@ -725,11 +725,11 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
     <div className="min-h-screen flex flex-col pt-16">
       {/* Career Sub-header */}
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-xl sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
             <button
               onClick={() => router.push('/dashboard')}
-              className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-slate-800 rounded-lg transition-colors flex-shrink-0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -746,64 +746,62 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                 />
               </svg>
             </button>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-white">{displayTitle}</h1>
+                <h1 className="text-base sm:text-xl font-bold text-white truncate">{displayTitle}</h1>
                 {viewMode === 'other-map' && mapOwner && (
-                  <span className="text-sm text-slate-400">
+                  <span className="text-xs sm:text-sm text-slate-400 flex-shrink-0">
                     {t('career.by')} {mapOwner.name || t('career.anonymous')}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-slate-400">{career.description}</p>
+              <p className="text-sm text-slate-400 hidden sm:block">{career.description}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {/* View mode indicators and actions */}
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            {/* View mode indicators and actions - compact on mobile */}
             {viewMode === 'other-map' && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded hidden sm:inline">
                   {t('career.viewOnly')}
                 </span>
                 {session?.user && (
                   <button
                     onClick={copyMap}
                     disabled={isCopying}
-                    className="px-3 py-1.5 text-sm bg-amber-500 hover:bg-amber-400 disabled:bg-slate-600 text-slate-900 font-medium rounded-lg transition-colors flex items-center gap-1"
+                    className="p-2 sm:px-3 sm:py-1.5 text-sm bg-amber-500 hover:bg-amber-400 disabled:bg-slate-600 text-slate-900 font-medium rounded-lg transition-colors flex items-center gap-1"
+                    title={t('career.copyToMyMaps')}
                   >
                     {isCopying ? (
-                      <>
-                        <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-                        {t('career.copying')}
-                      </>
+                      <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        {t('career.copyToMyMaps')}
-                      </>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
                     )}
+                    <span className="hidden sm:inline">
+                      {isCopying ? t('career.copying') : t('career.copyToMyMaps')}
+                    </span>
                   </button>
                 )}
               </div>
             )}
 
 
-            {/* Save status for own map */}
+            {/* Save status for own map - icon only on mobile */}
             {viewMode === 'own-map' && session?.user && (
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-1 sm:gap-2 text-sm">
                 {isSaving ? (
                   <span className="text-slate-400 flex items-center gap-1">
                     <div className="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                    {t('common.saving')}
+                    <span className="hidden sm:inline">{t('common.saving')}</span>
                   </span>
                 ) : isSaved ? (
                   <span className="text-emerald-400 flex items-center gap-1">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    {t('common.saved')}
+                    <span className="hidden sm:inline">{t('common.saved')}</span>
                   </span>
                 ) : null}
               </div>
@@ -854,26 +852,35 @@ export default function CareerPage({ params }: { params: Promise<{ careerId: str
                 <ShareIcon className="h-5 w-5 text-slate-400 group-hover:text-amber-400 transition-colors" />
               </button>
             )}
-            <XPProgressRing progress={overallProgress} size={60} strokeWidth={4} />
+            {/* Single progress ring - only shows percentage on mobile (no "Complete" text) */}
+            <div className="sm:hidden">
+              <XPProgressRing progress={overallProgress} size={44} strokeWidth={3} />
+            </div>
+            <div className="hidden sm:block">
+              <XPProgressRing progress={overallProgress} size={60} strokeWidth={4} />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Stats Bar */}
       <div className="border-b border-slate-800 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">{t('career.totalSkills')}:</span>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-3 sm:gap-6 text-xs sm:text-sm">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <span className="text-slate-400 hidden sm:inline">{t('career.totalSkills')}:</span>
+            <span className="text-slate-400 sm:hidden">{t('career.total')}:</span>
             <span className="text-white font-semibold">{nodes.length}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">{t('career.unlocked')}:</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <span className="text-slate-400 hidden sm:inline">{t('career.unlocked')}:</span>
+            <span className="text-cyan-400 sm:hidden">🔓</span>
             <span className="text-cyan-400 font-semibold">
               {nodesWithProgress.filter((n) => n.progress > 0).length}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">{t('career.mastered')}:</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <span className="text-slate-400 hidden sm:inline">{t('career.mastered')}:</span>
+            <span className="text-amber-400 sm:hidden">⭐</span>
             <span className="text-amber-400 font-semibold">
               {nodesWithProgress.filter((n) => n.progress >= SKILL_PASS_THRESHOLD).length}
             </span>

@@ -78,6 +78,8 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [testingSkill, setTestingSkill] = useState<SkillNodeData | null>(null);
   const [learningSkill, setLearningSkill] = useState<DBSkillNodeData | null>(null);
+  // Mobile accordion state - only one panel expanded at a time (null = all collapsed on mobile)
+  const [expandedPanel, setExpandedPanel] = useState<'categories' | 'status' | null>(null);
 
   // Calculate overall progress
   const overallProgress = useMemo(() => {
@@ -390,6 +392,7 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
             </button>
           </Panel>
         )}
+        {/* Hide minimap on mobile for better graph visibility */}
         <MiniMap
           nodeColor={(node) => {
             if (node.id === CENTER_NODE_ID) return '#C9A227';
@@ -399,18 +402,31 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
             return '#475569'; // slate-600
           }}
           maskColor="rgba(0, 0, 0, 0.8)"
-          className="!bg-slate-900/80"
+          className="!bg-slate-900/80 !hidden sm:!block"
         />
 
-        {/* Category Legend */}
+        {/* Category Legend - Desktop: always expanded, Mobile: collapsible accordion */}
         <Panel position="top-left">
-          <GlassPanel className="p-3">
-            <div className="text-xs font-semibold text-slate-400 mb-2">Categories</div>
-            <div className="flex flex-wrap gap-2">
+          <GlassPanel className="p-2 sm:p-3">
+            <button
+              onClick={() => setExpandedPanel(expandedPanel === 'categories' ? null : 'categories')}
+              className="w-full flex items-center justify-between sm:cursor-default"
+            >
+              <div className="text-xs font-semibold text-slate-400">{t('categories')}</div>
+              <svg
+                className={`w-4 h-4 text-slate-400 transition-transform sm:hidden ${expandedPanel === 'categories' ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className={`flex flex-wrap gap-1.5 sm:gap-2 mt-2 ${expandedPanel === 'categories' ? 'block' : 'hidden sm:flex'}`}>
               {categories.map((category) => (
                 <span
                   key={category}
-                  className="px-2 py-1 rounded-full text-xs bg-slate-700 text-slate-300"
+                  className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs bg-slate-700 text-slate-300"
                 >
                   {category}
                 </span>
@@ -419,36 +435,49 @@ export const SkillGraph = forwardRef<SkillGraphHandle, SkillGraphProps>(function
           </GlassPanel>
         </Panel>
 
-        {/* Stats Panel */}
+        {/* Stats Panel - Desktop: always expanded, Mobile: collapsible accordion */}
         <Panel position="top-right">
-          <GlassPanel className="p-3">
-            <div className="text-xs font-semibold text-slate-400 mb-2">Status</div>
-            <div className="flex flex-col gap-2 text-sm">
+          <GlassPanel className="p-2 sm:p-3">
+            <button
+              onClick={() => setExpandedPanel(expandedPanel === 'status' ? null : 'status')}
+              className="w-full flex items-center justify-between sm:cursor-default"
+            >
+              <div className="text-xs font-semibold text-slate-400">{t('status')}</div>
+              <svg
+                className={`w-4 h-4 text-slate-400 transition-transform sm:hidden ${expandedPanel === 'status' ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className={`flex flex-col gap-1.5 sm:gap-2 text-xs sm:text-sm mt-2 ${expandedPanel === 'status' ? 'block' : 'hidden sm:flex'}`}>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400" />
                 <span className="text-slate-300">
                   {nodes.filter((n) => {
                     if (n.id === CENTER_NODE_ID) return false;
                     return (n.data as unknown as SkillNodeData)?.status === 'completed';
-                  }).length} Completed
+                  }).length} {t('completed')}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400" />
                 <span className="text-slate-300">
                   {nodes.filter((n) => {
                     if (n.id === CENTER_NODE_ID) return false;
                     return (n.data as unknown as SkillNodeData)?.status === 'available';
-                  }).length} Available
+                  }).length} {t('available')}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-slate-600" />
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-slate-600" />
                 <span className="text-slate-300">
                   {nodes.filter((n) => {
                     if (n.id === CENTER_NODE_ID) return false;
                     return (n.data as unknown as SkillNodeData)?.status === 'locked';
-                  }).length} Locked
+                  }).length} {t('locked')}
                 </span>
               </div>
             </div>

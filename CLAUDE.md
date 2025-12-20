@@ -103,6 +103,13 @@ Use Tailwind breakpoints for mobile-first design:
 - Hide text on mobile, show on larger: `<span className="hidden sm:inline">{t('text')}</span>`
 - Smaller padding/gaps on mobile: `p-3 sm:p-6`, `gap-2 sm:gap-4`
 - Show only icons on mobile: `<Icon /><span className="hidden sm:inline">{t('label')}</span>`
+- Collapsible panels on mobile: Use accordion pattern with `expandedPanel` state
+- Hide secondary elements on mobile: Minimap (`!hidden sm:!block`), descriptions
+
+**Z-index layering (headers/menus):**
+- Main header: `z-50` (fixed)
+- Mobile nav menu: `z-[45]` (below main header, above page content)
+- Career sub-header: `z-40` (sticky, below mobile menu)
 
 ## Key Files
 

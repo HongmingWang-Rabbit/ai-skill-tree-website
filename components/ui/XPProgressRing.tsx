@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface XPProgressRingProps {
   progress: number;
   size?: number;
@@ -13,6 +15,7 @@ export function XPProgressRing({
   strokeWidth = 8,
   className = '',
 }: XPProgressRingProps) {
+  const t = useTranslations('skillGraph');
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
@@ -54,8 +57,12 @@ export function XPProgressRing({
       {/* Center content */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <span className="text-2xl font-bold text-white">{Math.round(progress)}%</span>
-          <span className="block text-xs text-slate-400">Complete</span>
+          <span className={`font-bold text-white ${size <= 48 ? 'text-sm' : size <= 60 ? 'text-lg' : 'text-2xl'}`}>
+            {Math.round(progress)}%
+          </span>
+          {size > 48 && (
+            <span className="block text-xs text-slate-400">{t('complete')}</span>
+          )}
         </div>
       </div>
     </div>

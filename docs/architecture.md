@@ -58,9 +58,9 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 
 | Directory | Key Components |
 |-----------|---------------|
-| `ui/` | `GlassPanel`, `SearchInput` (supports `mobilePlaceholder`), `ShareModal`, `DropdownMenu`, `ConfirmModal`, `Toast`/`showToast`, `FileDropzone`, Icons |
-| `layout/` | `Header`, `SkillTreeBackground` |
-| `skill-graph/` | `SkillGraph`, `LazySkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge` |
+| `ui/` | `GlassPanel`, `SearchInput` (supports `mobilePlaceholder`), `ShareModal`, `DropdownMenu`, `ConfirmModal`, `Toast`/`showToast`, `FileDropzone`, `XPProgressRing`, Icons |
+| `layout/` | `Header` (with mobile nav at z-[45]), `SkillTreeBackground` |
+| `skill-graph/` | `SkillGraph` (collapsible panels, hidden minimap on mobile), `LazySkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge` |
 | `auth/` | `AuthModal` (login with social/Web3) |
 | `ai-chat/` | `AIChatPanel`, `ChatMessage`, `ModificationPreview`, `MergeMapModal` |
 | `import/` | `DocumentImportModal`, `ImportPreview` |
@@ -68,6 +68,19 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `learning/` | `LearningResourcesModal` |
 | `blog/` | `BlogCard`, `BlogPost` (TOC, reading time, server-side markdown via `marked`) |
 | `dashboard/` | `MasterSkillMap`, `ExperienceEditor`, `ProjectEditor` |
+
+## Responsive Design
+
+**Z-index layering:**
+- Main header: `z-50` (fixed)
+- Mobile nav dropdown: `z-[45]` (must be above page content)
+- Career sub-header: `z-40` (sticky)
+
+**Mobile patterns:**
+- Hide text labels, show icons only: `<span className="hidden sm:inline">`
+- Collapsible accordion panels: `expandedPanel` state with single expanded at a time
+- Hide secondary elements: minimap (`!hidden sm:!block`), descriptions
+- Responsive sizing: `size={44}` mobile, `size={60}` desktop (via separate elements)
 
 ## Hooks (`hooks/`)
 

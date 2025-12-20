@@ -1,4 +1,10 @@
 {
   "sortNodes": "整理",
-  "sortTooltip": "ノードを整列"
+  "sortTooltip": "ノードを整列",
+  "categories": "カテゴリ",
+  "status": "ステータス",
+  "completed": "完了",
+  "available": "利用可能",
+  "locked": "ロック中",
+  "complete": "完了"
 }

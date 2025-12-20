@@ -1,4 +1,10 @@
 {
   "sortNodes": "Organize",
-  "sortTooltip": "Re-arrange nodes in a neat layout"
+  "sortTooltip": "Re-arrange nodes in a neat layout",
+  "categories": "Categories",
+  "status": "Status",
+  "completed": "Completed",
+  "available": "Available",
+  "locked": "Locked",
+  "complete": "Complete"
 }

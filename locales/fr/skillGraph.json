@@ -1,4 +1,10 @@
 {
   "sortNodes": "Organiser",
-  "sortTooltip": "Réorganiser les nœuds dans une disposition soignée"
+  "sortTooltip": "Réorganiser les nœuds dans une disposition soignée",
+  "categories": "Catégories",
+  "status": "Statut",
+  "completed": "Terminé",
+  "available": "Disponible",
+  "locked": "Verrouillé",
+  "complete": "Terminé"
 }

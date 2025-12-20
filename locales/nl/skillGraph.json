@@ -1,4 +1,10 @@
 {
   "sortNodes": "Organiseren",
-  "sortTooltip": "Knooppunten in een nette indeling herordenen"
+  "sortTooltip": "Knooppunten in een nette indeling herordenen",
+  "categories": "Categorieën",
+  "status": "Status",
+  "completed": "Voltooid",
+  "available": "Beschikbaar",
+  "locked": "Vergrendeld",
+  "complete": "Compleet"
 }

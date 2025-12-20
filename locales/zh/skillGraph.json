@@ -1,4 +1,10 @@
 {
   "sortNodes": "整理",
-  "sortTooltip": "重新排列节点"
+  "sortTooltip": "重新排列节点",
+  "categories": "分类",
+  "status": "状态",
+  "completed": "已完成",
+  "available": "可用",
+  "locked": "锁定",
+  "complete": "完成"
 }
