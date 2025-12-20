@@ -576,6 +576,83 @@ export function generateExtractionSummary(
       projectsFound: (count) => `${count}件のプロジェクトを発見`,
       educationFound: (count) => `${count}件の学歴を発見`,
     },
+    es: {
+      skillsFound: (count) => `Se encontraron ${count} habilidad${count !== 1 ? 'es' : ''}`,
+      categories: (cats) => `Categorías: ${cats.join(', ')}`,
+      confidence: (level) => `Confianza de extracción: ${level}`,
+      suggestedTitle: (title) => `Título sugerido: ${title}`,
+      contactInfoFound: 'Información de contacto extraída',
+      bioFound: 'Resumen profesional extraído',
+      experienceFound: (count) => `Se encontraron ${count} experiencia${count !== 1 ? 's' : ''} laborales`,
+      projectsFound: (count) => `Se encontraron ${count} proyecto${count !== 1 ? 's' : ''}`,
+      educationFound: (count) => `Se encontraron ${count} registro${count !== 1 ? 's' : ''} de educación`,
+    },
+    'pt-BR': {
+      skillsFound: (count) => `Encontradas ${count} habilidade${count !== 1 ? 's' : ''}`,
+      categories: (cats) => `Categorias: ${cats.join(', ')}`,
+      confidence: (level) => `Confiança da extração: ${level}`,
+      suggestedTitle: (title) => `Título sugerido: ${title}`,
+      contactInfoFound: 'Informações de contato extraídas',
+      bioFound: 'Resumo profissional extraído',
+      experienceFound: (count) => `Encontradas ${count} experiência${count !== 1 ? 's' : ''} profissionais`,
+      projectsFound: (count) => `Encontrados ${count} projeto${count !== 1 ? 's' : ''}`,
+      educationFound: (count) => `Encontrados ${count} registro${count !== 1 ? 's' : ''} de educação`,
+    },
+    de: {
+      skillsFound: (count) => `${count} Fähigkeit${count !== 1 ? 'en' : ''} gefunden`,
+      categories: (cats) => `Kategorien: ${cats.join(', ')}`,
+      confidence: (level) => `Extraktionszuverlässigkeit: ${level}`,
+      suggestedTitle: (title) => `Vorgeschlagener Titel: ${title}`,
+      contactInfoFound: 'Kontaktinformationen extrahiert',
+      bioFound: 'Berufsprofil extrahiert',
+      experienceFound: (count) => `${count} Berufserfahrung${count !== 1 ? 'en' : ''} gefunden`,
+      projectsFound: (count) => `${count} Projekt${count !== 1 ? 'e' : ''} gefunden`,
+      educationFound: (count) => `${count} Bildungseintrag${count !== 1 ? 'e' : ''} gefunden`,
+    },
+    fr: {
+      skillsFound: (count) => `${count} compétence${count !== 1 ? 's' : ''} trouvée${count !== 1 ? 's' : ''}`,
+      categories: (cats) => `Catégories : ${cats.join(', ')}`,
+      confidence: (level) => `Confiance d'extraction : ${level}`,
+      suggestedTitle: (title) => `Titre suggéré : ${title}`,
+      contactInfoFound: 'Coordonnées extraites',
+      bioFound: 'Résumé professionnel extrait',
+      experienceFound: (count) => `${count} expérience${count !== 1 ? 's' : ''} professionnelle${count !== 1 ? 's' : ''} trouvée${count !== 1 ? 's' : ''}`,
+      projectsFound: (count) => `${count} projet${count !== 1 ? 's' : ''} trouvé${count !== 1 ? 's' : ''}`,
+      educationFound: (count) => `${count} entrée${count !== 1 ? 's' : ''} de formation trouvée${count !== 1 ? 's' : ''}`,
+    },
+    it: {
+      skillsFound: (count) => `Trovate ${count} competenz${count !== 1 ? 'e' : 'a'}`,
+      categories: (cats) => `Categorie: ${cats.join(', ')}`,
+      confidence: (level) => `Affidabilità estrazione: ${level}`,
+      suggestedTitle: (title) => `Titolo suggerito: ${title}`,
+      contactInfoFound: 'Informazioni di contatto estratte',
+      bioFound: 'Profilo professionale estratto',
+      experienceFound: (count) => `Trovate ${count} esperienz${count !== 1 ? 'e' : 'a'} lavorativ${count !== 1 ? 'e' : 'a'}`,
+      projectsFound: (count) => `Trovati ${count} progett${count !== 1 ? 'i' : 'o'}`,
+      educationFound: (count) => `Trovati ${count} record di istruzione`,
+    },
+    nl: {
+      skillsFound: (count) => `${count} vaardighe${count !== 1 ? 'den' : 'id'} gevonden`,
+      categories: (cats) => `Categorieën: ${cats.join(', ')}`,
+      confidence: (level) => `Extractiebetrouwbaarheid: ${level}`,
+      suggestedTitle: (title) => `Voorgestelde titel: ${title}`,
+      contactInfoFound: 'Contactgegevens geëxtraheerd',
+      bioFound: 'Professionele samenvatting geëxtraheerd',
+      experienceFound: (count) => `${count} werkervaring${count !== 1 ? 'en' : ''} gevonden`,
+      projectsFound: (count) => `${count} project${count !== 1 ? 'en' : ''} gevonden`,
+      educationFound: (count) => `${count} opleidingsrecord${count !== 1 ? 's' : ''} gevonden`,
+    },
+    pl: {
+      skillsFound: (count) => `Znaleziono ${count} umiejętności`,
+      categories: (cats) => `Kategorie: ${cats.join(', ')}`,
+      confidence: (level) => `Pewność ekstrakcji: ${level}`,
+      suggestedTitle: (title) => `Sugerowany tytuł: ${title}`,
+      contactInfoFound: 'Wyodrębniono dane kontaktowe',
+      bioFound: 'Wyodrębniono podsumowanie zawodowe',
+      experienceFound: (count) => `Znaleziono ${count} doświadczeń zawodowych`,
+      projectsFound: (count) => `Znaleziono ${count} projektów`,
+      educationFound: (count) => `Znaleziono ${count} wpisów edukacyjnych`,
+    },
   };
 
   const msg = messages[locale];
@@ -586,13 +663,26 @@ export function generateExtractionSummary(
     summaries.push(msg.categories(categories.slice(0, DOCUMENT_IMPORT_CONFIG.preview.maxDisplayedCategories)));
   }
 
-  // Confidence level
+  // Confidence level - localized labels
   const { confidenceThresholds } = DOCUMENT_IMPORT_CONFIG.preview;
+  const confidenceLevels: Record<Locale, { high: string; medium: string; low: string }> = {
+    en: { high: 'High', medium: 'Medium', low: 'Low' },
+    zh: { high: '高', medium: '中', low: '低' },
+    ja: { high: '高い', medium: '中程度', low: '低い' },
+    es: { high: 'Alta', medium: 'Media', low: 'Baja' },
+    'pt-BR': { high: 'Alta', medium: 'Média', low: 'Baixa' },
+    de: { high: 'Hoch', medium: 'Mittel', low: 'Niedrig' },
+    fr: { high: 'Élevée', medium: 'Moyenne', low: 'Faible' },
+    it: { high: 'Alta', medium: 'Media', low: 'Bassa' },
+    nl: { high: 'Hoog', medium: 'Gemiddeld', low: 'Laag' },
+    pl: { high: 'Wysoka', medium: 'Średnia', low: 'Niska' },
+  };
+  const levels = confidenceLevels[locale];
   const confidenceLevel = result.confidence >= confidenceThresholds.high
-    ? (locale === 'en' ? 'High' : locale === 'zh' ? '高' : '高い')
+    ? levels.high
     : result.confidence >= confidenceThresholds.medium
-    ? (locale === 'en' ? 'Medium' : locale === 'zh' ? '中' : '中程度')
-    : (locale === 'en' ? 'Low' : locale === 'zh' ? '低' : '低い');
+    ? levels.medium
+    : levels.low;
 
   summaries.push(msg.confidence(confidenceLevel));
 

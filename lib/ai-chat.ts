@@ -59,6 +59,13 @@ export const LOCALE_INSTRUCTIONS: Record<Locale, string> = {
   en: 'Respond in English. Generate all skill names, descriptions, and categories in English.',
   zh: 'Respond in Simplified Chinese (简体中文). Generate all skill names, descriptions, and categories in Chinese.',
   ja: 'Respond in Japanese (日本語). Generate all skill names, descriptions, and categories in Japanese.',
+  es: 'Respond in Spanish (Español). Generate all skill names, descriptions, and categories in Spanish.',
+  'pt-BR': 'Respond in Brazilian Portuguese (Português Brasileiro). Generate all skill names, descriptions, and categories in Portuguese.',
+  de: 'Respond in German (Deutsch). Generate all skill names, descriptions, and categories in German.',
+  fr: 'Respond in French (Français). Generate all skill names, descriptions, and categories in French.',
+  it: 'Respond in Italian (Italiano). Generate all skill names, descriptions, and categories in Italian.',
+  nl: 'Respond in Dutch (Nederlands). Generate all skill names, descriptions, and categories in Dutch.',
+  pl: 'Respond in Polish (Polski). Generate all skill names, descriptions, and categories in Polish.',
 };
 
 // Exported for reuse in API route

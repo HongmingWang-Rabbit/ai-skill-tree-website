@@ -21,12 +21,26 @@ const LOCALE_INSTRUCTIONS: Record<Locale, string> = {
   en: 'Generate all content in English.',
   zh: 'Generate all content in Simplified Chinese (简体中文). All skill names, descriptions, categories, and the career title/description must be in Chinese.',
   ja: 'Generate all content in Japanese (日本語). All skill names, descriptions, categories, and the career title/description must be in Japanese.',
+  es: 'Generate all content in Spanish (Español). All skill names, descriptions, categories, and the career title/description must be in Spanish.',
+  'pt-BR': 'Generate all content in Brazilian Portuguese (Português Brasileiro). All skill names, descriptions, categories, and the career title/description must be in Portuguese.',
+  de: 'Generate all content in German (Deutsch). All skill names, descriptions, categories, and the career title/description must be in German.',
+  fr: 'Generate all content in French (Français). All skill names, descriptions, categories, and the career title/description must be in French.',
+  it: 'Generate all content in Italian (Italiano). All skill names, descriptions, categories, and the career title/description must be in Italian.',
+  nl: 'Generate all content in Dutch (Nederlands). All skill names, descriptions, categories, and the career title/description must be in Dutch.',
+  pl: 'Generate all content in Polish (Polski). All skill names, descriptions, categories, and the career title/description must be in Polish.',
 };
 
 const LOCALE_LANGUAGE_NAMES: Record<Locale, string> = {
   en: 'English',
   zh: 'Chinese',
   ja: 'Japanese',
+  es: 'Spanish',
+  'pt-BR': 'Portuguese',
+  de: 'German',
+  fr: 'French',
+  it: 'Italian',
+  nl: 'Dutch',
+  pl: 'Polish',
 };
 
 const getSystemPrompt = (locale: Locale) => `You are an expert career advisor and skill tree designer. Generate comprehensive skill trees for careers that resemble video game skill trees.
@@ -296,6 +310,13 @@ const LOCALE_ANALYZE_INSTRUCTIONS: Record<Locale, string> = {
   en: 'Respond in English.',
   zh: 'Respond in Simplified Chinese (简体中文). Career titles and descriptions must be in Chinese.',
   ja: 'Respond in Japanese (日本語). Career titles and descriptions must be in Japanese.',
+  es: 'Respond in Spanish (Español). Career titles and descriptions must be in Spanish.',
+  'pt-BR': 'Respond in Brazilian Portuguese (Português Brasileiro). Career titles and descriptions must be in Portuguese.',
+  de: 'Respond in German (Deutsch). Career titles and descriptions must be in German.',
+  fr: 'Respond in French (Français). Career titles and descriptions must be in French.',
+  it: 'Respond in Italian (Italiano). Career titles and descriptions must be in Italian.',
+  nl: 'Respond in Dutch (Nederlands). Career titles and descriptions must be in Dutch.',
+  pl: 'Respond in Polish (Polski). Career titles and descriptions must be in Polish.',
 };
 
 /**
