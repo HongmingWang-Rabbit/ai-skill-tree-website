@@ -764,36 +764,38 @@ export function ResumeExportModal({
             </div>
 
             {/* Footer */}
-            <div className="flex justify-between gap-3 p-4 border-t border-slate-700">
+            <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-3 p-4 border-t border-slate-700">
               {stage === 'preview' ? (
                 <>
                   <button
                     onClick={() => setStage('input')}
-                    className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                    className="order-3 sm:order-1 px-4 py-2.5 sm:py-2 text-sm text-slate-400 hover:text-white transition-colors"
                   >
                     {t('back')}
                   </button>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 order-1 sm:order-2 w-full sm:w-auto">
                     <button
                       onClick={() => setStage('pdfPreview')}
-                      className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
+                      className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-2 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
                       <PreviewIcon className="w-4 h-4" />
-                      {t('previewPdf')}
+                      <span className="hidden min-[400px]:inline">{t('previewPdf')}</span>
+                      <span className="min-[400px]:hidden">{t('previewPdfShort')}</span>
                     </button>
                     {resumeData && isMounted && (
                       coverLetterData ? (
                         <button
                           onClick={handleDownloadZip}
                           disabled={isDownloading}
-                          className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                          className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           {isDownloading ? (
                             <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
                           ) : (
                             <DownloadIcon className="w-4 h-4" />
                           )}
-                          {t('downloadZip')}
+                          <span className="hidden min-[400px]:inline">{t('downloadZip')}</span>
+                          <span className="min-[400px]:hidden">{t('downloadZipShort')}</span>
                         </button>
                       ) : (
                         <PDFDownloadButton
@@ -812,6 +814,7 @@ export function ResumeExportModal({
                           fileName={`${resumeData.profile.name.replace(/\s+/g, '_')}_Resume.pdf`}
                           buttonText={t('downloadPdf')}
                           locale={outputLanguage}
+                          className="flex-1 sm:flex-initial"
                         />
                       )
                     )}
@@ -821,7 +824,7 @@ export function ResumeExportModal({
                 <>
                   <button
                     onClick={() => setStage('preview')}
-                    className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                    className="order-2 sm:order-1 px-4 py-2.5 sm:py-2 text-sm text-slate-400 hover:text-white transition-colors"
                   >
                     {t('back')}
                   </button>
@@ -830,7 +833,7 @@ export function ResumeExportModal({
                       <button
                         onClick={handleDownloadZip}
                         disabled={isDownloading}
-                        className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="order-1 sm:order-2 w-full sm:w-auto px-4 py-2.5 sm:py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                       >
                         {isDownloading ? (
                           <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
@@ -856,6 +859,7 @@ export function ResumeExportModal({
                         fileName={`${resumeData.profile.name.replace(/\s+/g, '_')}_Resume.pdf`}
                         buttonText={t('downloadPdf')}
                         locale={outputLanguage}
+                        className="order-1 sm:order-2 w-full sm:w-auto"
                       />
                     )
                   )}

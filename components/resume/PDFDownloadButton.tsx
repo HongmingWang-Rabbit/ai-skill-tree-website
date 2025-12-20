@@ -22,6 +22,7 @@ export interface PDFDownloadButtonProps {
   fileName: string;
   buttonText: string;
   locale?: Locale;
+  className?: string;
 }
 
 export function PDFDownloadButton({
@@ -39,6 +40,7 @@ export function PDFDownloadButton({
   fileName,
   buttonText,
   locale = 'en',
+  className = '',
 }: PDFDownloadButtonProps) {
   return (
     <PDFDownloadLink
@@ -59,7 +61,7 @@ export function PDFDownloadButton({
         />
       }
       fileName={fileName}
-      className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center gap-2"
+      className={`px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${className}`}
     >
       {({ loading }) => (
         <>
