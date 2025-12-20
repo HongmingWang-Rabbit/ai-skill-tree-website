@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Twoja osobista mapa umiejętności",
+    "subtitle": "Zbuduj plan rozwoju kariery. Importuj umiejętności z CV lub odkrywaj dowolną ścieżkę kariery. Wizualizuj postęp i generuj dostosowane CV.",
+    "importLabel": "Masz CV?",
+    "importCta": "Importuj umiejętności",
+    "exploreLabel": "Lub odkrywaj kariery",
+    "searchPlaceholder": "Spróbuj \"Software Engineer\" lub \"Chcę pracować zdalnie\""
+  },
+  "twoPaths": {
+    "importTitle": "Zacznij od swojego CV",
+    "importDescription": "Masz już CV lub profil LinkedIn? Pozwól AI wyodrębnić istniejące umiejętności i automatycznie zbudować Twoją mapę.",
+    "importCta": "Prześlij dokument",
+    "exploreTitle": "Odkrywaj ścieżki kariery",
+    "exploreDescription": "Odkryj, jakie umiejętności są potrzebne do dowolnej kariery. Przeszukuj tysiące stanowisk i zobacz kompletną mapę umiejętności.",
+    "exploreCta": "Szukaj karier"
+  },
+  "workflow": {
+    "title": "Jak to działa",
+    "step1Title": "Importuj",
+    "step1Description": "Prześlij dowolny dokument - PDF, Word, obrazy lub wklej adres URL LinkedIn. Nasze AI wyodrębnia umiejętności, dane kontaktowe, wykształcenie, doświadczenie, projekty i podsumowanie zawodowe.",
+    "step2Title": "Wizualizuj",
+    "step2Description": "Obserwuj, jak Twoje umiejętności przekształcają się w interaktywną mapę. Identyfikuj luki, śledź postęp i odkrywaj powiązania.",
+    "step3Title": "Eksportuj",
+    "step3Description": "Twórz dostosowane przez AI CV i listy motywacyjne w języku angielskim, chińskim lub japońskim. Wklej adres URL oferty pracy i uzyskaj profesjonalne dokumenty w kilka sekund."
+  },
+  "features": {
+    "title": "Wszystko, czego potrzebujesz",
+    "import": {
+      "title": "Importuj z dowolnego miejsca",
+      "description": "CV w PDF, dokumenty Word, obrazy, LinkedIn, GitHub i więcej"
+    },
+    "skillMaps": {
+      "title": "Mapy umiejętności generowane przez AI",
+      "description": "Wizualizuj umiejętności potrzebne do dowolnej ścieżki kariery"
+    },
+    "resume": {
+      "title": "Wielojęzyczne CV i list motywacyjny",
+      "description": "CV i listy motywacyjne dostosowane przez AI w języku angielskim, chińskim i japońskim"
+    },
+    "education": {
+      "title": "Wykształcenie i certyfikaty",
+      "description": "Przechowuj dyplomy i certyfikaty obok historii pracy"
+    },
+    "chat": {
+      "title": "Asystent czatu AI",
+      "description": "Modyfikuj swoją mapę umiejętności za pomocą naturalnego języka"
+    },
+    "universe": {
+      "title": "Panel wszechświata umiejętności",
+      "description": "Zobacz wszystkie swoje umiejętności z każdej ścieżki kariery"
+    },
+    "share": {
+      "title": "Udostępnij swój postęp",
+      "description": "Publiczne mapy umiejętności z unikalnymi adresami URL"
+    }
+  },
+  "demo": {
+    "title": "Zobacz, jak Twoje umiejętności ożywają",
+    "description": "Tak wygląda mapa umiejętności. Twoja czeka na odkrycie.",
+    "cta": "Utwórz swoją teraz",
+    "coreSkill": "Twoja kariera",
+    "relatedSkill": "Umiejętność"
+  },
+  "stats": {
+    "skillsMapped": "Zmapowanych umiejętności",
+    "careerPaths": "Ścieżek kariery",
+    "resumesGenerated": "Wygenerowanych CV",
+    "fileTypes": "Obsługiwanych typów plików"
+  },
+  "secondaryCta": {
+    "title": "Odkrywaj ścieżki kariery",
+    "description": "Wyszukaj dowolną karierę i odkryj umiejętności potrzebne do osiągnięcia sukcesu. AI generuje kompleksowe mapy umiejętności dla tysięcy stanowisk.",
+    "searchPlaceholder": "Spróbuj \"Software Engineer\" lub \"Chcę pracować zdalnie\"",
+    "popularCareers": "Popularne kariery do odkrycia"
+  },
+  "footer": "Zbudowane z Next.js, React Flow i OpenAI.",
+  "footerPowered": "Napędzane generowaniem map umiejętności AI.",
+  "suggestions": {
+    "title": "Sugestie karier",
+    "subtitle": "Na podstawie Twoich preferencji, oto kilka karier, które mogą Ci się spodobać:"
+  }
+}

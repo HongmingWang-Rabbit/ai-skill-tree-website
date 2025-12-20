@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Generar carta de presentación",
+  "modalSubtitle": "Cree una carta de presentación personalizada adaptada a un trabajo específico. Proporcione detalles del trabajo para obtener mejores resultados.",
+  "jobTitleLabel": "Título del trabajo objetivo",
+  "jobTitlePlaceholder": "p. ej., Ingeniero de software senior",
+  "jobUrlLabel": "URL de la oferta de trabajo (opcional)",
+  "jobUrlPlaceholder": "https://ejemplo.com/oferta-de-trabajo",
+  "companyUrlLabel": "Sitio web de la empresa (opcional)",
+  "companyUrlPlaceholder": "https://empresa.com/acerca-de",
+  "companyUrlHelp": "Ayuda a personalizar la carta con detalles específicos de la empresa",
+  "outputLanguageLabel": "Idioma de salida",
+  "generateButton": "Generar carta de presentación",
+  "generating": "Redactando su carta de presentación...",
+  "analyzingJob": "Analizando requisitos del trabajo...",
+  "generateFailed": "Error al generar la carta de presentación. Por favor, inténtelo de nuevo.",
+  "targetJob": "Adaptada para",
+  "keyStrengths": "Fortalezas clave destacadas",
+  "preview": "Vista previa de la carta de presentación",
+  "companyConnection": "Por qué esta empresa",
+  "back": "Atrás",
+  "copyToClipboard": "Copiar al portapapeles",
+  "copied": "¡Copiado!"
+}

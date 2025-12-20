@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Ihre persönliche Skill-Map",
+    "subtitle": "Erstellen Sie Ihre Karriere-Roadmap. Importieren Sie Kompetenzen aus Ihrem Lebenslauf oder erkunden Sie beliebige Karrierewege. Visualisieren Sie Fortschritte und generieren Sie maßgeschneiderte Lebensläufe.",
+    "importLabel": "Haben Sie einen Lebenslauf?",
+    "importCta": "Kompetenzen importieren",
+    "exploreLabel": "Oder Karrieren erkunden",
+    "searchPlaceholder": "Versuchen Sie \"Software Engineer\" oder \"Ich möchte remote arbeiten\""
+  },
+  "twoPaths": {
+    "importTitle": "Von Ihrem Lebenslauf starten",
+    "importDescription": "Haben Sie bereits einen Lebenslauf oder ein LinkedIn-Profil? Lassen Sie die KI Ihre vorhandenen Kompetenzen extrahieren und Ihre Map automatisch erstellen.",
+    "importCta": "Dokument hochladen",
+    "exploreTitle": "Karrierewege erkunden",
+    "exploreDescription": "Entdecken Sie, welche Kompetenzen Sie für eine beliebige Karriere benötigen. Durchsuchen Sie Tausende von Rollen und sehen Sie die vollständige Skill-Map.",
+    "exploreCta": "Karrieren suchen"
+  },
+  "workflow": {
+    "title": "Wie es funktioniert",
+    "step1Title": "Importieren",
+    "step1Description": "Laden Sie ein beliebiges Dokument hoch - PDF, Word, Bilder oder fügen Sie eine LinkedIn-URL ein. Unsere KI extrahiert Kompetenzen, Kontaktinformationen, Ausbildung, Erfahrung, Projekte und berufliche Zusammenfassung.",
+    "step2Title": "Visualisieren",
+    "step2Description": "Sehen Sie zu, wie Ihre Kompetenzen sich in eine interaktive Map verwandeln. Identifizieren Sie Lücken, verfolgen Sie Fortschritte und entdecken Sie Verbindungen.",
+    "step3Title": "Exportieren",
+    "step3Description": "Erstellen Sie KI-angepasste Lebensläufe und Anschreiben auf Englisch, Chinesisch oder Japanisch. Fügen Sie eine Stellenanzeige-URL ein und erhalten Sie professionelle Dokumente in Sekunden."
+  },
+  "features": {
+    "title": "Alles, was Sie brauchen",
+    "import": {
+      "title": "Von überall importieren",
+      "description": "PDF-Lebensläufe, Word-Dokumente, Bilder, LinkedIn, GitHub und mehr"
+    },
+    "skillMaps": {
+      "title": "KI-generierte Skill-Maps",
+      "description": "Visualisieren Sie Kompetenzen, die für jeden Karriereweg benötigt werden"
+    },
+    "resume": {
+      "title": "Mehrsprachiger Lebenslauf und Anschreiben",
+      "description": "KI-angepasste Lebensläufe und Anschreiben auf Englisch, Chinesisch und Japanisch"
+    },
+    "education": {
+      "title": "Ausbildung und Qualifikationen",
+      "description": "Bewahren Sie Abschlüsse und Zertifizierungen zusammen mit Ihrer Berufserfahrung auf"
+    },
+    "chat": {
+      "title": "KI-Chat-Assistent",
+      "description": "Ändern Sie Ihre Skill-Map mit natürlicher Sprache"
+    },
+    "universe": {
+      "title": "Kompetenz-Universum-Dashboard",
+      "description": "Sehen Sie alle Ihre Kompetenzen über jeden Karriereweg hinweg"
+    },
+    "share": {
+      "title": "Teilen Sie Ihren Fortschritt",
+      "description": "Öffentliche Skill-Maps mit eindeutigen URLs"
+    }
+  },
+  "demo": {
+    "title": "Sehen Sie Ihre Kompetenzen zum Leben erwachen",
+    "description": "So sieht eine Skill-Map aus. Ihre wartet darauf, entdeckt zu werden.",
+    "cta": "Erstellen Sie jetzt Ihre",
+    "coreSkill": "Ihre Karriere",
+    "relatedSkill": "Kompetenz"
+  },
+  "stats": {
+    "skillsMapped": "Zugeordnete Kompetenzen",
+    "careerPaths": "Karrierewege",
+    "resumesGenerated": "Generierte Lebensläufe",
+    "fileTypes": "Unterstützte Dateitypen"
+  },
+  "secondaryCta": {
+    "title": "Karrierewege erkunden",
+    "description": "Suchen Sie nach einer beliebigen Karriere und entdecken Sie die Kompetenzen, die Sie zum Erfolg benötigen. KI generiert umfassende Skill-Maps für Tausende von Rollen.",
+    "searchPlaceholder": "Versuchen Sie \"Software Engineer\" oder \"Ich möchte remote arbeiten\"",
+    "popularCareers": "Beliebte Karrieren zum Erkunden"
+  },
+  "footer": "Erstellt mit Next.js, React Flow und OpenAI.",
+  "footerPowered": "Angetrieben von KI-Skill-Map-Generierung.",
+  "suggestions": {
+    "title": "Karrierevorschläge",
+    "subtitle": "Basierend auf Ihren Präferenzen könnten Ihnen diese Karrieren gefallen:"
+  }
+}

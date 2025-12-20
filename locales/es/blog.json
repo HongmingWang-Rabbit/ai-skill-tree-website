@@ -1,0 +1,15 @@
+{
+  "title": "Blog",
+  "description": "Perspectivas sobre desarrollo profesional, construcción de habilidades y crecimiento profesional",
+  "keywords": "blog profesional, desarrollo de habilidades, crecimiento profesional, consejos de carrera",
+  "readMore": "Leer más",
+  "publishedOn": "Publicado el {date}",
+  "by": "por",
+  "taggedWith": "Etiquetado con",
+  "backToBlog": "Volver al blog",
+  "noPosts": "Aún no hay publicaciones de blog. ¡Vuelva pronto!",
+  "relatedPosts": "Publicaciones relacionadas",
+  "sharePost": "Compartir esta publicación",
+  "minuteRead": "{minutes} min de lectura",
+  "tableOfContents": "Tabla de contenidos"
+}

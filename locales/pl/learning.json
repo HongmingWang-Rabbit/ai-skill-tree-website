@@ -1,0 +1,11 @@
+{
+  "title": "Naucz się {skill}",
+  "subtitle": "Zasoby, które pomogą Ci opanować tę umiejętność",
+  "searching": "Wyszukiwanie zasobów edukacyjnych...",
+  "fetchFailed": "Nie udało się załadować zasobów. Spróbuj ponownie.",
+  "tryAgain": "Spróbuj ponownie",
+  "recommended": "Polecane zasoby",
+  "moreResources": "Więcej zasobów",
+  "noResults": "Nie znaleziono zasobów. Spróbuj wyszukać samouczki w Google.",
+  "startLearning": "Rozpocznij naukę"
+}

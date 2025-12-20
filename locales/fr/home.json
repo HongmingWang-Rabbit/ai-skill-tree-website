@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Votre carte de compétences personnelle",
+    "subtitle": "Construisez votre feuille de route professionnelle. Importez des compétences depuis votre CV ou explorez n'importe quel parcours professionnel. Visualisez la progression et générez des CV adaptés.",
+    "importLabel": "Vous avez un CV ?",
+    "importCta": "Importer des compétences",
+    "exploreLabel": "Ou explorez des carrières",
+    "searchPlaceholder": "Essayez \"Ingénieur logiciel\" ou \"Je veux travailler à distance\""
+  },
+  "twoPaths": {
+    "importTitle": "Commencer avec votre CV",
+    "importDescription": "Vous avez déjà un CV ou un profil LinkedIn ? Laissez l'IA extraire vos compétences existantes et construire votre carte automatiquement.",
+    "importCta": "Télécharger un document",
+    "exploreTitle": "Explorer les parcours professionnels",
+    "exploreDescription": "Découvrez quelles compétences vous avez besoin pour n'importe quelle carrière. Recherchez parmi des milliers de postes et voyez la carte de compétences complète.",
+    "exploreCta": "Rechercher des carrières"
+  },
+  "workflow": {
+    "title": "Comment ça marche",
+    "step1Title": "Importer",
+    "step1Description": "Téléchargez n'importe quel document - PDF, Word, images, ou collez une URL LinkedIn. Notre IA extrait les compétences, informations de contact, formation, expérience, projets et résumé professionnel.",
+    "step2Title": "Visualiser",
+    "step2Description": "Regardez vos compétences se transformer en une carte interactive. Identifiez les lacunes, suivez la progression et découvrez les connexions.",
+    "step3Title": "Exporter",
+    "step3Description": "Créez des CV et lettres de motivation adaptés par l'IA en anglais, chinois ou japonais. Collez une URL d'offre d'emploi et obtenez des documents professionnels en quelques secondes."
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin",
+    "import": {
+      "title": "Importer de n'importe où",
+      "description": "CV PDF, documents Word, images, LinkedIn, GitHub, et plus"
+    },
+    "skillMaps": {
+      "title": "Cartes de compétences générées par l'IA",
+      "description": "Visualisez les compétences nécessaires pour n'importe quel parcours professionnel"
+    },
+    "resume": {
+      "title": "CV et lettre de motivation multilingues",
+      "description": "CV et lettres de motivation adaptés par l'IA en anglais, chinois et japonais"
+    },
+    "education": {
+      "title": "Formation et certifications",
+      "description": "Conservez les diplômes et certifications aux côtés de l'historique professionnel"
+    },
+    "chat": {
+      "title": "Assistant de chat IA",
+      "description": "Modifiez votre carte de compétences avec le langage naturel"
+    },
+    "universe": {
+      "title": "Tableau de bord de l'univers de compétences",
+      "description": "Voyez toutes vos compétences à travers chaque parcours professionnel"
+    },
+    "share": {
+      "title": "Partagez votre progression",
+      "description": "Cartes de compétences publiques avec URLs uniques"
+    }
+  },
+  "demo": {
+    "title": "Voyez vos compétences prendre vie",
+    "description": "Voici à quoi ressemble une carte de compétences. La vôtre attend d'être découverte.",
+    "cta": "Créer la vôtre maintenant",
+    "coreSkill": "Votre carrière",
+    "relatedSkill": "Compétence"
+  },
+  "stats": {
+    "skillsMapped": "Compétences cartographiées",
+    "careerPaths": "Parcours professionnels",
+    "resumesGenerated": "CV générés",
+    "fileTypes": "Types de fichiers pris en charge"
+  },
+  "secondaryCta": {
+    "title": "Explorer les parcours professionnels",
+    "description": "Recherchez n'importe quelle carrière et découvrez les compétences dont vous avez besoin pour réussir. L'IA génère des cartes de compétences complètes pour des milliers de postes.",
+    "searchPlaceholder": "Essayez \"Ingénieur logiciel\" ou \"Je veux travailler à distance\"",
+    "popularCareers": "Carrières populaires à explorer"
+  },
+  "footer": "Construit avec Next.js, React Flow et OpenAI.",
+  "footerPowered": "Alimenté par la génération de cartes de compétences par l'IA.",
+  "suggestions": {
+    "title": "Suggestions de carrières",
+    "subtitle": "En fonction de vos préférences, voici quelques carrières qui pourraient vous intéresser :"
+  }
+}

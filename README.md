@@ -34,7 +34,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Organize Button**: Re-arrange nodes in a neat radial layout with max 6 nodes per ring (auto-triggers after merge)
 - **Quick Actions Menu**: 3-dots dropdown on dashboard cards and career page for merge, organize, share, and delete
 - **Toast Notifications**: Non-intrusive success/error feedback via react-hot-toast with custom styling
-- **Multi-Language Support**: Full internationalization with English, Chinese, and Japanese
+- **Multi-Language Support**: Full internationalization with 10 languages (English, Chinese, Japanese, Spanish, Portuguese, German, French, Italian, Dutch, Polish)
 - **Blog**: Markdown-based blog with multi-language support, SEO-optimized with Article schema
 - **SEO & GEO Optimized**: Dynamic sitemap, AI crawler-friendly robots.txt (GPTBot, Claude, Perplexity), hreflang tags, Open Graph/Twitter cards, JSON-LD structured data (FAQ, HowTo, Article schemas for AI search engines)
 - **Smart Caching**: Redis caching prevents redundant API calls and speeds up repeat queries
@@ -60,7 +60,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **PDF Generation**: @react-pdf/renderer (client-side)
 - **Styling**: Tailwind CSS v4
 - **Animation**: Framer Motion
-- **i18n**: next-intl (as-needed locale prefix - English at root, `/zh/` and `/ja/` for others)
+- **i18n**: next-intl (as-needed locale prefix - English at root, `/{locale}/` for others)
 - **Validation**: Zod
 - **Package Manager**: pnpm
 
@@ -234,10 +234,17 @@ An interactive web application that generates and visualizes career skill maps u
 │       ├── Toast.tsx           # Toast notifications wrapper
 │       └── LanguageSwitcher.tsx # Language dropdown selector
 ├── i18n/                       # Internationalization config (routing, request)
-├── locales/                    # Translation files organized by namespace
+├── locales/                    # Translation files organized by namespace (10 locales)
 │   ├── en/                     # English translations
 │   ├── zh/                     # Chinese translations
-│   └── ja/                     # Japanese translations
+│   ├── ja/                     # Japanese translations
+│   ├── es/                     # Spanish translations
+│   ├── pt-BR/                  # Portuguese (Brazil) translations
+│   ├── de/                     # German translations
+│   ├── fr/                     # French translations
+│   ├── it/                     # Italian translations
+│   ├── nl/                     # Dutch translations
+│   └── pl/                     # Polish translations
 ├── content/
 │   └── blog/                   # Markdown blog posts
 │       ├── en/                 # English posts

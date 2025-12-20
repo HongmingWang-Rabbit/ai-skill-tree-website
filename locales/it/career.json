@@ -1,0 +1,43 @@
+{
+  "loading": "Caricamento carriera...",
+  "generating": "Generazione mappa delle competenze con IA...",
+  "generatingSubtext": "Potrebbe richiedere alcuni secondi",
+  "loadingProgress": "Caricamento dei tuoi progressi...",
+  "totalSkills": "Competenze Totali",
+  "unlocked": "Sbloccate",
+  "mastered": "Padroneggiate",
+  "saveProgress": "Salva i Tuoi Progressi",
+  "saveDescription": "Accedi per salvare i progressi della tua mappa delle competenze e accedervi da qualsiasi luogo. Senza accedere, i tuoi progressi andranno persi quando lasci questa pagina.",
+  "signInToSave": "Accedi per Salvare",
+  "continueWithoutSaving": "Continua Senza Salvare",
+  "oops": "Ops!",
+  "failedToLoad": "Impossibile caricare la carriera",
+  "notFound": "Mappa delle competenze non trovata",
+  "share": "Condividi i tuoi progressi",
+  "by": "di",
+  "anonymous": "Anonimo",
+  "viewOnly": "Sola Visualizzazione",
+  "copyToMyMaps": "Copia nelle Mie Mappe",
+  "copying": "Copia in corso...",
+  "saveToMyMaps": "Salva nelle Mie Mappe",
+  "saving": "Salvataggio...",
+  "deleteTitle": "Elimina Mappa delle Competenze",
+  "confirmDelete": "Sei sicuro di voler eliminare questa mappa delle competenze? Questa azione non può essere annullata.",
+  "deleteSuccess": "Mappa delle competenze eliminata con successo",
+  "deleteFailed": "Impossibile eliminare la mappa delle competenze",
+  "menu": {
+    "merge": "Unisci Mappe",
+    "sort": "Organizza",
+    "share": "Condividi",
+    "delete": "Elimina"
+  },
+  "graphComplete": {
+    "title": "Congratulazioni!",
+    "message": "Hai padroneggiato tutte le competenze in questo percorso di carriera! Vorresti espandere il tuo albero delle competenze con competenze più avanzate?",
+    "expand": "Espandi con Competenze Avanzate",
+    "later": "Forse Più Tardi",
+    "expanding": "Generazione competenze avanzate...",
+    "expandSuccess": "Aggiunte {count} nuove competenze avanzate!",
+    "expandFailed": "Impossibile generare competenze avanzate"
+  }
+}

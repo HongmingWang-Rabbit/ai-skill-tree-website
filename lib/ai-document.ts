@@ -115,12 +115,26 @@ const LOCALE_INSTRUCTIONS: Record<Locale, string> = {
   en: 'Generate all skill names, descriptions, and categories in English.',
   zh: 'Generate all skill names, descriptions, and categories in Simplified Chinese (简体中文).',
   ja: 'Generate all skill names, descriptions, and categories in Japanese (日本語).',
+  es: 'Generate all skill names, descriptions, and categories in Spanish (Español).',
+  'pt-BR': 'Generate all skill names, descriptions, and categories in Brazilian Portuguese (Português Brasileiro).',
+  de: 'Generate all skill names, descriptions, and categories in German (Deutsch).',
+  fr: 'Generate all skill names, descriptions, and categories in French (Français).',
+  it: 'Generate all skill names, descriptions, and categories in Italian (Italiano).',
+  nl: 'Generate all skill names, descriptions, and categories in Dutch (Nederlands).',
+  pl: 'Generate all skill names, descriptions, and categories in Polish (Polski).',
 };
 
 const LOCALE_LANGUAGE_NAMES: Record<Locale, string> = {
   en: 'English',
   zh: 'Chinese',
   ja: 'Japanese',
+  es: 'Spanish',
+  'pt-BR': 'Brazilian Portuguese',
+  de: 'German',
+  fr: 'French',
+  it: 'Italian',
+  nl: 'Dutch',
+  pl: 'Polish',
 };
 
 /**

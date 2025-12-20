@@ -1,0 +1,59 @@
+{
+  "title": "Kies Uw Abonnement",
+  "subtitle": "Start gratis en schaal op terwijl u groeit. Alle abonnementen bevatten AI-aangedreven vaardighedenkaarten.",
+  "monthly": "Maandelijks",
+  "yearly": "Jaarlijks",
+  "yearlyDiscount": "Bespaar 20%",
+  "currentPlan": "Huidig Abonnement",
+  "subscribe": "Abonneren",
+  "getStarted": "Aan de Slag",
+  "mostPopular": "Meest Populair",
+  "perMonth": "/maand",
+  "perYear": "/jaar",
+  "free": {
+    "name": "Gratis",
+    "description": "Perfect om te beginnen",
+    "features": ["500 credits bij aanmelding", "1 vaardighedenkaart", "AI carrière generatie", "Basis cv export", "Watermerk op exports"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Voor actieve leerlingen",
+    "features": ["Alles in Gratis", "1.000 maandelijkse credits", "Onbeperkte vaardighedenkaarten", "Geen watermerken", "Prioritaire ondersteuning"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Voor professionals",
+    "features": ["Alles in Pro", "3.000 maandelijkse credits", "Geavanceerde AI-functies", "Exporteren naar meerdere formaten", "Toegewijde ondersteuning"]
+  },
+  "creditsTitle": "Meer Credits Nodig?",
+  "creditsSubtitle": "Koop creditpakketten voor extra AI-operaties",
+  "credits500": "500 Credits",
+  "credits2000": "2.000 Credits",
+  "credits2000Save": "Bespaar 10%",
+  "credits5000": "5.000 Credits",
+  "credits5000Save": "Bespaar 20%",
+  "buyNow": "Nu Kopen",
+  "faq": {
+    "title": "Veelgestelde Vragen",
+    "q1": "Wat zijn credits?",
+    "a1": "Credits worden gebruikt voor AI-operaties zoals het genereren van vaardighedenkaarten, het analyseren van carrières, het importeren van documenten en het maken van cv's. Elke operatie kost een bepaald aantal credits.",
+    "q2": "Verlopen credits?",
+    "a2": "Nee, gekochte credits verlopen nooit. Maandelijkse abonnementscredits worden elke factureringscyclus gereset.",
+    "q3": "Kan ik op elk moment opzeggen?",
+    "a3": "Ja, u kunt uw abonnement op elk moment opzeggen. U behoudt toegang tot het einde van uw factureringsperiode."
+  },
+  "manageBilling": "Facturering Beheren",
+  "signInRequired": "Log in om uw abonnement te beheren",
+  "currentStatus": "Uw Huidig Abonnement",
+  "subscription": "Abonnement",
+  "creditsBalance": "Creditsaldo",
+  "creditsAvailable": "credits beschikbaar",
+  "manageSubscription": "Annuleren of Abonnement Wijzigen",
+  "updatePaymentMethod": "Betalingsmethode Bijwerken",
+  "renewsOn": "Verlengt op",
+  "expiresOn": "Verloopt op",
+  "planUpdated": "Uw abonnement is succesvol bijgewerkt!",
+  "priceNotConfigured": "Prijs niet geconfigureerd",
+  "checkoutFailed": "Kan checkout niet starten",
+  "portalFailed": "Kan factureringsportaal niet openen"
+}

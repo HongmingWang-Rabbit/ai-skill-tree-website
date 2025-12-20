@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "La Tua Mappa Personale delle Competenze",
+    "subtitle": "Costruisci la tua roadmap di carriera. Importa competenze dal tuo curriculum o esplora qualsiasi percorso di carriera. Visualizza i progressi e genera curriculum personalizzati.",
+    "importLabel": "Hai un curriculum?",
+    "importCta": "Importa Competenze",
+    "exploreLabel": "Oppure esplora carriere",
+    "searchPlaceholder": "Prova \"Ingegnere Software\" o \"Voglio lavorare da remoto\""
+  },
+  "twoPaths": {
+    "importTitle": "Parti dal Tuo Curriculum",
+    "importDescription": "Hai già un curriculum o un profilo LinkedIn? Lascia che l'IA estragga le tue competenze esistenti e costruisca automaticamente la tua mappa.",
+    "importCta": "Carica Documento",
+    "exploreTitle": "Esplora Percorsi di Carriera",
+    "exploreDescription": "Scopri quali competenze ti servono per qualsiasi carriera. Cerca migliaia di ruoli e visualizza la mappa completa delle competenze.",
+    "exploreCta": "Cerca Carriere"
+  },
+  "workflow": {
+    "title": "Come Funziona",
+    "step1Title": "Importa",
+    "step1Description": "Carica qualsiasi documento - PDF, Word, immagini o incolla un URL LinkedIn. La nostra IA estrae competenze, informazioni di contatto, istruzione, esperienza, progetti e riepilogo professionale.",
+    "step2Title": "Visualizza",
+    "step2Description": "Guarda le tue competenze trasformarsi in una mappa interattiva. Identifica le lacune, monitora i progressi e scopri le connessioni.",
+    "step3Title": "Esporta",
+    "step3Description": "Crea curriculum e lettere di presentazione personalizzati dall'IA in inglese, cinese o giapponese. Incolla l'URL di un annuncio di lavoro e ottieni documenti professionali in pochi secondi."
+  },
+  "features": {
+    "title": "Tutto Ciò di Cui Hai Bisogno",
+    "import": {
+      "title": "Importa da Qualsiasi Luogo",
+      "description": "Curriculum PDF, documenti Word, immagini, LinkedIn, GitHub e altro"
+    },
+    "skillMaps": {
+      "title": "Mappe delle Competenze Generate dall'IA",
+      "description": "Visualizza le competenze necessarie per qualsiasi percorso di carriera"
+    },
+    "resume": {
+      "title": "Curriculum e Lettera di Presentazione Multilingue",
+      "description": "Curriculum e lettere di presentazione personalizzati dall'IA in inglese, cinese e giapponese"
+    },
+    "education": {
+      "title": "Istruzione e Credenziali",
+      "description": "Mantieni lauree e certificazioni insieme alla cronologia lavorativa"
+    },
+    "chat": {
+      "title": "Assistente Chat IA",
+      "description": "Modifica la tua mappa delle competenze con linguaggio naturale"
+    },
+    "universe": {
+      "title": "Dashboard Universo delle Competenze",
+      "description": "Visualizza tutte le tue competenze in ogni percorso di carriera"
+    },
+    "share": {
+      "title": "Condividi i Tuoi Progressi",
+      "description": "Mappe delle competenze pubbliche con URL univoci"
+    }
+  },
+  "demo": {
+    "title": "Guarda le Tue Competenze Prendere Vita",
+    "description": "Ecco come appare una mappa delle competenze. La tua aspetta di essere scoperta.",
+    "cta": "Crea la Tua Ora",
+    "coreSkill": "La Tua Carriera",
+    "relatedSkill": "Competenza"
+  },
+  "stats": {
+    "skillsMapped": "Competenze Mappate",
+    "careerPaths": "Percorsi di Carriera",
+    "resumesGenerated": "Curriculum Generati",
+    "fileTypes": "Tipi di File Supportati"
+  },
+  "secondaryCta": {
+    "title": "Esplora Percorsi di Carriera",
+    "description": "Cerca qualsiasi carriera e scopri le competenze necessarie per avere successo. L'IA genera mappe complete delle competenze per migliaia di ruoli.",
+    "searchPlaceholder": "Prova \"Ingegnere Software\" o \"Voglio lavorare da remoto\"",
+    "popularCareers": "Carriere popolari da esplorare"
+  },
+  "footer": "Realizzato con Next.js, React Flow e OpenAI.",
+  "footerPowered": "Alimentato dalla generazione di mappe delle competenze IA.",
+  "suggestions": {
+    "title": "Suggerimenti di Carriera",
+    "subtitle": "In base alle tue preferenze, ecco alcune carriere che potrebbero piacerti:"
+  }
+}

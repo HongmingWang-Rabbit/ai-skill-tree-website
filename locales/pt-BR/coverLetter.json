@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Gerar Carta de Apresentação",
+  "modalSubtitle": "Crie uma carta de apresentação personalizada adaptada a uma vaga específica. Forneça detalhes da vaga para melhores resultados.",
+  "jobTitleLabel": "Cargo Pretendido",
+  "jobTitlePlaceholder": "ex: Engenheiro de Software Sênior",
+  "jobUrlLabel": "URL da Vaga (opcional)",
+  "jobUrlPlaceholder": "https://exemplo.com/vaga",
+  "companyUrlLabel": "Site da Empresa (opcional)",
+  "companyUrlPlaceholder": "https://empresa.com/sobre",
+  "companyUrlHelp": "Ajuda a personalizar a carta com detalhes específicos da empresa",
+  "outputLanguageLabel": "Idioma de Saída",
+  "generateButton": "Gerar Carta de Apresentação",
+  "generating": "Criando sua carta de apresentação...",
+  "analyzingJob": "Analisando requisitos da vaga...",
+  "generateFailed": "Falha ao gerar carta de apresentação. Por favor, tente novamente.",
+  "targetJob": "Adaptada para",
+  "keyStrengths": "Principais Pontos Fortes Destacados",
+  "preview": "Visualização da Carta de Apresentação",
+  "companyConnection": "Por Que Esta Empresa",
+  "back": "Voltar",
+  "copyToClipboard": "Copiar para Área de Transferência",
+  "copied": "Copiado!"
+}

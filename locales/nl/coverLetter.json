@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Motivatiebrief Genereren",
+  "modalSubtitle": "Maak een gepersonaliseerde motivatiebrief op maat voor een specifieke baan. Geef vacaturedetails voor beste resultaten.",
+  "jobTitleLabel": "Gewenste Functietitel",
+  "jobTitlePlaceholder": "bijv. Senior Software Engineer",
+  "jobUrlLabel": "Vacature URL (optioneel)",
+  "jobUrlPlaceholder": "https://example.com/vacature",
+  "companyUrlLabel": "Bedrijfswebsite (optioneel)",
+  "companyUrlPlaceholder": "https://bedrijf.com/over",
+  "companyUrlHelp": "Helpt de brief te personaliseren met bedrijfsspecifieke details",
+  "outputLanguageLabel": "Uitvoertaal",
+  "generateButton": "Motivatiebrief Genereren",
+  "generating": "Uw motivatiebrief opstellen...",
+  "analyzingJob": "Vacature-eisen analyseren...",
+  "generateFailed": "Kan motivatiebrief niet genereren. Probeer het opnieuw.",
+  "targetJob": "Op maat gemaakt voor",
+  "keyStrengths": "Belangrijkste Sterke Punten Benadrukt",
+  "preview": "Voorbeeld Motivatiebrief",
+  "companyConnection": "Waarom Dit Bedrijf",
+  "back": "Terug",
+  "copyToClipboard": "Kopiëren naar Klembord",
+  "copied": "Gekopieerd!"
+}

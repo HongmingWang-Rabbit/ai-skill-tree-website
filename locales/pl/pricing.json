@@ -1,0 +1,59 @@
+{
+  "title": "Wybierz swój plan",
+  "subtitle": "Zacznij za darmo i rozwijaj się w miarę wzrostu. Wszystkie plany obejmują mapowanie umiejętności napędzane AI.",
+  "monthly": "Miesięcznie",
+  "yearly": "Rocznie",
+  "yearlyDiscount": "Oszczędź 20%",
+  "currentPlan": "Bieżący plan",
+  "subscribe": "Subskrybuj",
+  "getStarted": "Rozpocznij",
+  "mostPopular": "Najpopularniejszy",
+  "perMonth": "/miesiąc",
+  "perYear": "/rok",
+  "free": {
+    "name": "Darmowy",
+    "description": "Idealny na początek",
+    "features": ["500 kredytów przy rejestracji", "1 mapa umiejętności", "Generowanie kariery AI", "Podstawowy eksport CV", "Znak wodny na eksportach"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Dla aktywnych uczących się",
+    "features": ["Wszystko z planu Darmowego", "1000 miesięcznych kredytów", "Nielimitowane mapy umiejętności", "Bez znaków wodnych", "Priorytetowe wsparcie"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Dla profesjonalistów",
+    "features": ["Wszystko z planu Pro", "3000 miesięcznych kredytów", "Zaawansowane funkcje AI", "Eksport do wielu formatów", "Dedykowane wsparcie"]
+  },
+  "creditsTitle": "Potrzebujesz więcej kredytów?",
+  "creditsSubtitle": "Kup pakiety kredytów na dodatkowe operacje AI",
+  "credits500": "500 kredytów",
+  "credits2000": "2000 kredytów",
+  "credits2000Save": "Oszczędź 10%",
+  "credits5000": "5000 kredytów",
+  "credits5000Save": "Oszczędź 20%",
+  "buyNow": "Kup teraz",
+  "faq": {
+    "title": "Najczęściej zadawane pytania",
+    "q1": "Czym są kredyty?",
+    "a1": "Kredyty są używane do operacji AI, takich jak generowanie map umiejętności, analizowanie karier, importowanie dokumentów i tworzenie CV. Każda operacja kosztuje określoną liczbę kredytów.",
+    "q2": "Czy kredyty wygasają?",
+    "a2": "Nie, zakupione kredyty nigdy nie wygasają. Miesięczne kredyty subskrypcyjne resetują się w każdym cyklu rozliczeniowym.",
+    "q3": "Czy mogę anulować w każdej chwili?",
+    "a3": "Tak, możesz anulować subskrypcję w dowolnym momencie. Zachowasz dostęp do końca okresu rozliczeniowego."
+  },
+  "manageBilling": "Zarządzaj rozliczeniami",
+  "signInRequired": "Zaloguj się, aby zarządzać swoją subskrypcją",
+  "currentStatus": "Twój bieżący plan",
+  "subscription": "Subskrypcja",
+  "creditsBalance": "Saldo kredytów",
+  "creditsAvailable": "dostępnych kredytów",
+  "manageSubscription": "Anuluj lub zmień plan",
+  "updatePaymentMethod": "Zaktualizuj metodę płatności",
+  "renewsOn": "Odnawia się",
+  "expiresOn": "Wygasa",
+  "planUpdated": "Twój plan został pomyślnie zaktualizowany!",
+  "priceNotConfigured": "Cena nie skonfigurowana",
+  "checkoutFailed": "Nie udało się rozpocząć kasy",
+  "portalFailed": "Nie udało się otworzyć portalu rozliczeń"
+}

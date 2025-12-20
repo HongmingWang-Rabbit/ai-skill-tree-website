@@ -1,0 +1,43 @@
+{
+  "loading": "Ładowanie kariery...",
+  "generating": "Generowanie mapy umiejętności z AI...",
+  "generatingSubtext": "To może potrwać kilka sekund",
+  "loadingProgress": "Ładowanie Twojego postępu...",
+  "totalSkills": "Wszystkie umiejętności",
+  "unlocked": "Odblokowane",
+  "mastered": "Opanowane",
+  "saveProgress": "Zapisz swój postęp",
+  "saveDescription": "Zaloguj się, aby zapisać postęp w mapie umiejętności i uzyskać do niego dostęp z dowolnego miejsca. Bez logowania Twój postęp zostanie utracony po opuszczeniu tej strony.",
+  "signInToSave": "Zaloguj się, aby zapisać",
+  "continueWithoutSaving": "Kontynuuj bez zapisywania",
+  "oops": "Ups!",
+  "failedToLoad": "Nie udało się załadować kariery",
+  "notFound": "Nie znaleziono mapy umiejętności",
+  "share": "Udostępnij swój postęp",
+  "by": "przez",
+  "anonymous": "Anonimowy",
+  "viewOnly": "Tylko do odczytu",
+  "copyToMyMaps": "Kopiuj do moich map",
+  "copying": "Kopiowanie...",
+  "saveToMyMaps": "Zapisz do moich map",
+  "saving": "Zapisywanie...",
+  "deleteTitle": "Usuń mapę umiejętności",
+  "confirmDelete": "Czy na pewno chcesz usunąć tę mapę umiejętności? Ta operacja nie może być cofnięta.",
+  "deleteSuccess": "Mapa umiejętności usunięta pomyślnie",
+  "deleteFailed": "Nie udało się usunąć mapy umiejętności",
+  "menu": {
+    "merge": "Scal mapy",
+    "sort": "Organizuj",
+    "share": "Udostępnij",
+    "delete": "Usuń"
+  },
+  "graphComplete": {
+    "title": "Gratulacje!",
+    "message": "Opanowałeś wszystkie umiejętności na tej ścieżce kariery! Czy chciałbyś rozszerzyć swoje drzewo umiejętności o bardziej zaawansowane umiejętności?",
+    "expand": "Rozszerz o zaawansowane umiejętności",
+    "later": "Może później",
+    "expanding": "Generowanie zaawansowanych umiejętności...",
+    "expandSuccess": "Dodano {count} nowych zaawansowanych umiejętności!",
+    "expandFailed": "Nie udało się wygenerować zaawansowanych umiejętności"
+  }
+}

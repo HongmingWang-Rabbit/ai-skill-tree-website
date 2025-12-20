@@ -9,7 +9,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `i18n/routing.ts` | Locale config: `locales`, `i18nNamespaces`, `ogLocaleMap`, `getLocalePath()`, `getLocaleUrl()` |
 | `i18n/request.ts` | next-intl server config, loads namespace files |
 | `i18n/navigation.ts` | Locale-aware `Link`, `useRouter`, `usePathname` |
-| `locales/{locale}/*.json` | Translation files by namespace (18 files per locale) |
+| `locales/{locale}/*.json` | Translation files by namespace (19 files per locale, 10 locales) |
 
 **Locale prefix mode:** `as-needed` - English (default) uses root URL, other locales get `/{locale}` prefix
 
@@ -19,7 +19,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 
 **Namespaces:** `common`, `header`, `home`, `career`, `dashboard`, `featuredCareers`, `languageSwitcher`, `auth`, `masterMap`, `seo`, `skillGraph`, `aiChat`, `import`, `resume`, `coverLetter`, `learning`, `billing`, `pricing`, `blog`
 
-**Adding new locale:** Create folder in `locales/`, add to `locales` array in `routing.ts`
+**Adding new locale:** Create folder in `locales/`, add to `locales` array and `ogLocaleMap` in `routing.ts`, add entries to `LOCALE_DISPLAY_NAMES`, `LOCALE_FLAGS`, `LOCALE_NAMES`, `AI_LOCALE_INSTRUCTIONS`, `PDF_LABELS`, `PDF_FONT_CONFIG.families`, and `PDF_FONT_CONFIG.dateLocales` in `lib/constants.ts`
 
 **Adding new namespace:** Create JSON files in all locale folders, add to `i18nNamespaces` in `routing.ts`
 
@@ -51,7 +51,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 - **Features**: `AI_CHAT_CONFIG`, `DOCUMENT_IMPORT_CONFIG`, `RESUME_CONFIG`, `LEARNING_CONFIG`, `BLOG_CONFIG`
 - **Layout**: `MASTER_GRAPH_CONFIG`, `LANDING_PAGE_CONFIG`
 - **SEO**: `SEO_CONFIG`, `SITE_URL`
-- **i18n**: `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `PDF_LABELS`
+- **i18n**: `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `LOCALE_DISPLAY_NAMES`, `LOCALE_FLAGS`, `PDF_LABELS`
 - **PDF**: `PDF_FONT_CONFIG` (font URLs, families, CJK pattern), `PDF_STYLES`
 
 ## Components

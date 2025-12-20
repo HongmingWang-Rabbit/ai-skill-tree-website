@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Générer une lettre de motivation",
+  "modalSubtitle": "Créez une lettre de motivation personnalisée adaptée à un emploi spécifique. Fournissez les détails du poste pour de meilleurs résultats.",
+  "jobTitleLabel": "Titre du poste cible",
+  "jobTitlePlaceholder": "ex. : Ingénieur logiciel senior",
+  "jobUrlLabel": "URL de l'offre d'emploi (optionnel)",
+  "jobUrlPlaceholder": "https://exemple.com/offre-emploi",
+  "companyUrlLabel": "Site web de l'entreprise (optionnel)",
+  "companyUrlPlaceholder": "https://entreprise.com/a-propos",
+  "companyUrlHelp": "Aide à personnaliser la lettre avec des détails spécifiques à l'entreprise",
+  "outputLanguageLabel": "Langue de sortie",
+  "generateButton": "Générer la lettre de motivation",
+  "generating": "Rédaction de votre lettre de motivation...",
+  "analyzingJob": "Analyse des exigences du poste...",
+  "generateFailed": "Échec de la génération de la lettre de motivation. Veuillez réessayer.",
+  "targetJob": "Adaptée pour",
+  "keyStrengths": "Points forts mis en évidence",
+  "preview": "Aperçu de la lettre de motivation",
+  "companyConnection": "Pourquoi cette entreprise",
+  "back": "Retour",
+  "copyToClipboard": "Copier dans le presse-papiers",
+  "copied": "Copié !"
+}

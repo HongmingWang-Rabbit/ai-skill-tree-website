@@ -1,0 +1,59 @@
+{
+  "title": "Escolha Seu Plano",
+  "subtitle": "Comece grátis e escale conforme você cresce. Todos os planos incluem mapeamento de habilidades com IA.",
+  "monthly": "Mensal",
+  "yearly": "Anual",
+  "yearlyDiscount": "Economize 20%",
+  "currentPlan": "Plano Atual",
+  "subscribe": "Assinar",
+  "getStarted": "Começar",
+  "mostPopular": "Mais Popular",
+  "perMonth": "/mês",
+  "perYear": "/ano",
+  "free": {
+    "name": "Grátis",
+    "description": "Perfeito para começar",
+    "features": ["500 créditos na inscrição", "1 mapa de habilidades", "Geração de carreira com IA", "Exportação básica de currículo", "Marca d'água nas exportações"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Para aprendizes ativos",
+    "features": ["Tudo do Grátis", "1.000 créditos mensais", "Mapas de habilidades ilimitados", "Sem marcas d'água", "Suporte prioritário"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Para profissionais",
+    "features": ["Tudo do Pro", "3.000 créditos mensais", "Recursos avançados de IA", "Exportar para múltiplos formatos", "Suporte dedicado"]
+  },
+  "creditsTitle": "Precisa de Mais Créditos?",
+  "creditsSubtitle": "Compre pacotes de créditos para operações adicionais de IA",
+  "credits500": "500 Créditos",
+  "credits2000": "2.000 Créditos",
+  "credits2000Save": "Economize 10%",
+  "credits5000": "5.000 Créditos",
+  "credits5000Save": "Economize 20%",
+  "buyNow": "Comprar Agora",
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "q1": "O que são créditos?",
+    "a1": "Créditos são usados para operações de IA como gerar mapas de habilidades, analisar carreiras, importar documentos e criar currículos. Cada operação custa uma certa quantidade de créditos.",
+    "q2": "Os créditos expiram?",
+    "a2": "Não, os créditos comprados nunca expiram. Os créditos de assinatura mensal são redefinidos a cada ciclo de faturamento.",
+    "q3": "Posso cancelar a qualquer momento?",
+    "a3": "Sim, você pode cancelar sua assinatura a qualquer momento. Você manterá o acesso até o final do período de faturamento."
+  },
+  "manageBilling": "Gerenciar Faturamento",
+  "signInRequired": "Por favor, entre para gerenciar sua assinatura",
+  "currentStatus": "Seu Plano Atual",
+  "subscription": "Assinatura",
+  "creditsBalance": "Saldo de Créditos",
+  "creditsAvailable": "créditos disponíveis",
+  "manageSubscription": "Cancelar ou Alterar Plano",
+  "updatePaymentMethod": "Atualizar Forma de Pagamento",
+  "renewsOn": "Renova em",
+  "expiresOn": "Expira em",
+  "planUpdated": "Seu plano foi atualizado com sucesso!",
+  "priceNotConfigured": "Preço não configurado",
+  "checkoutFailed": "Falha ao iniciar checkout",
+  "portalFailed": "Falha ao abrir portal de faturamento"
+}

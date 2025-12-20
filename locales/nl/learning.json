@@ -1,0 +1,11 @@
+{
+  "title": "Leer {skill}",
+  "subtitle": "Bronnen om u te helpen deze vaardigheid onder de knie te krijgen",
+  "searching": "Leerbronnen zoeken...",
+  "fetchFailed": "Kan bronnen niet laden. Probeer het opnieuw.",
+  "tryAgain": "Probeer Opnieuw",
+  "recommended": "Aanbevolen Bronnen",
+  "moreResources": "Meer Bronnen",
+  "noResults": "Geen bronnen gevonden. Probeer op Google te zoeken naar tutorials.",
+  "startLearning": "Begin met Leren"
+}

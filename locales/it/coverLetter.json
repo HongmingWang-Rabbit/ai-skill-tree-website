@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Genera Lettera di Presentazione",
+  "modalSubtitle": "Crea una lettera di presentazione personalizzata su misura per un lavoro specifico. Fornisci i dettagli del lavoro per risultati migliori.",
+  "jobTitleLabel": "Titolo del Lavoro Target",
+  "jobTitlePlaceholder": "es., Senior Software Engineer",
+  "jobUrlLabel": "URL dell'Annuncio di Lavoro (facoltativo)",
+  "jobUrlPlaceholder": "https://esempio.com/annuncio-lavoro",
+  "companyUrlLabel": "Sito Web dell'Azienda (facoltativo)",
+  "companyUrlPlaceholder": "https://azienda.com/chi-siamo",
+  "companyUrlHelp": "Aiuta a personalizzare la lettera con dettagli specifici dell'azienda",
+  "outputLanguageLabel": "Lingua di Output",
+  "generateButton": "Genera Lettera di Presentazione",
+  "generating": "Creazione della tua lettera di presentazione...",
+  "analyzingJob": "Analisi dei requisiti del lavoro...",
+  "generateFailed": "Impossibile generare la lettera di presentazione. Riprova.",
+  "targetJob": "Su misura per",
+  "keyStrengths": "Punti di Forza Evidenziati",
+  "preview": "Anteprima Lettera di Presentazione",
+  "companyConnection": "Perché Questa Azienda",
+  "back": "Indietro",
+  "copyToClipboard": "Copia negli Appunti",
+  "copied": "Copiato!"
+}

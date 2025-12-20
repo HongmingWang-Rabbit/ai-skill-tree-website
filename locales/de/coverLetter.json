@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Anschreiben erstellen",
+  "modalSubtitle": "Erstellen Sie ein personalisiertes Anschreiben, das auf eine bestimmte Stelle zugeschnitten ist. Geben Sie Stellendetails für optimale Ergebnisse an.",
+  "jobTitleLabel": "Ziel-Stellenbezeichnung",
+  "jobTitlePlaceholder": "z.B. Senior Software Engineer",
+  "jobUrlLabel": "URL der Stellenanzeige (optional)",
+  "jobUrlPlaceholder": "https://beispiel.com/stellenanzeige",
+  "companyUrlLabel": "Unternehmenswebsite (optional)",
+  "companyUrlPlaceholder": "https://unternehmen.com/ueber-uns",
+  "companyUrlHelp": "Hilft, das Anschreiben mit unternehmensspezifischen Details zu personalisieren",
+  "outputLanguageLabel": "Ausgabesprache",
+  "generateButton": "Anschreiben erstellen",
+  "generating": "Ihr Anschreiben wird erstellt...",
+  "analyzingJob": "Stellenanforderungen werden analysiert...",
+  "generateFailed": "Erstellung des Anschreibens fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "targetJob": "Zugeschnitten auf",
+  "keyStrengths": "Hervorgehobene Hauptstärken",
+  "preview": "Anschreiben-Vorschau",
+  "companyConnection": "Warum dieses Unternehmen",
+  "back": "Zurück",
+  "copyToClipboard": "In Zwischenablage kopieren",
+  "copied": "Kopiert!"
+}

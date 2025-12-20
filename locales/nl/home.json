@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Uw Persoonlijke Vaardighedenkaart",
+    "subtitle": "Bouw uw carrièreroutekaart. Importeer vaardigheden vanuit uw cv of verken elk carrièrepad. Visualiseer voortgang en genereer op maat gemaakte cv's.",
+    "importLabel": "Heeft u een cv?",
+    "importCta": "Vaardigheden Importeren",
+    "exploreLabel": "Of verken carrières",
+    "searchPlaceholder": "Probeer \"Software Engineer\" of \"Ik wil op afstand werken\""
+  },
+  "twoPaths": {
+    "importTitle": "Begin vanuit Uw CV",
+    "importDescription": "Heeft u al een cv of LinkedIn-profiel? Laat AI uw bestaande vaardigheden extraheren en automatisch uw kaart bouwen.",
+    "importCta": "Document Uploaden",
+    "exploreTitle": "Carrièrepaden Verkennen",
+    "exploreDescription": "Ontdek welke vaardigheden u nodig hebt voor elke carrière. Zoek duizenden functies en bekijk de complete vaardighedenkaart.",
+    "exploreCta": "Carrières Zoeken"
+  },
+  "workflow": {
+    "title": "Hoe Het Werkt",
+    "step1Title": "Importeren",
+    "step1Description": "Upload elk document - PDF, Word, afbeeldingen, of plak een LinkedIn URL. Onze AI extraheert vaardigheden, contactgegevens, opleiding, ervaring, projecten en professionele samenvatting.",
+    "step2Title": "Visualiseren",
+    "step2Description": "Zie hoe uw vaardigheden transformeren naar een interactieve kaart. Identificeer hiaten, volg voortgang en ontdek verbindingen.",
+    "step3Title": "Exporteren",
+    "step3Description": "Maak AI-op-maat-gemaakte cv's en motivatiebrieven in het Engels, Chinees of Japans. Plak een vacature-URL en krijg professionele documenten in seconden."
+  },
+  "features": {
+    "title": "Alles Wat U Nodig Hebt",
+    "import": {
+      "title": "Importeren vanuit Overal",
+      "description": "PDF cv's, Word-documenten, afbeeldingen, LinkedIn, GitHub, en meer"
+    },
+    "skillMaps": {
+      "title": "AI-Gegenereerde Vaardighedenkaarten",
+      "description": "Visualiseer vaardigheden die nodig zijn voor elk carrièrepad"
+    },
+    "resume": {
+      "title": "Meertalig CV & Motivatiebrief",
+      "description": "AI-op-maat-gemaakte cv's en motivatiebrieven in Engels, Chinees en Japans"
+    },
+    "education": {
+      "title": "Opleiding & Kwalificaties",
+      "description": "Bewaar diploma's en certificeringen naast werkgeschiedenis"
+    },
+    "chat": {
+      "title": "AI Chat Assistent",
+      "description": "Pas uw vaardighedenkaart aan met natuurlijke taal"
+    },
+    "universe": {
+      "title": "Vaardighedenuniversum Dashboard",
+      "description": "Zie al uw vaardigheden over elk carrièrepad"
+    },
+    "share": {
+      "title": "Deel Uw Voortgang",
+      "description": "Openbare vaardighedenkaarten met unieke URL's"
+    }
+  },
+  "demo": {
+    "title": "Zie Hoe Uw Vaardigheden Tot Leven Komen",
+    "description": "Zo ziet een vaardighedenkaart eruit. Die van u wacht om ontdekt te worden.",
+    "cta": "Maak de Uwe Nu",
+    "coreSkill": "Uw Carrière",
+    "relatedSkill": "Vaardigheid"
+  },
+  "stats": {
+    "skillsMapped": "Vaardigheden in Kaart Gebracht",
+    "careerPaths": "Carrièrepaden",
+    "resumesGenerated": "CV's Gegenereerd",
+    "fileTypes": "Ondersteunde Bestandstypen"
+  },
+  "secondaryCta": {
+    "title": "Carrièrepaden Verkennen",
+    "description": "Zoek naar elke carrière en ontdek de vaardigheden die u nodig hebt om te slagen. AI genereert uitgebreide vaardighedenkaarten voor duizenden functies.",
+    "searchPlaceholder": "Probeer \"Software Engineer\" of \"Ik wil op afstand werken\"",
+    "popularCareers": "Populaire carrières om te verkennen"
+  },
+  "footer": "Gebouwd met Next.js, React Flow en OpenAI.",
+  "footerPowered": "Aangedreven door AI vaardighedenkaart generatie.",
+  "suggestions": {
+    "title": "Carrièresuggesties",
+    "subtitle": "Op basis van uw voorkeuren zijn hier enkele carrières die u misschien leuk vindt:"
+  }
+}

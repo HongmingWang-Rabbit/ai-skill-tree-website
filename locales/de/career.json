@@ -1,0 +1,43 @@
+{
+  "loading": "Karriere wird geladen...",
+  "generating": "Skill-Map wird mit KI erstellt...",
+  "generatingSubtext": "Dies kann einige Sekunden dauern",
+  "loadingProgress": "Ihr Fortschritt wird geladen...",
+  "totalSkills": "Gesamtkompetenzen",
+  "unlocked": "Freigeschaltet",
+  "mastered": "Gemeistert",
+  "saveProgress": "Ihren Fortschritt speichern",
+  "saveDescription": "Melden Sie sich an, um Ihren Skill-Map-Fortschritt zu speichern und von überall darauf zuzugreifen. Ohne Anmeldung geht Ihr Fortschritt verloren, wenn Sie diese Seite verlassen.",
+  "signInToSave": "Zum Speichern anmelden",
+  "continueWithoutSaving": "Ohne Speichern fortfahren",
+  "oops": "Hoppla!",
+  "failedToLoad": "Laden der Karriere fehlgeschlagen",
+  "notFound": "Skill-Map nicht gefunden",
+  "share": "Teilen Sie Ihren Fortschritt",
+  "by": "von",
+  "anonymous": "Anonym",
+  "viewOnly": "Nur Ansicht",
+  "copyToMyMaps": "In meine Maps kopieren",
+  "copying": "Wird kopiert...",
+  "saveToMyMaps": "In meinen Maps speichern",
+  "saving": "Wird gespeichert...",
+  "deleteTitle": "Skill-Map löschen",
+  "confirmDelete": "Sind Sie sicher, dass Sie diese Skill-Map löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "deleteSuccess": "Skill-Map erfolgreich gelöscht",
+  "deleteFailed": "Löschen der Skill-Map fehlgeschlagen",
+  "menu": {
+    "merge": "Maps zusammenführen",
+    "sort": "Organisieren",
+    "share": "Teilen",
+    "delete": "Löschen"
+  },
+  "graphComplete": {
+    "title": "Glückwunsch!",
+    "message": "Sie haben alle Kompetenzen in diesem Karriereweg gemeistert! Möchten Sie Ihren Kompetenzbaum mit fortgeschritteneren Kompetenzen erweitern?",
+    "expand": "Mit fortgeschrittenen Kompetenzen erweitern",
+    "later": "Vielleicht später",
+    "expanding": "Fortgeschrittene Kompetenzen werden generiert...",
+    "expandSuccess": "{count} neue fortgeschrittene Kompetenzen hinzugefügt!",
+    "expandFailed": "Generierung fortgeschrittener Kompetenzen fehlgeschlagen"
+  }
+}

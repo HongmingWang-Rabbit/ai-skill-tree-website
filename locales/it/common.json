@@ -1,0 +1,18 @@
+{
+  "appName": "Personal Skill Map",
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "explore": "Esplora",
+  "blog": "Blog",
+  "signIn": "Accedi",
+  "signOut": "Esci",
+  "profile": "Profilo",
+  "billing": "Fatturazione",
+  "loading": "Caricamento...",
+  "error": "Errore",
+  "goBack": "Indietro",
+  "goBackHome": "Torna alla Home",
+  "saved": "Salvato",
+  "saving": "Salvataggio...",
+  "cancel": "Annulla"
+}

@@ -1,7 +1,7 @@
 import { defineRouting } from 'next-intl/routing';
 
 // Supported locales - add new locales here and create corresponding folder in /locales
-export const locales = ['en', 'zh', 'ja'] as const;
+export const locales = ['en', 'zh', 'ja', 'es', 'pt-BR', 'de', 'fr', 'it', 'nl', 'pl'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'en';
 
@@ -35,6 +35,13 @@ export const ogLocaleMap: Record<Locale, string> = {
   en: 'en_US',
   zh: 'zh_CN',
   ja: 'ja_JP',
+  es: 'es_ES',
+  'pt-BR': 'pt_BR',
+  de: 'de_DE',
+  fr: 'fr_FR',
+  it: 'it_IT',
+  nl: 'nl_NL',
+  pl: 'pl_PL',
 };
 
 // Helper to get OG locale from app locale

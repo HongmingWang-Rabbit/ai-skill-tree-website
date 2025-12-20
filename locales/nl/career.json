@@ -1,0 +1,43 @@
+{
+  "loading": "Carrière laden...",
+  "generating": "Vaardighedenkaart genereren met AI...",
+  "generatingSubtext": "Dit kan een paar seconden duren",
+  "loadingProgress": "Uw voortgang laden...",
+  "totalSkills": "Totaal Vaardigheden",
+  "unlocked": "Ontgrendeld",
+  "mastered": "Beheerst",
+  "saveProgress": "Bewaar Uw Voortgang",
+  "saveDescription": "Log in om uw vaardighedenkaart voortgang op te slaan en overal te benaderen. Zonder in te loggen gaat uw voortgang verloren wanneer u deze pagina verlaat.",
+  "signInToSave": "Inloggen om Op Te Slaan",
+  "continueWithoutSaving": "Doorgaan Zonder Op Te Slaan",
+  "oops": "Oeps!",
+  "failedToLoad": "Kan carrière niet laden",
+  "notFound": "Vaardighedenkaart niet gevonden",
+  "share": "Deel uw voortgang",
+  "by": "door",
+  "anonymous": "Anoniem",
+  "viewOnly": "Alleen Bekijken",
+  "copyToMyMaps": "Kopiëren naar Mijn Kaarten",
+  "copying": "Kopiëren...",
+  "saveToMyMaps": "Opslaan naar Mijn Kaarten",
+  "saving": "Opslaan...",
+  "deleteTitle": "Vaardighedenkaart Verwijderen",
+  "confirmDelete": "Weet u zeker dat u deze vaardighedenkaart wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+  "deleteSuccess": "Vaardighedenkaart succesvol verwijderd",
+  "deleteFailed": "Kan vaardighedenkaart niet verwijderen",
+  "menu": {
+    "merge": "Kaarten Samenvoegen",
+    "sort": "Organiseren",
+    "share": "Delen",
+    "delete": "Verwijderen"
+  },
+  "graphComplete": {
+    "title": "Gefeliciteerd!",
+    "message": "U heeft alle vaardigheden in dit carrièrepad beheerst! Wilt u uw vaardigheidsboom uitbreiden met meer geavanceerde vaardigheden?",
+    "expand": "Uitbreiden met Geavanceerde Vaardigheden",
+    "later": "Misschien Later",
+    "expanding": "Geavanceerde vaardigheden genereren...",
+    "expandSuccess": "{count} nieuwe geavanceerde vaardigheden toegevoegd!",
+    "expandFailed": "Kan geavanceerde vaardigheden niet genereren"
+  }
+}

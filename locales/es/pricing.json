@@ -1,0 +1,59 @@
+{
+  "title": "Elija su plan",
+  "subtitle": "Comience gratis y escale a medida que crece. Todos los planes incluyen mapeo de habilidades potenciado por IA.",
+  "monthly": "Mensual",
+  "yearly": "Anual",
+  "yearlyDiscount": "Ahorre 20%",
+  "currentPlan": "Plan actual",
+  "subscribe": "Suscribirse",
+  "getStarted": "Comenzar",
+  "mostPopular": "Más popular",
+  "perMonth": "/mes",
+  "perYear": "/año",
+  "free": {
+    "name": "Gratuito",
+    "description": "Perfecto para comenzar",
+    "features": ["500 créditos al registrarse", "1 mapa de habilidades", "Generación de carrera con IA", "Exportación básica de currículum", "Marca de agua en exportaciones"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Para estudiantes activos",
+    "features": ["Todo en Gratuito", "1.000 créditos mensuales", "Mapas de habilidades ilimitados", "Sin marcas de agua", "Soporte prioritario"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Para profesionales",
+    "features": ["Todo en Pro", "3.000 créditos mensuales", "Funciones avanzadas de IA", "Exportar a múltiples formatos", "Soporte dedicado"]
+  },
+  "creditsTitle": "¿Necesita más créditos?",
+  "creditsSubtitle": "Compre paquetes de créditos para operaciones de IA adicionales",
+  "credits500": "500 créditos",
+  "credits2000": "2.000 créditos",
+  "credits2000Save": "Ahorre 10%",
+  "credits5000": "5.000 créditos",
+  "credits5000Save": "Ahorre 20%",
+  "buyNow": "Comprar ahora",
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "q1": "¿Qué son los créditos?",
+    "a1": "Los créditos se utilizan para operaciones de IA como generar mapas de habilidades, analizar carreras, importar documentos y crear currículums. Cada operación cuesta cierta cantidad de créditos.",
+    "q2": "¿Los créditos caducan?",
+    "a2": "No, los créditos comprados nunca caducan. Los créditos de suscripción mensual se restablecen en cada ciclo de facturación.",
+    "q3": "¿Puedo cancelar en cualquier momento?",
+    "a3": "Sí, puede cancelar su suscripción en cualquier momento. Mantendrá el acceso hasta el final de su período de facturación."
+  },
+  "manageBilling": "Gestionar facturación",
+  "signInRequired": "Por favor, inicie sesión para gestionar su suscripción",
+  "currentStatus": "Su plan actual",
+  "subscription": "Suscripción",
+  "creditsBalance": "Saldo de créditos",
+  "creditsAvailable": "créditos disponibles",
+  "manageSubscription": "Cancelar o cambiar plan",
+  "updatePaymentMethod": "Actualizar método de pago",
+  "renewsOn": "Se renueva el",
+  "expiresOn": "Caduca el",
+  "planUpdated": "¡Su plan se ha actualizado con éxito!",
+  "priceNotConfigured": "Precio no configurado",
+  "checkoutFailed": "Error al iniciar pago",
+  "portalFailed": "Error al abrir portal de facturación"
+}

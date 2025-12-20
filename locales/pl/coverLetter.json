@@ -1,0 +1,23 @@
+{
+  "modalTitle": "Generuj list motywacyjny",
+  "modalSubtitle": "Utwórz spersonalizowany list motywacyjny dostosowany do konkretnej oferty pracy. Podaj szczegóły pracy, aby uzyskać najlepsze rezultaty.",
+  "jobTitleLabel": "Docelowe stanowisko",
+  "jobTitlePlaceholder": "np. Senior Software Engineer",
+  "jobUrlLabel": "Adres URL oferty pracy (opcjonalnie)",
+  "jobUrlPlaceholder": "https://example.com/job-posting",
+  "companyUrlLabel": "Strona internetowa firmy (opcjonalnie)",
+  "companyUrlPlaceholder": "https://company.com/about",
+  "companyUrlHelp": "Pomaga spersonalizować list za pomocą szczegółów specyficznych dla firmy",
+  "outputLanguageLabel": "Język wyjściowy",
+  "generateButton": "Generuj list motywacyjny",
+  "generating": "Tworzenie Twojego listu motywacyjnego...",
+  "analyzingJob": "Analizowanie wymagań stanowiska...",
+  "generateFailed": "Nie udało się wygenerować listu motywacyjnego. Spróbuj ponownie.",
+  "targetJob": "Dostosowany do",
+  "keyStrengths": "Podkreślone kluczowe mocne strony",
+  "preview": "Podgląd listu motywacyjnego",
+  "companyConnection": "Dlaczego ta firma",
+  "back": "Wróć",
+  "copyToClipboard": "Kopiuj do schowka",
+  "copied": "Skopiowano!"
+}

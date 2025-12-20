@@ -1,0 +1,59 @@
+{
+  "title": "Choisissez votre forfait",
+  "subtitle": "Commencez gratuitement et évoluez selon vos besoins. Tous les forfaits incluent la cartographie des compétences alimentée par l'IA.",
+  "monthly": "Mensuel",
+  "yearly": "Annuel",
+  "yearlyDiscount": "Économisez 20%",
+  "currentPlan": "Forfait actuel",
+  "subscribe": "S'abonner",
+  "getStarted": "Commencer",
+  "mostPopular": "Le plus populaire",
+  "perMonth": "/mois",
+  "perYear": "/an",
+  "free": {
+    "name": "Gratuit",
+    "description": "Parfait pour commencer",
+    "features": ["500 crédits à l'inscription", "1 carte de compétences", "Génération de carrière par l'IA", "Export de CV basique", "Filigrane sur les exports"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Pour les apprenants actifs",
+    "features": ["Tout du forfait Gratuit", "1 000 crédits mensuels", "Cartes de compétences illimitées", "Aucun filigrane", "Support prioritaire"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Pour les professionnels",
+    "features": ["Tout du forfait Pro", "3 000 crédits mensuels", "Fonctionnalités IA avancées", "Export en plusieurs formats", "Support dédié"]
+  },
+  "creditsTitle": "Besoin de plus de crédits ?",
+  "creditsSubtitle": "Achetez des packs de crédits pour des opérations IA supplémentaires",
+  "credits500": "500 crédits",
+  "credits2000": "2 000 crédits",
+  "credits2000Save": "Économisez 10%",
+  "credits5000": "5 000 crédits",
+  "credits5000Save": "Économisez 20%",
+  "buyNow": "Acheter maintenant",
+  "faq": {
+    "title": "Questions fréquemment posées",
+    "q1": "Que sont les crédits ?",
+    "a1": "Les crédits sont utilisés pour les opérations IA telles que la génération de cartes de compétences, l'analyse de carrières, l'importation de documents et la création de CV. Chaque opération coûte un certain nombre de crédits.",
+    "q2": "Les crédits expirent-ils ?",
+    "a2": "Non, les crédits achetés n'expirent jamais. Les crédits d'abonnement mensuel sont réinitialisés à chaque cycle de facturation.",
+    "q3": "Puis-je annuler à tout moment ?",
+    "a3": "Oui, vous pouvez annuler votre abonnement à tout moment. Vous conserverez l'accès jusqu'à la fin de votre période de facturation."
+  },
+  "manageBilling": "Gérer la facturation",
+  "signInRequired": "Veuillez vous connecter pour gérer votre abonnement",
+  "currentStatus": "Votre forfait actuel",
+  "subscription": "Abonnement",
+  "creditsBalance": "Solde de crédits",
+  "creditsAvailable": "crédits disponibles",
+  "manageSubscription": "Annuler ou modifier le forfait",
+  "updatePaymentMethod": "Mettre à jour le mode de paiement",
+  "renewsOn": "Renouvellement le",
+  "expiresOn": "Expiration le",
+  "planUpdated": "Votre forfait a été mis à jour avec succès !",
+  "priceNotConfigured": "Prix non configuré",
+  "checkoutFailed": "Échec du démarrage du paiement",
+  "portalFailed": "Échec de l'ouverture du portail de facturation"
+}

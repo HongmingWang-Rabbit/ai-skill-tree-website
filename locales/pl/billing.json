@@ -1,0 +1,12 @@
+{
+  "accountStatus": "Status konta",
+  "credits": "Kredyty",
+  "plan": "Plan",
+  "skillMaps": "Mapy umiejętności",
+  "buyCredits": "Kup więcej kredytów",
+  "upgradePlan": "Ulepsz plan",
+  "managePlan": "Zarządzaj planem",
+  "renewsOn": "Odnawia się",
+  "expiresOn": "Wygasa",
+  "mapLimitReached": "Ulepsz do nielimitowanych map"
+}

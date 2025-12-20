@@ -1,0 +1,12 @@
+{
+  "accountStatus": "Accountstatus",
+  "credits": "Credits",
+  "plan": "Abonnement",
+  "skillMaps": "Vaardighedenkaarten",
+  "buyCredits": "Meer credits kopen",
+  "upgradePlan": "Abonnement upgraden",
+  "managePlan": "Abonnement beheren",
+  "renewsOn": "Verlengt",
+  "expiresOn": "Verloopt",
+  "mapLimitReached": "Upgrade voor onbeperkte kaarten"
+}

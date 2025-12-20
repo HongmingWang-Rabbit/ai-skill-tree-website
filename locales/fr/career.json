@@ -1,0 +1,43 @@
+{
+  "loading": "Chargement de la carrière...",
+  "generating": "Génération de la carte de compétences avec l'IA...",
+  "generatingSubtext": "Cela peut prendre quelques secondes",
+  "loadingProgress": "Chargement de votre progression...",
+  "totalSkills": "Compétences totales",
+  "unlocked": "Débloquées",
+  "mastered": "Maîtrisées",
+  "saveProgress": "Enregistrer votre progression",
+  "saveDescription": "Connectez-vous pour enregistrer la progression de votre carte de compétences et y accéder de n'importe où. Sans connexion, votre progression sera perdue lorsque vous quitterez cette page.",
+  "signInToSave": "Se connecter pour enregistrer",
+  "continueWithoutSaving": "Continuer sans enregistrer",
+  "oops": "Oups !",
+  "failedToLoad": "Échec du chargement de la carrière",
+  "notFound": "Carte de compétences introuvable",
+  "share": "Partager votre progression",
+  "by": "par",
+  "anonymous": "Anonyme",
+  "viewOnly": "Lecture seule",
+  "copyToMyMaps": "Copier dans mes cartes",
+  "copying": "Copie en cours...",
+  "saveToMyMaps": "Enregistrer dans mes cartes",
+  "saving": "Enregistrement...",
+  "deleteTitle": "Supprimer la carte de compétences",
+  "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette carte de compétences ? Cette action ne peut pas être annulée.",
+  "deleteSuccess": "Carte de compétences supprimée avec succès",
+  "deleteFailed": "Échec de la suppression de la carte de compétences",
+  "menu": {
+    "merge": "Fusionner les cartes",
+    "sort": "Organiser",
+    "share": "Partager",
+    "delete": "Supprimer"
+  },
+  "graphComplete": {
+    "title": "Félicitations !",
+    "message": "Vous avez maîtrisé toutes les compétences de ce parcours professionnel ! Souhaitez-vous étendre votre arbre de compétences avec des compétences plus avancées ?",
+    "expand": "Étendre avec des compétences avancées",
+    "later": "Peut-être plus tard",
+    "expanding": "Génération de compétences avancées...",
+    "expandSuccess": "Ajout de {count} nouvelles compétences avancées !",
+    "expandFailed": "Échec de la génération de compétences avancées"
+  }
+}

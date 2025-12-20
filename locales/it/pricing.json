@@ -1,0 +1,59 @@
+{
+  "title": "Scegli il Tuo Piano",
+  "subtitle": "Inizia gratis e scala man mano che cresci. Tutti i piani includono la mappatura delle competenze basata su IA.",
+  "monthly": "Mensile",
+  "yearly": "Annuale",
+  "yearlyDiscount": "Risparmia 20%",
+  "currentPlan": "Piano Corrente",
+  "subscribe": "Abbonati",
+  "getStarted": "Inizia",
+  "mostPopular": "Più Popolare",
+  "perMonth": "/mese",
+  "perYear": "/anno",
+  "free": {
+    "name": "Gratis",
+    "description": "Perfetto per iniziare",
+    "features": ["500 crediti all'iscrizione", "1 mappa delle competenze", "Generazione carriera IA", "Esportazione curriculum base", "Filigrana sulle esportazioni"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Per studenti attivi",
+    "features": ["Tutto in Gratis", "1.000 crediti mensili", "Mappe delle competenze illimitate", "Nessuna filigrana", "Supporto prioritario"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Per professionisti",
+    "features": ["Tutto in Pro", "3.000 crediti mensili", "Funzionalità IA avanzate", "Esporta in più formati", "Supporto dedicato"]
+  },
+  "creditsTitle": "Hai Bisogno di Più Crediti?",
+  "creditsSubtitle": "Acquista pacchetti di crediti per operazioni IA aggiuntive",
+  "credits500": "500 Crediti",
+  "credits2000": "2.000 Crediti",
+  "credits2000Save": "Risparmia 10%",
+  "credits5000": "5.000 Crediti",
+  "credits5000Save": "Risparmia 20%",
+  "buyNow": "Acquista Ora",
+  "faq": {
+    "title": "Domande Frequenti",
+    "q1": "Cosa sono i crediti?",
+    "a1": "I crediti vengono utilizzati per operazioni IA come la generazione di mappe delle competenze, l'analisi di carriere, l'importazione di documenti e la creazione di curriculum. Ogni operazione costa un certo numero di crediti.",
+    "q2": "I crediti scadono?",
+    "a2": "No, i crediti acquistati non scadono mai. I crediti dell'abbonamento mensile si rinnovano ad ogni ciclo di fatturazione.",
+    "q3": "Posso annullare in qualsiasi momento?",
+    "a3": "Sì, puoi annullare il tuo abbonamento in qualsiasi momento. Manterrai l'accesso fino alla fine del tuo periodo di fatturazione."
+  },
+  "manageBilling": "Gestisci Fatturazione",
+  "signInRequired": "Accedi per gestire il tuo abbonamento",
+  "currentStatus": "Il Tuo Piano Corrente",
+  "subscription": "Abbonamento",
+  "creditsBalance": "Saldo Crediti",
+  "creditsAvailable": "crediti disponibili",
+  "manageSubscription": "Annulla o Cambia Piano",
+  "updatePaymentMethod": "Aggiorna Metodo di Pagamento",
+  "renewsOn": "Si rinnova il",
+  "expiresOn": "Scade il",
+  "planUpdated": "Il tuo piano è stato aggiornato con successo!",
+  "priceNotConfigured": "Prezzo non configurato",
+  "checkoutFailed": "Impossibile avviare il checkout",
+  "portalFailed": "Impossibile aprire il portale di fatturazione"
+}

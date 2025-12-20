@@ -1,0 +1,11 @@
+{
+  "title": "Aprender {skill}",
+  "subtitle": "Recursos para ajudá-lo a dominar esta habilidade",
+  "searching": "Procurando recursos de aprendizado...",
+  "fetchFailed": "Falha ao carregar recursos. Por favor, tente novamente.",
+  "tryAgain": "Tentar Novamente",
+  "recommended": "Recursos Recomendados",
+  "moreResources": "Mais Recursos",
+  "noResults": "Nenhum recurso encontrado. Tente pesquisar no Google por tutoriais.",
+  "startLearning": "Começar a Aprender"
+}

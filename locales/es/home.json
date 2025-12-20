@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Su mapa de habilidades personal",
+    "subtitle": "Construya su hoja de ruta profesional. Importe habilidades desde su currículum o explore cualquier trayectoria profesional. Visualice el progreso y genere currículums personalizados.",
+    "importLabel": "¿Tiene un currículum?",
+    "importCta": "Importar habilidades",
+    "exploreLabel": "O explore carreras",
+    "searchPlaceholder": "Pruebe \"Ingeniero de software\" o \"Quiero trabajar remotamente\""
+  },
+  "twoPaths": {
+    "importTitle": "Comience desde su currículum",
+    "importDescription": "¿Ya tiene un currículum o perfil de LinkedIn? Deje que la IA extraiga sus habilidades existentes y construya su mapa automáticamente.",
+    "importCta": "Subir documento",
+    "exploreTitle": "Explore trayectorias profesionales",
+    "exploreDescription": "Descubra qué habilidades necesita para cualquier carrera. Busque miles de roles y vea el mapa de habilidades completo.",
+    "exploreCta": "Buscar carreras"
+  },
+  "workflow": {
+    "title": "Cómo funciona",
+    "step1Title": "Importar",
+    "step1Description": "Suba cualquier documento - PDF, Word, imágenes, o pegue una URL de LinkedIn. Nuestra IA extrae habilidades, información de contacto, educación, experiencia, proyectos y resumen profesional.",
+    "step2Title": "Visualizar",
+    "step2Description": "Observe cómo sus habilidades se transforman en un mapa interactivo. Identifique brechas, realice un seguimiento del progreso y descubra conexiones.",
+    "step3Title": "Exportar",
+    "step3Description": "Cree currículums y cartas de presentación personalizados con IA en inglés, chino o japonés. Pegue una URL de oferta de trabajo y obtenga documentos profesionales en segundos."
+  },
+  "features": {
+    "title": "Todo lo que necesita",
+    "import": {
+      "title": "Importar desde cualquier lugar",
+      "description": "Currículums en PDF, documentos Word, imágenes, LinkedIn, GitHub y más"
+    },
+    "skillMaps": {
+      "title": "Mapas de habilidades generados por IA",
+      "description": "Visualice las habilidades necesarias para cualquier trayectoria profesional"
+    },
+    "resume": {
+      "title": "Currículum y carta de presentación multilingües",
+      "description": "Currículums y cartas de presentación personalizados con IA en inglés, chino y japonés"
+    },
+    "education": {
+      "title": "Educación y credenciales",
+      "description": "Mantenga títulos y certificaciones junto con el historial laboral"
+    },
+    "chat": {
+      "title": "Asistente de chat de IA",
+      "description": "Modifique su mapa de habilidades con lenguaje natural"
+    },
+    "universe": {
+      "title": "Panel del universo de habilidades",
+      "description": "Vea todas sus habilidades en cada trayectoria profesional"
+    },
+    "share": {
+      "title": "Comparta su progreso",
+      "description": "Mapas de habilidades públicos con URL únicas"
+    }
+  },
+  "demo": {
+    "title": "Vea cómo cobran vida sus habilidades",
+    "description": "Así es como se ve un mapa de habilidades. El suyo está esperando ser descubierto.",
+    "cta": "Cree el suyo ahora",
+    "coreSkill": "Su carrera",
+    "relatedSkill": "Habilidad"
+  },
+  "stats": {
+    "skillsMapped": "Habilidades mapeadas",
+    "careerPaths": "Trayectorias profesionales",
+    "resumesGenerated": "Currículums generados",
+    "fileTypes": "Tipos de archivo compatibles"
+  },
+  "secondaryCta": {
+    "title": "Explore trayectorias profesionales",
+    "description": "Busque cualquier carrera y descubra las habilidades que necesita para tener éxito. La IA genera mapas de habilidades completos para miles de roles.",
+    "searchPlaceholder": "Pruebe \"Ingeniero de software\" o \"Quiero trabajar remotamente\"",
+    "popularCareers": "Carreras populares para explorar"
+  },
+  "footer": "Desarrollado con Next.js, React Flow y OpenAI.",
+  "footerPowered": "Potenciado por generación de mapas de habilidades con IA.",
+  "suggestions": {
+    "title": "Sugerencias de carrera",
+    "subtitle": "Según sus preferencias, aquí hay algunas carreras que podría disfrutar:"
+  }
+}

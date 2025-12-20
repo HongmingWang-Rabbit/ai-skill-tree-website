@@ -1,0 +1,43 @@
+{
+  "loading": "Cargando carrera...",
+  "generating": "Generando mapa de habilidades con IA...",
+  "generatingSubtext": "Esto puede tardar unos segundos",
+  "loadingProgress": "Cargando su progreso...",
+  "totalSkills": "Habilidades totales",
+  "unlocked": "Desbloqueadas",
+  "mastered": "Dominadas",
+  "saveProgress": "Guarde su progreso",
+  "saveDescription": "Inicie sesión para guardar el progreso de su mapa de habilidades y acceder a él desde cualquier lugar. Sin iniciar sesión, su progreso se perderá al salir de esta página.",
+  "signInToSave": "Iniciar sesión para guardar",
+  "continueWithoutSaving": "Continuar sin guardar",
+  "oops": "¡Vaya!",
+  "failedToLoad": "Error al cargar carrera",
+  "notFound": "Mapa de habilidades no encontrado",
+  "share": "Comparta su progreso",
+  "by": "por",
+  "anonymous": "Anónimo",
+  "viewOnly": "Solo lectura",
+  "copyToMyMaps": "Copiar a mis mapas",
+  "copying": "Copiando...",
+  "saveToMyMaps": "Guardar en mis mapas",
+  "saving": "Guardando...",
+  "deleteTitle": "Eliminar mapa de habilidades",
+  "confirmDelete": "¿Está seguro de que desea eliminar este mapa de habilidades? Esta acción no se puede deshacer.",
+  "deleteSuccess": "Mapa de habilidades eliminado con éxito",
+  "deleteFailed": "Error al eliminar mapa de habilidades",
+  "menu": {
+    "merge": "Fusionar mapas",
+    "sort": "Organizar",
+    "share": "Compartir",
+    "delete": "Eliminar"
+  },
+  "graphComplete": {
+    "title": "¡Enhorabuena!",
+    "message": "¡Ha dominado todas las habilidades de esta trayectoria profesional! ¿Le gustaría ampliar su árbol de habilidades con habilidades más avanzadas?",
+    "expand": "Ampliar con habilidades avanzadas",
+    "later": "Quizás más tarde",
+    "expanding": "Generando habilidades avanzadas...",
+    "expandSuccess": "¡Se añadieron {count} nuevas habilidades avanzadas!",
+    "expandFailed": "Error al generar habilidades avanzadas"
+  }
+}

@@ -16,10 +16,10 @@ import {
   DownloadIcon,
   LetterIcon,
 } from '@/components/ui';
-import { API_ROUTES, RESUME_CONFIG } from '@/lib/constants';
+import { API_ROUTES, RESUME_CONFIG, LOCALE_DISPLAY_NAMES } from '@/lib/constants';
+import { locales, type Locale } from '@/i18n/routing';
 import { type ResumeContent, type JobRequirements, type CoverLetterContent } from '@/lib/ai-resume';
 import { type WorkExperience, type Project, type UserAddress, type Education } from '@/lib/schemas';
-import { type Locale } from '@/i18n/routing';
 import { ResumePDF } from './ResumePDF';
 import { CoverLetterPDF } from './CoverLetterPDF';
 
@@ -430,9 +430,11 @@ export function ResumeExportModal({
                       className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500 transition-colors appearance-none cursor-pointer"
                       style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                     >
-                      <option value="en">English</option>
-                      <option value="zh">中文</option>
-                      <option value="ja">日本語</option>
+                      {locales.map((loc) => (
+                        <option key={loc} value={loc}>
+                          {LOCALE_DISPLAY_NAMES[loc]}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

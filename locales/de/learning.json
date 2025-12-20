@@ -1,0 +1,11 @@
+{
+  "title": "{skill} lernen",
+  "subtitle": "Ressourcen, die Ihnen helfen, diese Kompetenz zu meistern",
+  "searching": "Lernressourcen werden gesucht...",
+  "fetchFailed": "Laden der Ressourcen fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  "tryAgain": "Erneut versuchen",
+  "recommended": "Empfohlene Ressourcen",
+  "moreResources": "Weitere Ressourcen",
+  "noResults": "Keine Ressourcen gefunden. Versuchen Sie, bei Google nach Tutorials zu suchen.",
+  "startLearning": "Mit dem Lernen beginnen"
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Blog",
+  "description": "Inzichten over loopbaanontwikkeling, vaardigheden opbouwen en professionele groei",
+  "keywords": "carrière blog, vaardigheidsontwikkeling, professionele groei, carrière tips",
+  "readMore": "Lees meer",
+  "publishedOn": "Gepubliceerd op {date}",
+  "by": "door",
+  "taggedWith": "Getagd met",
+  "backToBlog": "Terug naar Blog",
+  "noPosts": "Nog geen blogposts. Kom later terug!",
+  "relatedPosts": "Gerelateerde Posts",
+  "sharePost": "Deel deze post",
+  "minuteRead": "{minutes} min lezen",
+  "tableOfContents": "Inhoudsopgave"
+}

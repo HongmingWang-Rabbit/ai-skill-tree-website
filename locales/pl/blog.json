@@ -1,0 +1,15 @@
+{
+  "title": "Blog",
+  "description": "Spostrzeżenia na temat rozwoju kariery, budowania umiejętności i rozwoju zawodowego",
+  "keywords": "blog kariery, rozwój umiejętności, rozwój zawodowy, porady kariery",
+  "readMore": "Czytaj więcej",
+  "publishedOn": "Opublikowano {date}",
+  "by": "przez",
+  "taggedWith": "Oznaczone jako",
+  "backToBlog": "Powrót do bloga",
+  "noPosts": "Brak wpisów na blogu. Wróć wkrótce!",
+  "relatedPosts": "Powiązane wpisy",
+  "sharePost": "Udostępnij ten wpis",
+  "minuteRead": "{minutes} min czytania",
+  "tableOfContents": "Spis treści"
+}

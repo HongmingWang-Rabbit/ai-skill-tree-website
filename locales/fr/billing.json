@@ -1,0 +1,12 @@
+{
+  "accountStatus": "État du compte",
+  "credits": "Crédits",
+  "plan": "Forfait",
+  "skillMaps": "Cartes de compétences",
+  "buyCredits": "Acheter plus de crédits",
+  "upgradePlan": "Améliorer le forfait",
+  "managePlan": "Gérer le forfait",
+  "renewsOn": "Renouvellement",
+  "expiresOn": "Expiration",
+  "mapLimitReached": "Améliorez pour des cartes illimitées"
+}

@@ -3,19 +3,8 @@
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { locales, type Locale } from '@/i18n/routing';
+import { LOCALE_DISPLAY_NAMES, LOCALE_FLAGS } from '@/lib/constants';
 import { useState, useRef, useEffect } from 'react';
-
-const localeNames: Record<Locale, string> = {
-  en: 'English',
-  zh: '中文',
-  ja: '日本語',
-};
-
-const localeFlags: Record<Locale, string> = {
-  en: '🇺🇸',
-  zh: '🇨🇳',
-  ja: '🇯🇵',
-};
 
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
@@ -48,8 +37,8 @@ export function LanguageSwitcher() {
         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-slate-600 transition-colors text-sm"
         aria-label="Select language"
       >
-        <span>{localeFlags[locale]}</span>
-        <span className="hidden sm:inline text-slate-300">{localeNames[locale]}</span>
+        <span>{LOCALE_FLAGS[locale]}</span>
+        <span className="hidden sm:inline text-slate-300">{LOCALE_DISPLAY_NAMES[locale]}</span>
         <svg
           className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
@@ -70,8 +59,8 @@ export function LanguageSwitcher() {
                 locale === loc ? 'text-amber-400' : 'text-slate-300'
               }`}
             >
-              <span>{localeFlags[loc]}</span>
-              <span>{localeNames[loc]}</span>
+              <span>{LOCALE_FLAGS[loc]}</span>
+              <span>{LOCALE_DISPLAY_NAMES[loc]}</span>
               {locale === loc && (
                 <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

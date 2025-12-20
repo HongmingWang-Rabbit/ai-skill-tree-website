@@ -31,11 +31,18 @@ pnpm db:studio    # Drizzle Studio GUI
 locales/
 ├── en/           # English (served at root URL)
 ├── zh/           # Chinese (served at /zh/)
-└── ja/           # Japanese (served at /ja/)
+├── ja/           # Japanese (served at /ja/)
+├── es/           # Spanish (served at /es/)
+├── pt-BR/        # Portuguese Brazil (served at /pt-BR/)
+├── de/           # German (served at /de/)
+├── fr/           # French (served at /fr/)
+├── it/           # Italian (served at /it/)
+├── nl/           # Dutch (served at /nl/)
+└── pl/           # Polish (served at /pl/)
     ├── common.json
     ├── home.json
     ├── dashboard.json
-    └── ... (18 namespace files per locale)
+    └── ... (19 namespace files per locale)
 ```
 
 **Locale prefix mode:** `as-needed` - English uses root URL, other locales get `/{locale}` prefix
@@ -55,7 +62,7 @@ getLocalePath('zh', '/dashboard')  // → /zh/dashboard
 ```
 
 **Adding translations:**
-1. Add keys to all 3 locale files: `locales/{en,zh,ja}/{namespace}.json`
+1. Add keys to all 10 locale files: `locales/{en,zh,ja,es,pt-BR,de,fr,it,nl,pl}/{namespace}.json`
 2. For new namespaces: create files + add to `i18nNamespaces` in `i18n/routing.ts`
 
 **Using translations:**
@@ -100,7 +107,7 @@ Use Tailwind breakpoints for mobile-first design:
 ## Key Files
 
 - `i18n/routing.ts` - Locales, namespaces, OG locale mapping, `getLocaleUrl()`, `getLocalePath()`
-- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `BLOG_CONFIG`, `IMPORT_MERGE_CONFIG`, `SKILL_EXPAND_CONFIG`)
+- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `LOCALE_DISPLAY_NAMES`, `LOCALE_FLAGS`, `BLOG_CONFIG`, `IMPORT_MERGE_CONFIG`, `SKILL_EXPAND_CONFIG`)
 - `lib/schemas.ts` - Zod schemas and shared types
 - `lib/ai.ts` - Career skill tree AI functions (`generateCareerSkillTree`, `generateAdvancedSkills`, `analyzeCareerQuery`)
 - `lib/ai-resume.ts` - Resume/cover letter AI functions (relevance rating, optimization, personalized cover letters)
@@ -152,8 +159,8 @@ author: "Author Name"  # Defaults to BLOG_CONFIG.defaultAuthor
 
 1. No hardcoded values (use constants)
 2. No temp code, unnecessary logs, or comments
-3. Update `locales/{en,zh,ja}/*.json` for new UI strings
-4. Ensure all 3 locales have matching keys
+3. Update `locales/{en,zh,ja,es,pt-BR,de,fr,it,nl,pl}/*.json` for new UI strings
+4. Ensure all 10 locales have matching keys
 
 ## Detailed Docs
 

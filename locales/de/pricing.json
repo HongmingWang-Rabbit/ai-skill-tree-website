@@ -1,0 +1,59 @@
+{
+  "title": "Wählen Sie Ihren Plan",
+  "subtitle": "Starten Sie kostenlos und skalieren Sie, während Sie wachsen. Alle Pläne beinhalten KI-gestützte Skill-Mapping.",
+  "monthly": "Monatlich",
+  "yearly": "Jährlich",
+  "yearlyDiscount": "20% sparen",
+  "currentPlan": "Aktueller Plan",
+  "subscribe": "Abonnieren",
+  "getStarted": "Loslegen",
+  "mostPopular": "Am beliebtesten",
+  "perMonth": "/Monat",
+  "perYear": "/Jahr",
+  "free": {
+    "name": "Kostenlos",
+    "description": "Perfekt für den Einstieg",
+    "features": ["500 Credits bei Anmeldung", "1 Skill-Map", "KI-Karrieregenerierung", "Basis-Lebenslauf-Export", "Wasserzeichen bei Exporten"]
+  },
+  "pro": {
+    "name": "Pro",
+    "description": "Für aktive Lernende",
+    "features": ["Alles aus Kostenlos", "1.000 monatliche Credits", "Unbegrenzte Skill-Maps", "Keine Wasserzeichen", "Prioritäts-Support"]
+  },
+  "premium": {
+    "name": "Premium",
+    "description": "Für Professionals",
+    "features": ["Alles aus Pro", "3.000 monatliche Credits", "Erweiterte KI-Funktionen", "Export in mehrere Formate", "Dedizierter Support"]
+  },
+  "creditsTitle": "Benötigen Sie mehr Credits?",
+  "creditsSubtitle": "Kaufen Sie Credit-Pakete für zusätzliche KI-Operationen",
+  "credits500": "500 Credits",
+  "credits2000": "2.000 Credits",
+  "credits2000Save": "10% sparen",
+  "credits5000": "5.000 Credits",
+  "credits5000Save": "20% sparen",
+  "buyNow": "Jetzt kaufen",
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "q1": "Was sind Credits?",
+    "a1": "Credits werden für KI-Operationen wie das Generieren von Skill-Maps, Analysieren von Karrieren, Importieren von Dokumenten und Erstellen von Lebensläufen verwendet. Jede Operation kostet eine bestimmte Anzahl von Credits.",
+    "q2": "Verfallen Credits?",
+    "a2": "Nein, gekaufte Credits verfallen nie. Monatliche Abonnement-Credits werden in jedem Abrechnungszyklus zurückgesetzt.",
+    "q3": "Kann ich jederzeit kündigen?",
+    "a3": "Ja, Sie können Ihr Abonnement jederzeit kündigen. Sie behalten den Zugang bis zum Ende Ihres Abrechnungszeitraums."
+  },
+  "manageBilling": "Abrechnung verwalten",
+  "signInRequired": "Bitte melden Sie sich an, um Ihr Abonnement zu verwalten",
+  "currentStatus": "Ihr aktueller Plan",
+  "subscription": "Abonnement",
+  "creditsBalance": "Credit-Guthaben",
+  "creditsAvailable": "Credits verfügbar",
+  "manageSubscription": "Plan kündigen oder ändern",
+  "updatePaymentMethod": "Zahlungsmethode aktualisieren",
+  "renewsOn": "Verlängert am",
+  "expiresOn": "Läuft ab am",
+  "planUpdated": "Ihr Plan wurde erfolgreich aktualisiert!",
+  "priceNotConfigured": "Preis nicht konfiguriert",
+  "checkoutFailed": "Checkout konnte nicht gestartet werden",
+  "portalFailed": "Abrechnungsportal konnte nicht geöffnet werden"
+}

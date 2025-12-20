@@ -1,0 +1,15 @@
+{
+  "title": "Blog",
+  "description": "Einblicke in Karriereentwicklung, Kompetenzaufbau und berufliches Wachstum",
+  "keywords": "Karriere-Blog, Kompetenzentwicklung, berufliches Wachstum, Karrieretipps",
+  "readMore": "Mehr lesen",
+  "publishedOn": "Veröffentlicht am {date}",
+  "by": "von",
+  "taggedWith": "Verschlagwortet mit",
+  "backToBlog": "Zurück zum Blog",
+  "noPosts": "Noch keine Blog-Beiträge. Schauen Sie bald wieder vorbei!",
+  "relatedPosts": "Verwandte Beiträge",
+  "sharePost": "Diesen Beitrag teilen",
+  "minuteRead": "{minutes} Min. Lesezeit",
+  "tableOfContents": "Inhaltsverzeichnis"
+}

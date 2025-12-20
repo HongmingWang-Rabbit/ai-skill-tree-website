@@ -1,0 +1,83 @@
+{
+  "hero": {
+    "title": "Seu Mapa Pessoal de Habilidades",
+    "subtitle": "Construa seu roteiro de carreira. Importe habilidades do seu currículo ou explore qualquer caminho profissional. Visualize o progresso e gere currículos personalizados.",
+    "importLabel": "Tem um currículo?",
+    "importCta": "Importar Habilidades",
+    "exploreLabel": "Ou explore carreiras",
+    "searchPlaceholder": "Tente \"Engenheiro de Software\" ou \"Quero trabalhar remotamente\""
+  },
+  "twoPaths": {
+    "importTitle": "Comece com Seu Currículo",
+    "importDescription": "Já tem um currículo ou perfil do LinkedIn? Deixe a IA extrair suas habilidades existentes e construir seu mapa automaticamente.",
+    "importCta": "Enviar Documento",
+    "exploreTitle": "Explore Caminhos Profissionais",
+    "exploreDescription": "Descubra quais habilidades você precisa para qualquer carreira. Pesquise milhares de funções e veja o mapa completo de habilidades.",
+    "exploreCta": "Pesquisar Carreiras"
+  },
+  "workflow": {
+    "title": "Como Funciona",
+    "step1Title": "Importar",
+    "step1Description": "Envie qualquer documento - PDF, Word, imagens ou cole uma URL do LinkedIn. Nossa IA extrai habilidades, informações de contato, educação, experiência, projetos e resumo profissional.",
+    "step2Title": "Visualizar",
+    "step2Description": "Veja suas habilidades se transformarem em um mapa interativo. Identifique lacunas, acompanhe o progresso e descubra conexões.",
+    "step3Title": "Exportar",
+    "step3Description": "Crie currículos e cartas de apresentação adaptados por IA em português, inglês, chinês ou japonês. Cole a URL de uma vaga e obtenha documentos profissionais em segundos."
+  },
+  "features": {
+    "title": "Tudo que Você Precisa",
+    "import": {
+      "title": "Importar de Qualquer Lugar",
+      "description": "Currículos em PDF, documentos Word, imagens, LinkedIn, GitHub e mais"
+    },
+    "skillMaps": {
+      "title": "Mapas de Habilidades Gerados por IA",
+      "description": "Visualize as habilidades necessárias para qualquer caminho profissional"
+    },
+    "resume": {
+      "title": "Currículo e Carta de Apresentação Multilíngues",
+      "description": "Currículos e cartas de apresentação adaptados por IA em português, inglês, chinês e japonês"
+    },
+    "education": {
+      "title": "Educação e Credenciais",
+      "description": "Mantenha diplomas e certificações junto com o histórico profissional"
+    },
+    "chat": {
+      "title": "Assistente de Chat IA",
+      "description": "Modifique seu mapa de habilidades com linguagem natural"
+    },
+    "universe": {
+      "title": "Painel do Universo de Habilidades",
+      "description": "Veja todas as suas habilidades em todos os caminhos profissionais"
+    },
+    "share": {
+      "title": "Compartilhe Seu Progresso",
+      "description": "Mapas de habilidades públicos com URLs exclusivas"
+    }
+  },
+  "demo": {
+    "title": "Veja Suas Habilidades Ganharem Vida",
+    "description": "Veja como é um mapa de habilidades. O seu está esperando para ser descoberto.",
+    "cta": "Crie o Seu Agora",
+    "coreSkill": "Sua Carreira",
+    "relatedSkill": "Habilidade"
+  },
+  "stats": {
+    "skillsMapped": "Habilidades Mapeadas",
+    "careerPaths": "Caminhos Profissionais",
+    "resumesGenerated": "Currículos Gerados",
+    "fileTypes": "Tipos de Arquivo Suportados"
+  },
+  "secondaryCta": {
+    "title": "Explore Caminhos Profissionais",
+    "description": "Pesquise qualquer carreira e descubra as habilidades necessárias para ter sucesso. A IA gera mapas abrangentes de habilidades para milhares de funções.",
+    "searchPlaceholder": "Tente \"Engenheiro de Software\" ou \"Quero trabalhar remotamente\"",
+    "popularCareers": "Carreiras populares para explorar"
+  },
+  "footer": "Construído com Next.js, React Flow e OpenAI.",
+  "footerPowered": "Alimentado por geração de mapas de habilidades com IA.",
+  "suggestions": {
+    "title": "Sugestões de Carreira",
+    "subtitle": "Com base em suas preferências, aqui estão algumas carreiras que você pode gostar:"
+  }
+}

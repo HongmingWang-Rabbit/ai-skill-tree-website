@@ -1,0 +1,15 @@
+{
+  "title": "Blog",
+  "description": "Approfondimenti sullo sviluppo della carriera, miglioramento delle competenze e crescita professionale",
+  "keywords": "blog carriera, sviluppo competenze, crescita professionale, consigli carriera",
+  "readMore": "Leggi di più",
+  "publishedOn": "Pubblicato il {date}",
+  "by": "di",
+  "taggedWith": "Etichettato con",
+  "backToBlog": "Torna al Blog",
+  "noPosts": "Nessun articolo del blog ancora. Torna presto!",
+  "relatedPosts": "Articoli Correlati",
+  "sharePost": "Condividi questo articolo",
+  "minuteRead": "{minutes} min di lettura",
+  "tableOfContents": "Indice dei Contenuti"
+}
