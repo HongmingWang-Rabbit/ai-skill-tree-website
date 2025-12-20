@@ -622,18 +622,18 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-slate-950 pt-20 pb-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-8">
-          <div className="flex items-center gap-6">
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-6">
             {avatarUrl ? (
               <Image
                 src={avatarUrl}
                 alt={displayName}
                 width={80}
                 height={80}
-                className="rounded-full"
+                className="rounded-full w-14 h-14 sm:w-20 sm:h-20"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-3xl">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-2xl sm:text-3xl">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
@@ -650,7 +650,7 @@ export default function DashboardPage() {
                       onBlur={saveEditedName}
                       placeholder={t('dashboard.namePlaceholder')}
                       disabled={isSavingName}
-                      className="text-2xl font-bold text-white bg-slate-800 border border-slate-600 rounded-lg px-3 py-1 focus:outline-none focus:border-amber-500 disabled:opacity-50"
+                      className="text-lg sm:text-2xl font-bold text-white bg-slate-800 border border-slate-600 rounded-lg px-2 sm:px-3 py-1 focus:outline-none focus:border-amber-500 disabled:opacity-50 w-full"
                       maxLength={USER_NAME_MAX_LENGTH}
                     />
                     {isSavingName && (
@@ -659,10 +659,10 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-2xl font-bold text-white">{displayName}</h1>
+                    <h1 className="text-lg sm:text-2xl font-bold text-white truncate">{displayName}</h1>
                     <button
                       onClick={startEditingName}
-                      className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors flex-shrink-0"
                       title={t('dashboard.editName')}
                     >
                       <EditIcon className="w-4 h-4" />
@@ -671,7 +671,7 @@ export default function DashboardPage() {
                 )}
               </div>
               {session.user.email && (
-                <p className="text-slate-400">{session.user.email}</p>
+                <p className="text-slate-400 text-sm sm:text-base truncate">{session.user.email}</p>
               )}
               {session.user.walletAddress && (
                 <p className="text-amber-400 text-sm mt-1">
@@ -863,57 +863,57 @@ export default function DashboardPage() {
           </div>
 
           {/* Experience, Projects and Resume Actions */}
-          <div className="mt-4 pt-4 border-t border-slate-700 flex flex-wrap gap-3">
+          <div className="mt-4 pt-4 border-t border-slate-700 flex flex-wrap gap-2 sm:gap-3">
             {isLoadingProfile ? (
               <>
-                <div className="h-10 w-44 bg-slate-800 rounded-lg animate-pulse" />
-                <div className="h-10 w-40 bg-slate-800 rounded-lg animate-pulse" />
-                <div className="h-10 w-36 bg-amber-500/30 rounded-lg animate-pulse" />
+                <div className="h-9 sm:h-10 w-24 sm:w-44 bg-slate-800 rounded-lg animate-pulse" />
+                <div className="h-9 sm:h-10 w-20 sm:w-40 bg-slate-800 rounded-lg animate-pulse" />
+                <div className="h-9 sm:h-10 w-24 sm:w-36 bg-amber-500/30 rounded-lg animate-pulse" />
               </>
             ) : (
               <>
                 <button
                   onClick={() => setShowExperienceEditor(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors text-sm"
                 >
                   <BriefcaseIcon className="w-4 h-4" />
-                  <span>{t('dashboard.manageExperience')}</span>
+                  <span className="hidden min-[400px]:inline">{t('dashboard.manageExperience')}</span>
                   {experience.length > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                    <span className="px-1.5 py-0.5 text-xs bg-slate-600 rounded">
                       {experience.length}
                     </span>
                   )}
                 </button>
                 <button
                   onClick={() => setShowProjectEditor(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors text-sm"
                 >
                   <FolderIcon className="w-4 h-4" />
-                  <span>{t('dashboard.manageProjects')}</span>
+                  <span className="hidden min-[400px]:inline">{t('dashboard.manageProjects')}</span>
                   {projects.length > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                    <span className="px-1.5 py-0.5 text-xs bg-slate-600 rounded">
                       {projects.length}
                     </span>
                   )}
                 </button>
                 <button
                   onClick={() => setShowEducationEditor(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors text-sm"
                 >
                   <BookOpenIcon className="w-4 h-4" />
-                  <span>{t('dashboard.manageEducation')}</span>
+                  <span className="hidden min-[400px]:inline">{t('dashboard.manageEducation')}</span>
                   {education.length > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-slate-600 rounded">
+                    <span className="px-1.5 py-0.5 text-xs bg-slate-600 rounded">
                       {education.length}
                     </span>
                   )}
                 </button>
                 <button
                   onClick={() => setShowResumeModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-semibold rounded-lg transition-all"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-semibold rounded-lg transition-all text-sm"
                 >
                   <ResumeIcon className="w-4 h-4" />
-                  <span>{t('dashboard.exportResume')}</span>
+                  <span className="hidden min-[400px]:inline">{t('dashboard.exportResume')}</span>
                 </button>
               </>
             )}
@@ -921,58 +921,58 @@ export default function DashboardPage() {
         </div>
 
         {/* Billing Section */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">{t('billing.accountStatus')}</h2>
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h2 className="text-base sm:text-lg font-semibold text-white">{t('billing.accountStatus')}</h2>
             <Link
               href="/pricing"
-              className="text-sm text-amber-400 hover:text-amber-300 transition-colors"
+              className="text-xs sm:text-sm text-amber-400 hover:text-amber-300 transition-colors"
             >
               {subscription?.tier === 'free' ? t('billing.upgradePlan') : t('billing.managePlan')}
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             {/* Credits Balance */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <span className="text-xl">💰</span>
+            <div className="bg-slate-800/50 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-slate-700">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <span className="text-base sm:text-xl">💰</span>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400">{t('billing.credits')}</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-[10px] sm:text-xs text-slate-400">{t('billing.credits')}</p>
                   {isLoadingCredits ? (
-                    <div className="h-6 w-16 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-5 sm:h-6 w-10 sm:w-16 bg-slate-700 rounded animate-pulse mx-auto sm:mx-0" />
                   ) : (
-                    <p className="text-xl font-bold text-amber-400">{credits?.balance ?? 0}</p>
+                    <p className="text-lg sm:text-xl font-bold text-amber-400">{credits?.balance ?? 0}</p>
                   )}
                 </div>
               </div>
               <Link
                 href="/pricing#credits"
-                className="text-xs text-slate-400 hover:text-amber-400 transition-colors"
+                className="text-[10px] sm:text-xs text-slate-400 hover:text-amber-400 transition-colors hidden sm:inline"
               >
                 {t('billing.buyCredits')} →
               </Link>
             </div>
 
             {/* Subscription Tier */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                  <span className="text-xl">{subscription?.tier === 'premium' ? '👑' : subscription?.tier === 'pro' ? '⭐' : '🆓'}</span>
+            <div className="bg-slate-800/50 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-slate-700">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                  <span className="text-base sm:text-xl">{subscription?.tier === 'premium' ? '👑' : subscription?.tier === 'pro' ? '⭐' : '🆓'}</span>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400">{t('billing.plan')}</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-[10px] sm:text-xs text-slate-400">{t('billing.plan')}</p>
                   {isLoadingSubscription ? (
-                    <div className="h-6 w-16 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-5 sm:h-6 w-10 sm:w-16 bg-slate-700 rounded animate-pulse mx-auto sm:mx-0" />
                   ) : (
-                    <p className="text-xl font-bold text-white capitalize">{subscription?.tier ?? 'free'}</p>
+                    <p className="text-lg sm:text-xl font-bold text-white capitalize">{subscription?.tier ?? 'free'}</p>
                   )}
                 </div>
               </div>
               {subscription?.tier !== 'free' && subscription?.currentPeriodEnd && (
-                <p className="text-xs text-slate-400">
+                <p className="text-[10px] sm:text-xs text-slate-400 hidden sm:block">
                   {subscription.cancelAtPeriodEnd ? t('billing.expiresOn') : t('billing.renewsOn')}{' '}
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
                 </p>
@@ -980,19 +980,19 @@ export default function DashboardPage() {
             </div>
 
             {/* Map Limit */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                  <span className="text-xl">🗺️</span>
+            <div className="bg-slate-800/50 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-slate-700">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-3 mb-1 sm:mb-2">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                  <span className="text-base sm:text-xl">🗺️</span>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400">{t('billing.skillMaps')}</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-[10px] sm:text-xs text-slate-400">{t('billing.skillMaps')}</p>
                   {isLoadingSubscription ? (
-                    <div className="h-6 w-16 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-5 sm:h-6 w-10 sm:w-16 bg-slate-700 rounded animate-pulse mx-auto sm:mx-0" />
                   ) : (
-                    <p className="text-xl font-bold text-white">
+                    <p className="text-lg sm:text-xl font-bold text-white">
                       {subscription?.limits.currentMaps ?? 0}
-                      <span className="text-sm font-normal text-slate-400">
+                      <span className="text-xs sm:text-sm font-normal text-slate-400">
                         /{subscription?.limits.maxMaps === -1 ? '∞' : subscription?.limits.maxMaps ?? 1}
                       </span>
                     </p>
@@ -1000,7 +1000,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               {subscription?.tier === 'free' && subscription?.limits.currentMaps >= subscription?.limits.maxMaps && (
-                <p className="text-xs text-amber-400">{t('billing.mapLimitReached')}</p>
+                <p className="text-[10px] sm:text-xs text-amber-400">{t('billing.mapLimitReached')}</p>
               )}
             </div>
           </div>
@@ -1010,38 +1010,38 @@ export default function DashboardPage() {
         <MasterSkillMap />
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-            <div className="text-3xl mb-2">📊</div>
-            <h3 className="text-lg font-semibold text-white mb-1">{t('dashboard.careerPaths')}</h3>
-            <p className="text-3xl font-bold text-amber-400">{stats.totalPaths}</p>
-            <p className="text-sm text-slate-400 mt-1">{t('dashboard.pathsExplored')}</p>
+        <div className="grid grid-cols-3 gap-2 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-slate-900/50 border border-slate-800 rounded-lg sm:rounded-xl p-3 sm:p-6">
+            <div className="text-xl sm:text-3xl mb-1 sm:mb-2">📊</div>
+            <h3 className="text-xs sm:text-lg font-semibold text-white mb-0.5 sm:mb-1">{t('dashboard.careerPaths')}</h3>
+            <p className="text-xl sm:text-3xl font-bold text-amber-400">{stats.totalPaths}</p>
+            <p className="text-[10px] sm:text-sm text-slate-400 mt-0.5 sm:mt-1 hidden sm:block">{t('dashboard.pathsExplored')}</p>
           </div>
 
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-            <div className="text-3xl mb-2">🎯</div>
-            <h3 className="text-lg font-semibold text-white mb-1">{t('dashboard.skills')}</h3>
-            <p className="text-3xl font-bold text-cyan-400">{stats.totalSkillsInProgress}</p>
-            <p className="text-sm text-slate-400 mt-1">{t('dashboard.skillsInProgress')}</p>
+          <div className="bg-slate-900/50 border border-slate-800 rounded-lg sm:rounded-xl p-3 sm:p-6">
+            <div className="text-xl sm:text-3xl mb-1 sm:mb-2">🎯</div>
+            <h3 className="text-xs sm:text-lg font-semibold text-white mb-0.5 sm:mb-1">{t('dashboard.skills')}</h3>
+            <p className="text-xl sm:text-3xl font-bold text-cyan-400">{stats.totalSkillsInProgress}</p>
+            <p className="text-[10px] sm:text-sm text-slate-400 mt-0.5 sm:mt-1 hidden sm:block">{t('dashboard.skillsInProgress')}</p>
           </div>
 
-          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-            <div className="text-3xl mb-2">✨</div>
-            <h3 className="text-lg font-semibold text-white mb-1">{t('dashboard.mastered')}</h3>
-            <p className="text-3xl font-bold text-emerald-400">{stats.totalMastered}</p>
-            <p className="text-sm text-slate-400 mt-1">{t('dashboard.skillsCompleted')}</p>
+          <div className="bg-slate-900/50 border border-slate-800 rounded-lg sm:rounded-xl p-3 sm:p-6">
+            <div className="text-xl sm:text-3xl mb-1 sm:mb-2">✨</div>
+            <h3 className="text-xs sm:text-lg font-semibold text-white mb-0.5 sm:mb-1">{t('dashboard.mastered')}</h3>
+            <p className="text-xl sm:text-3xl font-bold text-emerald-400">{stats.totalMastered}</p>
+            <p className="text-[10px] sm:text-sm text-slate-400 mt-0.5 sm:mt-1 hidden sm:block">{t('dashboard.skillsCompleted')}</p>
           </div>
         </div>
 
         {/* Saved Career Paths */}
-        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-          <div className="flex flex-col gap-4 mb-6">
+        <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">{t('dashboard.yourCareerPaths')}</h2>
+              <h2 className="text-base sm:text-xl font-bold text-white">{t('dashboard.yourCareerPaths')}</h2>
               <button
                 onClick={() => setShowImportModal(true)}
                 disabled={isCreatingMap}
-                className="flex items-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-lg border border-violet-500/30 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-lg border border-violet-500/30 transition-colors disabled:opacity-50 text-sm"
               >
                 <ImportIcon className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('import.importButton')}</span>
@@ -1050,18 +1050,19 @@ export default function DashboardPage() {
             <SearchInput
               onSearch={searchCareer}
               placeholder={t('dashboard.addNewCareerPlaceholder')}
+              mobilePlaceholder={t('dashboard.addNewCareerPlaceholderShort')}
               isLoading={isSearchingCareer}
               className="!max-w-none"
             />
           </div>
 
           {isLoadingCareers ? (
-            <div className="text-center py-12">
+            <div className="text-center py-8 sm:py-12">
               <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-400">{t('dashboard.loadingPaths')}</p>
+              <p className="text-slate-400 text-sm sm:text-base">{t('dashboard.loadingPaths')}</p>
             </div>
           ) : savedCareers.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {savedCareers.map((sc) => {
                 const totalSkills = sc.graph.nodeData.length;
                 const masteredSkills = sc.graph.nodeData.filter((n) => n.progress >= SKILL_PASS_THRESHOLD).length;
@@ -1088,7 +1089,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={sc.graph.id}
-                    className={`relative bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all ${isDeleting ? 'opacity-50' : ''}`}
+                    className={`relative bg-slate-800/50 border border-slate-700 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-slate-800 hover:border-amber-500/50 transition-all ${isDeleting ? 'opacity-50' : ''}`}
                   >
                     {/* 3-dots menu */}
                     <div className="absolute top-2 right-2">
@@ -1096,20 +1097,20 @@ export default function DashboardPage() {
                     </div>
 
                     <Link href={`/career/${sc.graph.id}`} className="block">
-                      <h3 className="font-semibold text-white mb-2 pr-8">
+                      <h3 className="font-semibold text-white text-sm sm:text-base mb-1.5 sm:mb-2 pr-8 line-clamp-2">
                         {sc.graph.title || sc.career?.title || t('dashboard.unknownCareer')}
                       </h3>
-                      <div className="flex items-center justify-between text-sm text-slate-400 mb-3">
+                      <div className="flex items-center justify-between text-xs sm:text-sm text-slate-400 mb-2 sm:mb-3">
                         <span>{masteredSkills}/{totalSkills} {t('dashboard.skillsMastered')}</span>
                         <span className="text-amber-400">{progress}%</span>
                       </div>
-                      <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-1.5 sm:h-2 bg-slate-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5 sm:mt-2">
                         {t('dashboard.lastUpdated')}: {new Date(sc.graph.updatedAt).toLocaleDateString()}
                       </p>
                     </Link>
@@ -1118,15 +1119,15 @@ export default function DashboardPage() {
               })}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🌱</div>
-              <h3 className="text-lg font-semibold text-white mb-2">{t('dashboard.startYourJourney')}</h3>
-              <p className="text-slate-400 mb-6 max-w-md mx-auto">
+            <div className="text-center py-8 sm:py-12">
+              <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🌱</div>
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-2">{t('dashboard.startYourJourney')}</h3>
+              <p className="text-slate-400 text-sm sm:text-base mb-4 sm:mb-6 max-w-md mx-auto px-4">
                 {t('dashboard.startDescription')}
               </p>
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors text-sm sm:text-base"
               >
                 <span>{t('dashboard.exploreCareers')}</span>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

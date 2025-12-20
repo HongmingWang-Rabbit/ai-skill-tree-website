@@ -58,7 +58,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 
 | Directory | Key Components |
 |-----------|---------------|
-| `ui/` | `GlassPanel`, `SearchInput`, `ShareModal`, `DropdownMenu`, `ConfirmModal`, `Toast`/`showToast`, `FileDropzone`, Icons |
+| `ui/` | `GlassPanel`, `SearchInput` (supports `mobilePlaceholder`), `ShareModal`, `DropdownMenu`, `ConfirmModal`, `Toast`/`showToast`, `FileDropzone`, Icons |
 | `layout/` | `Header`, `SkillTreeBackground` |
 | `skill-graph/` | `SkillGraph`, `LazySkillGraph`, `SkillNode`, `CenterNode`, `SkillEdge` |
 | `auth/` | `AuthModal` (login with social/Web3) |

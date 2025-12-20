@@ -79,7 +79,23 @@ showToast.success('Done'); showToast.error('Failed');
 // Dropdown
 import { DropdownMenu } from '@/components/ui';
 <DropdownMenu items={[{ id: 'x', label: 'X', onClick: fn }]} />
+
+// SearchInput with mobile placeholder
+import { SearchInput } from '@/components/ui';
+<SearchInput
+  onSearch={fn}
+  placeholder={t('longPlaceholder')}
+  mobilePlaceholder={t('shortPlaceholder')}
+/>
 ```
+
+## Responsive Design
+
+Use Tailwind breakpoints for mobile-first design:
+- `sm:` (640px+) - Tablets and up
+- Hide text on mobile, show on larger: `<span className="hidden sm:inline">{t('text')}</span>`
+- Smaller padding/gaps on mobile: `p-3 sm:p-6`, `gap-2 sm:gap-4`
+- Show only icons on mobile: `<Icon /><span className="hidden sm:inline">{t('label')}</span>`
 
 ## Key Files
 
