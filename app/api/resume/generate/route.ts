@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { db, users, userCareerGraphs, careers, skillGraphs, type SkillNodeData } from '@/lib/db';
 import { ResumeGenerateSchema } from '@/lib/schemas';
 import { parseURL } from '@/lib/document-parser';
-import { searchLinkedInJob, formatJobSearchResultsForAI } from '@/lib/mcp/tavily';
+import { isLinkedInJobUrl, searchLinkedInJob, formatJobSearchResultsForAI } from '@/lib/mcp/tavily';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import {
   analyzeJobPosting,
@@ -24,12 +24,6 @@ import {
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 import { shouldHaveWatermark } from '@/lib/subscription';
-
-// Check if URL is a LinkedIn job posting
-function isLinkedInJobUrl(url: string): boolean {
-  const lowerUrl = url.toLowerCase();
-  return lowerUrl.includes('linkedin.com/jobs') || lowerUrl.includes('linkedin.com/job');
-}
 
 // POST /api/resume/generate - Generate resume content
 export async function POST(request: Request) {

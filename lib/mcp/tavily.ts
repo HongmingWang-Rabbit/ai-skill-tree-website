@@ -1,6 +1,10 @@
 /**
  * Tavily API integration for web search
- * Used by the AI chat to search for trending technologies and skills
+ * Used for:
+ * - AI chat to search for trending technologies and skills
+ * - Learning resources search
+ * - Company research for cover letter personalization
+ * - LinkedIn job posting extraction (LinkedIn pages are JS-rendered)
  */
 
 import { TAVILY_CONFIG, LEARNING_CONFIG, LEARNING_PLATFORM_DOMAINS } from '@/lib/constants';
@@ -171,6 +175,14 @@ export async function searchCompanyInfo(
     searchDepth,
     maxResults,
   });
+}
+
+/**
+ * Check if URL is a LinkedIn job posting
+ */
+export function isLinkedInJobUrl(url: string): boolean {
+  const lowerUrl = url.toLowerCase();
+  return lowerUrl.includes('linkedin.com/jobs') || lowerUrl.includes('linkedin.com/job');
 }
 
 /**

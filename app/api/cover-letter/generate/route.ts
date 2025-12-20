@@ -13,16 +13,10 @@ import {
   type UserProfile,
   type JobRequirements,
 } from '@/lib/ai-resume';
-import { searchCompanyInfo, formatCompanyResearchForAI, searchLinkedInJob, formatJobSearchResultsForAI } from '@/lib/mcp/tavily';
+import { searchCompanyInfo, formatCompanyResearchForAI, isLinkedInJobUrl, searchLinkedInJob, formatJobSearchResultsForAI } from '@/lib/mcp/tavily';
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
-
-// Check if URL is a LinkedIn job posting
-function isLinkedInJobUrl(url: string): boolean {
-  const lowerUrl = url.toLowerCase();
-  return lowerUrl.includes('linkedin.com/jobs') || lowerUrl.includes('linkedin.com/job');
-}
 
 // Input validation schema
 const CoverLetterGenerateSchema = z.object({
