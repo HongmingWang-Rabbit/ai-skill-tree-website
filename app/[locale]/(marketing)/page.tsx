@@ -27,7 +27,7 @@ import {
   LANDING_PAGE_CONFIG,
 } from "@/lib/constants";
 import { showToast } from "@/components/ui";
-import { normalizeCareerKey } from "@/lib/normalize-career";
+import { useCareerSearch } from "@/hooks/useCareerSearch";
 import type { CareerSuggestion } from "@/lib/ai";
 import type { ImportResult } from "@/components/import/DocumentImportModal";
 import type { Locale } from "@/i18n/routing";
@@ -599,37 +599,15 @@ export default function HomePage() {
   const router = useRouter();
   const t = useTranslations();
   const locale = useLocale() as Locale;
-  const [isLoading, setIsLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<CareerSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const secondaryCtaRef = useRef<HTMLDivElement>(null);
 
-  const handleSearch = async (query: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(API_ROUTES.AI_ANALYZE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, locale }),
-      });
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        if (result.data.type === "specific") {
-          router.push(`/career/${result.data.career.canonicalKey}`);
-        } else if (result.data.type === "suggestions") {
-          setSuggestions(result.data.suggestions);
-          setShowSuggestions(true);
-          setIsLoading(false);
-        }
-      } else {
-        router.push(`/career/${normalizeCareerKey(query)}`);
-      }
-    } catch {
-      router.push(`/career/${normalizeCareerKey(query)}`);
-    }
-  };
+  const { isSearching, search, suggestions } = useCareerSearch({
+    onSuggestions: () => {
+      setShowSuggestions(true);
+    },
+  });
 
   const handleFeaturedClick = (key: string) => {
     router.push(`/career/${key}`);
@@ -637,7 +615,6 @@ export default function HomePage() {
 
   const handleSuggestionSelect = (suggestion: CareerSuggestion) => {
     setShowSuggestions(false);
-    setIsLoading(true);
     router.push(`/career/${suggestion.canonicalKey}`);
   };
 
@@ -696,8 +673,8 @@ export default function HomePage() {
         <HeroSection
           t={t}
           onImportClick={() => setShowImportModal(true)}
-          onSearch={handleSearch}
-          isLoading={isLoading}
+          onSearch={search}
+          isLoading={isSearching}
         />
 
         <TwoPathsSection

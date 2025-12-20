@@ -8,6 +8,8 @@ import { SKILL_PASS_THRESHOLD, API_ROUTES, USER_NAME_MAX_LENGTH, RESUME_CONFIG }
 import { Link, useRouter } from '@/i18n/navigation';
 import dynamic from 'next/dynamic';
 import { MasterSkillMap } from '@/components/dashboard/MasterSkillMap';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { useCareerSearch } from '@/hooks/useCareerSearch';
 import { ExperienceEditor } from '@/components/dashboard/ExperienceEditor';
 import { EducationEditor } from '@/components/dashboard/EducationEditor';
 import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon, SaveIcon, PhoneIcon, MapPinIcon, FolderIcon, BookOpenIcon } from '@/components/ui';
@@ -153,6 +155,9 @@ export default function DashboardPage() {
   const [showEducationEditor, setShowEducationEditor] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Career search hook for adding new skill trees
+  const { isSearching: isSearchingCareer, search: searchCareer } = useCareerSearch();
 
   // Save bio explicitly
   const handleSaveBio = useCallback(async () => {
@@ -1030,16 +1035,24 @@ export default function DashboardPage() {
 
         {/* Saved Career Paths */}
         <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">{t('dashboard.yourCareerPaths')}</h2>
-            <button
-              onClick={() => setShowImportModal(true)}
-              disabled={isCreatingMap}
-              className="flex items-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-lg border border-violet-500/30 transition-colors disabled:opacity-50"
-            >
-              <ImportIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('import.importButton')}</span>
-            </button>
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">{t('dashboard.yourCareerPaths')}</h2>
+              <button
+                onClick={() => setShowImportModal(true)}
+                disabled={isCreatingMap}
+                className="flex items-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded-lg border border-violet-500/30 transition-colors disabled:opacity-50"
+              >
+                <ImportIcon className="w-4 h-4" />
+                <span className="hidden sm:inline">{t('import.importButton')}</span>
+              </button>
+            </div>
+            <SearchInput
+              onSearch={searchCareer}
+              placeholder={t('dashboard.addNewCareerPlaceholder')}
+              isLoading={isSearchingCareer}
+              className="!max-w-none"
+            />
           </div>
 
           {isLoadingCareers ? (

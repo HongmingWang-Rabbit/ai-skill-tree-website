@@ -94,6 +94,7 @@ import { DropdownMenu } from '@/components/ui';
 - `lib/credits.ts` - Credit management
 - `lib/auth.ts` - NextAuth (Google, Twitter, WeChat, Web3)
 - `hooks/useQueryHooks.ts` - React Query hooks
+- `hooks/useCareerSearch.ts` - Career search with AI analysis (used in homepage and dashboard)
 - `components/resume/pdfFonts.ts` - PDF font registration (Noto Sans SC/JP) and CJK hyphenation
 
 ## Blog

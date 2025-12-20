@@ -72,6 +72,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 ## Hooks (`hooks/`)
 
 - `useQueryHooks.ts` - React Query: `useUserGraphs()`, `useUserProfile()`, `useMasterMap()`, `useDeleteMap()`, `useUserCredits()`, `useUserSubscription()`
+- `useCareerSearch.ts` - Career search with AI analysis: `useCareerSearch({ onSpecificCareer?, onSuggestions?, onFallback? })` returns `{ isSearching, search, suggestions, clearSuggestions }`
 - `useShareScreenshot` - Screenshot/share functionality
 
 ## Database Schema
