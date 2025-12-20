@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { SkillNodeSchema, SkillEdgeSchema, type SkillNode, type SkillEdge, type WorkExperience, type Project, type UserAddress, type Education } from './schemas';
 import { type Locale } from '@/i18n/routing';
 import { type ParsedDocument, truncateForAI } from './document-parser';
-import { AI_CHAT_CONFIG, DOCUMENT_IMPORT_CONFIG, RESUME_CONFIG } from './constants';
+import { AI_CHAT_CONFIG, DOCUMENT_IMPORT_CONFIG, RESUME_CONFIG, LOCALE_NAMES } from './constants';
 
 const { aiExtraction } = DOCUMENT_IMPORT_CONFIG;
 
@@ -124,18 +124,7 @@ const LOCALE_INSTRUCTIONS: Record<Locale, string> = {
   pl: 'Generate all skill names, descriptions, and categories in Polish (Polski).',
 };
 
-const LOCALE_LANGUAGE_NAMES: Record<Locale, string> = {
-  en: 'English',
-  zh: 'Chinese',
-  ja: 'Japanese',
-  es: 'Spanish',
-  'pt-BR': 'Brazilian Portuguese',
-  de: 'German',
-  fr: 'French',
-  it: 'Italian',
-  nl: 'Dutch',
-  pl: 'Polish',
-};
+// Using LOCALE_NAMES from constants.ts for language names
 
 /**
  * Extract skills from a parsed document using AI
@@ -244,11 +233,11 @@ Return valid JSON only.`;
   "skills": [
     {
       "id": "unique-skill-id-in-english",
-      "name": "Skill Name in ${LOCALE_LANGUAGE_NAMES[locale]}",
-      "description": "Brief description in ${LOCALE_LANGUAGE_NAMES[locale]}",
+      "name": "Skill Name in ${LOCALE_NAMES[locale]}",
+      "description": "Brief description in ${LOCALE_NAMES[locale]}",
       "icon": "emoji",
       "level": 1-10,
-      "category": "Category Name in ${LOCALE_LANGUAGE_NAMES[locale]}",
+      "category": "Category Name in ${LOCALE_NAMES[locale]}",
       "progress": ${aiExtraction.importedSkillProgress},
       "prerequisites": ["prerequisite-skill-id"] or []
     }

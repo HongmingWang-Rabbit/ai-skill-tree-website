@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { z } from 'zod';
 import { SkillNodeSchema, SkillEdgeSchema, CareerResponseSchema } from './schemas';
 import { type Locale } from '@/i18n/routing';
-import { SKILL_EXPAND_CONFIG } from './constants';
+import { SKILL_EXPAND_CONFIG, LOCALE_NAMES } from './constants';
 
 const openai = new OpenAI();
 
@@ -30,18 +30,7 @@ const LOCALE_INSTRUCTIONS: Record<Locale, string> = {
   pl: 'Generate all content in Polish (Polski). All skill names, descriptions, categories, and the career title/description must be in Polish.',
 };
 
-const LOCALE_LANGUAGE_NAMES: Record<Locale, string> = {
-  en: 'English',
-  zh: 'Chinese',
-  ja: 'Japanese',
-  es: 'Spanish',
-  'pt-BR': 'Portuguese',
-  de: 'German',
-  fr: 'French',
-  it: 'Italian',
-  nl: 'Dutch',
-  pl: 'Polish',
-};
+// Using LOCALE_NAMES from constants.ts for language names
 
 const getSystemPrompt = (locale: Locale) => `You are an expert career advisor and skill tree designer. Generate comprehensive skill trees for careers that resemble video game skill trees.
 
@@ -59,7 +48,7 @@ Return valid JSON only with the exact structure requested.`;
 
 export async function generateCareerSkillTree(careerQuery: string, locale: Locale = 'en'): Promise<GeneratedCareer> {
   const languageInstruction = locale !== 'en'
-    ? `\n\nIMPORTANT: Generate ALL text content (title, description, skill names, skill descriptions, category names) in ${LOCALE_LANGUAGE_NAMES[locale]}. The canonicalKey should remain in lowercase English with hyphens.`
+    ? `\n\nIMPORTANT: Generate ALL text content (title, description, skill names, skill descriptions, category names) in ${LOCALE_NAMES[locale]}. The canonicalKey should remain in lowercase English with hyphens.`
     : '';
 
   const prompt = `Generate a complete skill tree for the career: "${careerQuery}"${languageInstruction}
@@ -451,7 +440,7 @@ export async function generateAdvancedSkills(
   const existingCategories = [...new Set(existingNodes.map(n => n.category))];
 
   const languageInstruction = locale !== 'en'
-    ? `\n\nIMPORTANT: Generate ALL text content (skill names, descriptions, category names) in ${LOCALE_LANGUAGE_NAMES[locale]}. The skill IDs should remain in lowercase English with hyphens.`
+    ? `\n\nIMPORTANT: Generate ALL text content (skill names, descriptions, category names) in ${LOCALE_NAMES[locale]}. The skill IDs should remain in lowercase English with hyphens.`
     : '';
 
   const skillRange = `${minSkillsToGenerate}-${maxSkillsToGenerate}`;

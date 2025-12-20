@@ -137,8 +137,9 @@ content/blog/
 │   └── my-post.md
 ├── zh/
 │   └── my-post.md
-└── ja/
-    └── my-post.md
+├── ja/
+│   └── my-post.md
+└── ... (10 locales total)
 ```
 
 **Frontmatter format:**
@@ -158,7 +159,7 @@ author: "Author Name"  # Defaults to BLOG_CONFIG.defaultAuthor
 **Config:** `BLOG_CONFIG` in `lib/constants.ts` - `contentDir`, `defaultAuthor`, `wordsPerMinute`, `cjkCharsPerWord`, `tocMinLevel`, `tocMaxLevel`, `cardMaxTags`
 
 **Adding a new post:**
-1. Create `.md` file in `content/blog/{en,zh,ja}/`
+1. Create `.md` file in `content/blog/{locale}/` for each locale
 2. Use same filename for all locales (translations)
 3. Deploy - posts are statically generated at build time
 
