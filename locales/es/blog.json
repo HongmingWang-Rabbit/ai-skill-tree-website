@@ -11,5 +11,6 @@
   "relatedPosts": "Publicaciones relacionadas",
   "sharePost": "Compartir esta publicación",
   "minuteRead": "{minutes} min de lectura",
-  "tableOfContents": "Tabla de contenidos"
+  "tableOfContents": "Tabla de contenidos",
+  "postNotFound": "Publicación no encontrada"
 }

@@ -246,10 +246,17 @@ An interactive web application that generates and visualizes career skill maps u
 │   ├── nl/                     # Dutch translations
 │   └── pl/                     # Polish translations
 ├── content/
-│   └── blog/                   # Markdown blog posts
+│   └── blog/                   # Markdown blog posts (10 locales)
 │       ├── en/                 # English posts
 │       ├── zh/                 # Chinese posts
-│       └── ja/                 # Japanese posts
+│       ├── ja/                 # Japanese posts
+│       ├── es/                 # Spanish posts
+│       ├── pt-BR/              # Portuguese (Brazil) posts
+│       ├── de/                 # German posts
+│       ├── fr/                 # French posts
+│       ├── it/                 # Italian posts
+│       ├── nl/                 # Dutch posts
+│       └── pl/                 # Polish posts
 ├── lib/
 │   ├── db/                     # Database connection & schema
 │   ├── mcp/

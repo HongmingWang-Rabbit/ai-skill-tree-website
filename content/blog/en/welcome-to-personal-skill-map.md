@@ -37,7 +37,7 @@ When you're ready to apply for jobs, paste a job posting URL and our AI generate
 
 ## Multi-Language Support
 
-Personal Skill Map supports English, Chinese, and Japanese. Generate resumes in your preferred language regardless of your input language.
+Personal Skill Map supports English, Chinese, Japanese, Spanish, Brazilian Portuguese, German, French, Italian, Dutch, and Polish. Generate resumes in your preferred language regardless of your input language.
 
 ## Get Started Today
 

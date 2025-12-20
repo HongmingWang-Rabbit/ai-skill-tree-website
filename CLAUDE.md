@@ -133,13 +133,17 @@ Blog posts are markdown files stored in `content/blog/{locale}/`:
 
 ```
 content/blog/
-├── en/
-│   └── my-post.md
-├── zh/
-│   └── my-post.md
-├── ja/
-│   └── my-post.md
-└── ... (10 locales total)
+├── en/           # English
+├── zh/           # Chinese
+├── ja/           # Japanese
+├── es/           # Spanish
+├── pt-BR/        # Portuguese Brazil
+├── de/           # German
+├── fr/           # French
+├── it/           # Italian
+├── nl/           # Dutch
+└── pl/           # Polish
+    └── my-post.md
 ```
 
 **Frontmatter format:**
@@ -156,7 +160,7 @@ author: "Author Name"  # Defaults to BLOG_CONFIG.defaultAuthor
 
 **Features:** Auto-generated Table of Contents (h2-h4), reading time estimate (supports CJK), SEO with Article schema, server-side markdown rendering with `marked`
 
-**Config:** `BLOG_CONFIG` in `lib/constants.ts` - `contentDir`, `defaultAuthor`, `wordsPerMinute`, `cjkCharsPerWord`, `tocMinLevel`, `tocMaxLevel`, `cardMaxTags`
+**Config:** `BLOG_CONFIG` in `lib/constants.ts` - `contentDir`, `defaultAuthor`, `wordsPerMinute`, `cjkCharsPerWord`, `tocMinLevel`, `tocMaxLevel`, `headingScrollMarginClass`, `cardMaxTags`
 
 **Adding a new post:**
 1. Create `.md` file in `content/blog/{locale}/` for each locale

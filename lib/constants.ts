@@ -815,6 +815,7 @@ export const BLOG_CONFIG = {
   // TOC settings
   tocMinLevel: 2,
   tocMaxLevel: 4,
+  headingScrollMarginClass: 'scroll-mt-20', // Tailwind class for TOC heading anchor offset
   // UI settings
   cardMaxTags: 3, // Max tags to display on blog card
 } as const;

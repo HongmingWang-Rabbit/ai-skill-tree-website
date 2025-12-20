@@ -11,5 +11,6 @@
   "relatedPosts": "Powiązane wpisy",
   "sharePost": "Udostępnij ten wpis",
   "minuteRead": "{minutes} min czytania",
-  "tableOfContents": "Spis treści"
+  "tableOfContents": "Spis treści",
+  "postNotFound": "Wpis nie znaleziony"
 }

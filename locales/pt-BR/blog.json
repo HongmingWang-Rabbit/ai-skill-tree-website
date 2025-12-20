@@ -11,5 +11,6 @@
   "relatedPosts": "Posts Relacionados",
   "sharePost": "Compartilhar este post",
   "minuteRead": "{minutes} min de leitura",
-  "tableOfContents": "Índice"
+  "tableOfContents": "Índice",
+  "postNotFound": "Publicação não encontrada"
 }

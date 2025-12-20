@@ -11,5 +11,6 @@
   "relatedPosts": "関連記事",
   "sharePost": "記事をシェア",
   "minuteRead": "{minutes}分で読める",
-  "tableOfContents": "目次"
+  "tableOfContents": "目次",
+  "postNotFound": "記事が見つかりません"
 }

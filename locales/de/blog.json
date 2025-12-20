@@ -11,5 +11,6 @@
   "relatedPosts": "Verwandte Beiträge",
   "sharePost": "Diesen Beitrag teilen",
   "minuteRead": "{minutes} Min. Lesezeit",
-  "tableOfContents": "Inhaltsverzeichnis"
+  "tableOfContents": "Inhaltsverzeichnis",
+  "postNotFound": "Beitrag nicht gefunden"
 }

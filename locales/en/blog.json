@@ -11,5 +11,6 @@
   "relatedPosts": "Related Posts",
   "sharePost": "Share this post",
   "minuteRead": "{minutes} min read",
-  "tableOfContents": "Table of Contents"
+  "tableOfContents": "Table of Contents",
+  "postNotFound": "Post Not Found"
 }

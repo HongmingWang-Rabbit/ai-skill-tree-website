@@ -11,5 +11,6 @@
   "relatedPosts": "Articles connexes",
   "sharePost": "Partager cet article",
   "minuteRead": "{minutes} min de lecture",
-  "tableOfContents": "Table des matières"
+  "tableOfContents": "Table des matières",
+  "postNotFound": "Article non trouvé"
 }

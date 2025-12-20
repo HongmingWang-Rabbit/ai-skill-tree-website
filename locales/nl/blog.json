@@ -11,5 +11,6 @@
   "relatedPosts": "Gerelateerde Posts",
   "sharePost": "Deel deze post",
   "minuteRead": "{minutes} min lezen",
-  "tableOfContents": "Inhoudsopgave"
+  "tableOfContents": "Inhoudsopgave",
+  "postNotFound": "Bericht niet gevonden"
 }

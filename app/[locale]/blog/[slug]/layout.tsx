@@ -17,10 +17,11 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const post = getBlogPost(slug, locale);
+  const t = await getTranslations({ locale, namespace: 'blog' });
 
   if (!post) {
     return {
-      title: 'Post Not Found',
+      title: t('postNotFound'),
     };
   }
 
@@ -72,7 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostLayout({ children, params }: Props) {
   const { locale, slug } = await params;
   const post = getBlogPost(slug, locale);
-  const t = await getTranslations({ locale, namespace: 'common' });
+  const tCommon = await getTranslations({ locale, namespace: 'common' });
+  const tBlog = await getTranslations({ locale, namespace: 'blog' });
 
   if (!post) {
     notFound();
@@ -97,8 +99,8 @@ export default async function BlogPostLayout({ children, params }: Props) {
         type="breadcrumb"
         data={{
           breadcrumbs: [
-            { name: t('home'), url: getLocaleUrl(SITE_URL, locale) },
-            { name: 'Blog', url: getLocaleUrl(SITE_URL, locale, '/blog') },
+            { name: tCommon('home'), url: getLocaleUrl(SITE_URL, locale) },
+            { name: tBlog('title'), url: getLocaleUrl(SITE_URL, locale, '/blog') },
             { name: post.title, url: getLocaleUrl(SITE_URL, locale, `/blog/${slug}`) },
           ],
         }}

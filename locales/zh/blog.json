@@ -11,5 +11,6 @@
   "relatedPosts": "相关文章",
   "sharePost": "分享文章",
   "minuteRead": "{minutes} 分钟阅读",
-  "tableOfContents": "目录"
+  "tableOfContents": "目录",
+  "postNotFound": "文章未找到"
 }

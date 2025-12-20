@@ -8,7 +8,9 @@ Comprehensive SEO with multi-locale support and GEO (Generative Engine Optimizat
 - `app/[locale]/layout.tsx` - Locale-specific metadata, hreflang alternates, JSON-LD
 - `app/[locale]/career/[careerId]/layout.tsx` - Career page metadata, Course/Breadcrumb schemas
 - `app/[locale]/(marketing)/layout.tsx` - Landing page FAQ/HowTo schemas
-- `app/sitemap.ts` - Dynamic sitemap with all locales
+- `app/[locale]/blog/page.tsx` - Blog index with SEO metadata
+- `app/[locale]/blog/[slug]/layout.tsx` - Blog post Article schema, Breadcrumb schema
+- `app/sitemap.ts` - Dynamic sitemap with all locales and blog posts
 - `app/robots.ts` - Robots.txt with AI crawler rules
 - `components/seo/JsonLd.tsx` - JSON-LD components
 
@@ -19,6 +21,7 @@ Comprehensive SEO with multi-locale support and GEO (Generative Engine Optimizat
 - `JsonLd type="breadcrumb"` - BreadcrumbList navigation
 - `JsonLd type="faq"` - FAQPage for GEO
 - `JsonLd type="howto"` - HowTo for process docs
+- `JsonLd type="article"` - Article schema for blog posts
 - `OrganizationJsonLd` - Organization with expertise
 - `SoftwareAppJsonLd` - SoftwareApplication with features
 
@@ -65,3 +68,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 ```
 
 **Note**: Use `defaultLocale` for x-default, not hardcoded `'en'`.
+
+## Blog SEO
+
+Blog posts (10 locales) get automatic SEO:
+
+- **Article Schema**: Headline, description, datePublished, author, image
+- **Breadcrumb Schema**: Home → Blog → Post Title
+- **hreflang**: Alternate links for all locales the post exists in
+- **Open Graph**: Article type with publishedTime, authors, locale
+- **Sitemap**: Auto-included via `getAllBlogSlugs()` with lastModified dates
+
+Config: `BLOG_CONFIG` in `lib/constants.ts`

@@ -114,7 +114,7 @@ export function renderMarkdown(content: string): string {
   renderer.heading = ({ text, depth }) => {
     if (depth >= 2 && depth <= 4) {
       const id = generateHeadingId(text);
-      return `<h${depth} id="${id}" class="scroll-mt-20">${text}</h${depth}>`;
+      return `<h${depth} id="${id}" class="${BLOG_CONFIG.headingScrollMarginClass}">${text}</h${depth}>`;
     }
     return `<h${depth}>${text}</h${depth}>`;
   };
