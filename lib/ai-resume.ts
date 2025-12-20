@@ -967,10 +967,13 @@ export async function generateCoverLetter(
   );
 
   const systemPrompt = `You are an expert cover letter writer who creates compelling, highly personalized cover letters.
+
+LANGUAGE REQUIREMENT (CRITICAL):
 ${AI_LOCALE_INSTRUCTIONS[locale]}
+You MUST write ALL content in the specified language above. Do not mix languages.
 
 CRITICAL RULES:
-- NEVER use placeholders like [Company Name] or [公司名称] - extract the actual company name from the job posting
+- NEVER use placeholders like [Company Name] - extract the actual company name from the job posting
 - NEVER write generic content - every cover letter must be tailored to the specific company and role
 - If company name is provided, use it. If not, find it in the job posting content
 - Research and reference specific details about the company from the job posting
@@ -1084,7 +1087,7 @@ ${companyResearchContext}
 
 Return a JSON object with this exact structure:
 {
-  "greeting": "Formal greeting in target language (e.g., 尊敬的招聘经理 for Chinese, 採用ご担当者様 for Japanese)",
+  "greeting": "Formal greeting appropriate for the target language",
   "opening": "A compelling 2-3 sentence opening paragraph that hooks the reader",
   "body": [
     "First body paragraph highlighting key achievement #1 with metrics",
@@ -1092,7 +1095,7 @@ Return a JSON object with this exact structure:
     "Optional third paragraph about company fit/culture alignment"
   ],
   "closing": "Strong closing paragraph with call to action",
-  "signature": "Formal sign-off in target language\\n[Name]",
+  "signature": "Formal sign-off appropriate for the target language\\n[Name]",
   "keyStrengths": ["Strength 1 highlighted", "Strength 2 highlighted", "Strength 3 highlighted"],
   "companyConnection": "Brief note on why this company specifically appeals to the candidate"
 }
