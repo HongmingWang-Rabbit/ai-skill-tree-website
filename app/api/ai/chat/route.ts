@@ -14,6 +14,7 @@ import OpenAI from 'openai';
 import { searchTrendingTech, formatSearchResultsForAI } from '@/lib/mcp/tavily';
 import { AI_CHAT_CONFIG } from '@/lib/constants';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
+import { applyRateLimit } from '@/lib/rate-limit';
 
 const openai = new OpenAI();
 
@@ -106,6 +107,15 @@ export async function POST(request: NextRequest) {
   try {
     // Validate session (optional - allow anonymous chat but restrict modifications)
     const session = await getServerSession(authOptions);
+
+    // Apply rate limiting - stricter for anonymous, more generous for authenticated
+    const rateLimitResult = await applyRateLimit(
+      session?.user?.id ? 'authenticatedAI' : 'publicAI',
+      session?.user?.id
+    );
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response;
+    }
 
     // Parse and validate request
     const body = await request.json();

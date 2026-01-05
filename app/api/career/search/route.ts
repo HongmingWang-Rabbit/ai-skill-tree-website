@@ -3,11 +3,16 @@ import { CareerSearchSchema } from '@/lib/schemas';
 import { suggestCareerSearches } from '@/lib/ai';
 import { db, careers } from '@/lib/db';
 import { ilike, or } from 'drizzle-orm';
-
-export const runtime = 'edge';
+import { applyRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   try {
+    // Apply rate limiting (20 requests per minute per IP)
+    const rateLimitResult = await applyRateLimit('careerSearch');
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response;
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get('q') || '';
 

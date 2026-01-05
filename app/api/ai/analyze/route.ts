@@ -5,6 +5,7 @@ import { analyzeCareerQuery } from '@/lib/ai';
 import { locales, defaultLocale, type Locale } from '@/i18n/routing';
 import { z } from 'zod';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
+import { applyRateLimit } from '@/lib/rate-limit';
 
 const AnalyzeSchema = z.object({
   query: z.string().min(1).max(500),
@@ -14,6 +15,16 @@ const AnalyzeSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+
+    // Apply rate limiting - stricter for anonymous, more generous for authenticated
+    const rateLimitResult = await applyRateLimit(
+      session?.user?.id ? 'authenticatedAI' : 'publicAI',
+      session?.user?.id
+    );
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response;
+    }
+
     const body = await request.json();
     const { query, locale: rawLocale } = AnalyzeSchema.parse(body);
 

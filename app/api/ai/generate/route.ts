@@ -8,10 +8,21 @@ import { setCachedCareer, getCachedCareer } from '@/lib/cache';
 import { db, careers, skillGraphs } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
+import { applyRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+
+    // Apply rate limiting - stricter for anonymous, more generous for authenticated
+    const rateLimitResult = await applyRateLimit(
+      session?.user?.id ? 'authenticatedAI' : 'publicAI',
+      session?.user?.id
+    );
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response;
+    }
+
     const body = await request.json();
     const { career, locale = 'en' } = GenerateCareerSchema.parse(body);
 

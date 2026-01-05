@@ -20,6 +20,7 @@ pnpm db:studio    # Drizzle Studio GUI
 | Assets | `ASSETS.ICON`, `ASSETS.ICON_LARGE` from `lib/constants` |
 | Credits | `hasEnoughCredits()` before, `deductCredits()` after AI ops |
 | Subscriptions | `canCreateMap()`, `shouldHaveWatermark()` |
+| Rate limiting | `applyRateLimit('publicAI')` from `lib/rate-limit` |
 | Lazy load | `next/dynamic` with `ssr: false` for React Flow, PDFs |
 | i18n | Import `Link`, `useRouter` from `@/i18n/navigation` |
 | Locales | `locales`, `i18nNamespaces` from `@/i18n/routing` |
@@ -114,7 +115,7 @@ Use Tailwind breakpoints for mobile-first design:
 ## Key Files
 
 - `i18n/routing.ts` - Locales, namespaces, OG locale mapping, `getLocaleUrl()`, `getLocalePath()`
-- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `LOCALE_DISPLAY_NAMES`, `LOCALE_FLAGS`, `BLOG_CONFIG`, `IMPORT_MERGE_CONFIG`, `SKILL_EXPAND_CONFIG`)
+- `lib/constants.ts` - All constants (routes, billing, configs, `PDF_FONT_CONFIG`, `PDF_LABELS`, `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `LOCALE_DISPLAY_NAMES`, `LOCALE_FLAGS`, `BLOG_CONFIG`, `IMPORT_MERGE_CONFIG`, `SKILL_EXPAND_CONFIG`, `RATE_LIMIT_CONFIG`)
 - `lib/schemas.ts` - Zod schemas and shared types
 - `lib/ai.ts` - Career skill tree AI functions (`generateCareerSkillTree`, `generateAdvancedSkills`, `analyzeCareerQuery`)
 - `lib/ai-resume.ts` - Resume/cover letter AI functions (relevance rating, optimization, personalized cover letters)
@@ -122,6 +123,7 @@ Use Tailwind breakpoints for mobile-first design:
 - `lib/import-merge.ts` - Smart import merging utilities (fuzzy matching, deduplication for bio, experience, projects, education, skill maps)
 - `lib/blog.ts` - Blog utilities (`getBlogPosts()`, `getBlogPost()`, `calculateReadingTime()`, `extractToc()`)
 - `lib/credits.ts` - Credit management
+- `lib/rate-limit.ts` - Rate limiting (`applyRateLimit()`, `checkRateLimit()`) using Upstash Redis
 - `lib/auth.ts` - NextAuth (Google, Twitter, WeChat, Web3)
 - `hooks/useQueryHooks.ts` - React Query hooks
 - `hooks/useCareerSearch.ts` - Career search with AI analysis (used in homepage and dashboard)
@@ -177,4 +179,4 @@ author: "Author Name"  # Defaults to BLOG_CONFIG.defaultAuthor
 ## Detailed Docs
 
 - [Architecture Reference](docs/architecture.md) - Libraries, components, schemas
-- [Feature Docs](docs/features/) - Document import, resume export, billing, etc.
+- [Feature Docs](docs/features/) - Document import, resume export, billing, rate limiting, etc.

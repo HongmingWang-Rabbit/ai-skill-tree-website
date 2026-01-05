@@ -1,0 +1,29 @@
+# Sensitive files - never send to AI
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+
+# Credentials and secrets
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account.json
+**/secrets/**
+**/.secrets/**
+
+# Auth tokens
+.npmrc
+.yarnrc
+.docker/config.json
+
+# Database
+*.sqlite
+*.db
+
+# IDE settings that may contain paths
+.idea/
+.vscode/settings.json

@@ -936,3 +936,26 @@ export const SEO_CONFIG = {
     description: 'Learn how to import your skills, visualize your career path, and generate AI-tailored resumes and cover letters with Personal Skill Map.',
   },
 } as const;
+
+// Rate Limiting Configuration
+export const RATE_LIMIT_CONFIG = {
+  // Requests per window for each limiter type
+  limits: {
+    publicAI: 10,        // Anonymous AI requests per window
+    careerSearch: 20,    // Career search requests per window
+    authenticatedAI: 30, // Authenticated AI requests per window
+    heavyAI: 5,          // Heavy AI operations (resume gen) per window
+  },
+  // Time window in seconds
+  windowSeconds: 60,
+  // Redis key prefixes
+  prefixes: {
+    publicAI: 'ratelimit:public-ai',
+    careerSearch: 'ratelimit:career-search',
+    authenticatedAI: 'ratelimit:auth-ai',
+    heavyAI: 'ratelimit:heavy-ai',
+  },
+  // Error messages
+  errorMessage: 'Too many requests. Please try again later.',
+  errorCode: 'RATE_LIMITED',
+} as const;

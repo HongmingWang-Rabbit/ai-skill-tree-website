@@ -37,6 +37,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Multi-Language Support**: Full internationalization with 10 languages (English, Chinese, Japanese, Spanish, Portuguese, German, French, Italian, Dutch, Polish)
 - **Blog**: Markdown-based blog with multi-language support, SEO-optimized with Article schema
 - **SEO & GEO Optimized**: Dynamic sitemap, AI crawler-friendly robots.txt (GPTBot, Claude, Perplexity), hreflang tags, Open Graph/Twitter cards, JSON-LD structured data (FAQ, HowTo, Article schemas for AI search engines)
+- **Rate Limiting**: API protection using Upstash Ratelimit with sliding window algorithm - stricter for anonymous, generous for authenticated users
 - **Smart Caching**: Redis caching prevents redundant API calls and speeds up repeat queries
 - **Persistent Storage**: Generated skill maps are saved to PostgreSQL for future access
 - **Education & Credentials**: Track academic history alongside work experience for cleaner resume exports
@@ -54,6 +55,7 @@ An interactive web application that generates and visualizes career skill maps u
 - **Framework**: Next.js 15 (App Router) with Turbopack
 - **Database**: Neon (Serverless PostgreSQL) with Drizzle ORM
 - **Caching**: Upstash Redis (HTTP-based)
+- **Rate Limiting**: Upstash Ratelimit (sliding window)
 - **AI**: OpenAI API (GPT-4o-mini)
 - **Payments**: Stripe (subscriptions & one-time purchases)
 - **Visualization**: React Flow (@xyflow/react)
