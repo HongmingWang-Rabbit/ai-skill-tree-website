@@ -166,13 +166,18 @@ export async function POST(request: Request) {
       // Parse job URL (handles LinkedIn, Indeed, and generic URLs)
       const jobContent = await parseJobUrl(jobUrl, jobTitle);
 
-      // Analyze job content if we got any
-      if (isValidJobContent(jobContent)) {
-        jobRequirements = await analyzeJobPosting(jobContent, jobTitle, locale as Locale);
-      } else if (jobTitle) {
-        // Fall back to job title analysis
-        jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
+      // If URL was provided but we couldn't parse it, return error
+      if (!isValidJobContent(jobContent)) {
+        return NextResponse.json(
+          {
+            error: 'Could not retrieve job posting content from the provided URL. Please check the URL or enter the job title manually.',
+            code: 'JOB_URL_PARSE_FAILED',
+          },
+          { status: 422 }
+        );
       }
+
+      jobRequirements = await analyzeJobPosting(jobContent, jobTitle, locale as Locale);
     } else if (jobTitle) {
       // Use job title for requirements inference
       jobRequirements = await analyzeJobTitle(jobTitle, locale as Locale);
