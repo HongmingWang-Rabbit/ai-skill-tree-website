@@ -21,9 +21,10 @@ import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
 
 // Input validation schema
 const CoverLetterGenerateSchema = z.object({
-  locale: z.enum(['en', 'zh', 'ja']),
+  locale: z.enum(['en', 'zh', 'ja', 'es', 'pt-BR', 'de', 'fr', 'it', 'nl', 'pl']),
   jobTitle: z.string().max(200).optional(),
   jobUrl: z.string().url().optional(),
+  jobDescription: z.string().max(50000).optional(), // Full job posting text
   companyUrl: z.string().url().optional(),
 });
 
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { locale, jobTitle, jobUrl, companyUrl } = result.data;
+    const { locale, jobTitle, jobUrl, jobDescription, companyUrl } = result.data;
     const userId = session.user.id;
 
     // Check credits before AI generation (same cost as resume)
@@ -145,7 +146,11 @@ export async function POST(request: Request) {
     let jobRequirements: JobRequirements | null = null;
     let jobPostingContent: string | null = null;
 
-    if (jobUrl) {
+    if (jobDescription && jobDescription.trim().length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
+      // Use directly pasted job description
+      jobPostingContent = jobDescription.trim();
+      jobRequirements = await analyzeJobPosting(jobPostingContent, jobTitle, locale as Locale);
+    } else if (jobUrl) {
       // Parse job URL (handles LinkedIn, Indeed, and generic URLs)
       jobPostingContent = await parseJobUrl(jobUrl, jobTitle);
 

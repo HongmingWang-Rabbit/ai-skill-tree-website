@@ -75,6 +75,7 @@ export interface ResumeExportModalProps {
 
 type Stage = 'input' | 'generating' | 'preview' | 'pdfPreview';
 type PreviewTab = 'resume' | 'coverLetter';
+type JobInputType = 'none' | 'title' | 'url' | 'description';
 
 interface ResumeData {
   profile: {
@@ -115,8 +116,10 @@ export function ResumeExportModal({
   const tCommon = useTranslations('common');
 
   const [stage, setStage] = useState<Stage>('input');
+  const [jobInputType, setJobInputType] = useState<JobInputType>('none');
   const [jobTitle, setJobTitle] = useState('');
   const [jobUrl, setJobUrl] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
   const [outputLanguage, setOutputLanguage] = useState<Locale>(locale);
   const [includeCoverLetter, setIncludeCoverLetter] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -145,8 +148,10 @@ export function ResumeExportModal({
 
   const resetState = useCallback(() => {
     setStage('input');
+    setJobInputType('none');
     setJobTitle('');
     setJobUrl('');
+    setJobDescription('');
     setOutputLanguage(locale);
     setIncludeCoverLetter(false);
     setError(null);
@@ -175,6 +180,22 @@ export function ResumeExportModal({
     // Create new abort controller for this request
     abortControllerRef.current = new AbortController();
 
+    // Build request body based on job input type
+    const buildJobParams = () => {
+      switch (jobInputType) {
+        case 'title':
+          return { jobTitle: jobTitle.trim() || undefined };
+        case 'url':
+          return { jobUrl: jobUrl.trim() || undefined };
+        case 'description':
+          return { jobDescription: jobDescription.trim() || undefined };
+        default:
+          return {};
+      }
+    };
+
+    const jobParams = buildJobParams();
+
     try {
       // Generate resume
       const resumeResponse = await fetch(API_ROUTES.RESUME_GENERATE, {
@@ -182,8 +203,7 @@ export function ResumeExportModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locale: outputLanguage,
-          jobTitle: jobTitle.trim() || undefined,
-          jobUrl: jobUrl.trim() || undefined,
+          ...jobParams,
         }),
         signal: abortControllerRef.current.signal,
       });
@@ -204,8 +224,7 @@ export function ResumeExportModal({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             locale: outputLanguage,
-            jobTitle: jobTitle.trim() || undefined,
-            jobUrl: jobUrl.trim() || undefined,
+            ...jobParams,
           }),
           signal: abortControllerRef.current.signal,
         });
@@ -228,7 +247,7 @@ export function ResumeExportModal({
       setError(err instanceof Error ? err.message : t('generateFailed'));
       setStage('input');
     }
-  }, [outputLanguage, jobTitle, jobUrl, includeCoverLetter, t]);
+  }, [outputLanguage, jobInputType, jobTitle, jobUrl, jobDescription, includeCoverLetter, t]);
 
   const handleSaveSummary = useCallback(() => {
     if (resumeData) {
@@ -382,42 +401,73 @@ export function ResumeExportModal({
                 <div className="space-y-4">
                   <p className="text-sm text-slate-400">{t('modalSubtitle')}</p>
 
-                  {/* Job Title Input */}
+                  {/* Job Input Type Dropdown */}
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      {t('jobTitleLabel')}
+                      {t('jobInputTypeLabel')}
                     </label>
-                    <input
-                      type="text"
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                      maxLength={RESUME_CONFIG.jobTitleMaxLength}
-                      placeholder={t('jobTitlePlaceholder')}
-                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
-                    />
+                    <select
+                      value={jobInputType}
+                      onChange={(e) => setJobInputType(e.target.value as JobInputType)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500 transition-colors appearance-none cursor-pointer"
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.75rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                    >
+                      <option value="none">{t('jobInputTypeNone')}</option>
+                      <option value="title">{t('jobInputTypeTitle')}</option>
+                      <option value="url">{t('jobInputTypeUrl')}</option>
+                      <option value="description">{t('jobInputTypeDescription')}</option>
+                    </select>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-px bg-slate-700" />
-                    <span className="text-xs text-slate-500 uppercase">{t('orText')}</span>
-                    <div className="flex-1 h-px bg-slate-700" />
-                  </div>
+                  {/* Dynamic Input Based on Selection */}
+                  {jobInputType === 'title' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                        {t('jobTitleLabel')}
+                      </label>
+                      <input
+                        type="text"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        maxLength={RESUME_CONFIG.jobTitleMaxLength}
+                        placeholder={t('jobTitlePlaceholder')}
+                        className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                      />
+                    </div>
+                  )}
 
-                  {/* Job URL Input */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      <LinkIcon className="w-4 h-4 inline-block mr-1" />
-                      {t('jobUrlLabel')}
-                    </label>
-                    <input
-                      type="url"
-                      value={jobUrl}
-                      onChange={(e) => setJobUrl(e.target.value)}
-                      placeholder={t('jobUrlPlaceholder')}
-                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
-                    />
-                    <p className="mt-1 text-xs text-slate-500">{t('jobUrlHelp')}</p>
-                  </div>
+                  {jobInputType === 'url' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                        <LinkIcon className="w-4 h-4 inline-block mr-1" />
+                        {t('jobUrlLabel')}
+                      </label>
+                      <input
+                        type="url"
+                        value={jobUrl}
+                        onChange={(e) => setJobUrl(e.target.value)}
+                        placeholder={t('jobUrlPlaceholder')}
+                        className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">{t('jobUrlHelp')}</p>
+                    </div>
+                  )}
+
+                  {jobInputType === 'description' && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                        {t('jobDescriptionLabel')}
+                      </label>
+                      <textarea
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        placeholder={t('jobDescriptionPlaceholder')}
+                        rows={6}
+                        className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">{t('jobDescriptionHelp')}</p>
+                    </div>
+                  )}
 
                   {/* Output Language Selection */}
                   <div>

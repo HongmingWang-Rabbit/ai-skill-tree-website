@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { db, users, userCareerGraphs, careers, skillGraphs, type SkillNodeData } from '@/lib/db';
 import { ResumeGenerateSchema } from '@/lib/schemas';
 import { parseJobUrl, isValidJobContent } from '@/lib/job-url-parser';
-import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
+import { SKILL_PASS_THRESHOLD, DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
 import {
   analyzeJobPosting,
   analyzeJobTitle,
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { locale, jobTitle, jobUrl } = result.data;
+    const { locale, jobTitle, jobUrl, jobDescription } = result.data;
     const userId = session.user.id;
 
     // Check credits before AI generation
@@ -162,7 +162,10 @@ export async function POST(request: Request) {
     // Analyze job requirements if job info provided
     let jobRequirements: JobRequirements | null = null;
 
-    if (jobUrl) {
+    if (jobDescription && jobDescription.trim().length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
+      // Use directly pasted job description
+      jobRequirements = await analyzeJobPosting(jobDescription.trim(), jobTitle, locale as Locale);
+    } else if (jobUrl) {
       // Parse job URL (handles LinkedIn, Indeed, and generic URLs)
       const jobContent = await parseJobUrl(jobUrl, jobTitle);
 

@@ -130,9 +130,10 @@ export const ProfileUpdateSchema = z.object({
 
 // Resume generation request schema
 export const ResumeGenerateSchema = z.object({
-  locale: z.enum(['en', 'zh', 'ja']).default('en'),
+  locale: z.enum(['en', 'zh', 'ja', 'es', 'pt-BR', 'de', 'fr', 'it', 'nl', 'pl']).default('en'),
   jobTitle: z.string().max(RESUME_CONFIG.jobTitleMaxLength).optional(),
   jobUrl: z.string().url().optional(),
+  jobDescription: z.string().max(50000).optional(), // Full job posting text (up to ~10k words)
 });
 
 // Learning resources request schema
