@@ -346,8 +346,18 @@ export function ResumePDF({
         {/* Skills */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, fontBold]}>{labels.skills}</Text>
-          {resumeContent.skills.map((category: ResumeSkillGroup, catIndex: number) => (
-            <View key={catIndex} style={styles.skillCategory}>
+          {resumeContent.skills
+            .map((category: ResumeSkillGroup) => ({
+              ...category,
+              // Filter out empty/blank skill names
+              skills: category.skills.filter(skill =>
+                skill.name && skill.name.trim() !== '' && skill.name !== 'undefined' && skill.name !== 'null'
+              ),
+            }))
+            // Only render categories that have at least one valid skill
+            .filter(category => category.skills.length > 0)
+            .map((category, catIndex: number) => (
+            <View key={catIndex} style={styles.skillCategory} wrap={false}>
               <Text style={[styles.skillCategoryTitle, fontBold]}>{category.category}</Text>
               <View style={styles.skillsRow}>
                 {category.skills.map((skill, skillIndex) => (
