@@ -237,9 +237,14 @@ export interface ResumePDFProps {
   locale?: Locale;
 }
 
+// Check if a string value is valid (not empty, undefined, null, or string literals)
+function isValidString(value: string | null | undefined): value is string {
+  return Boolean(value && value.trim() !== '' && value !== 'undefined' && value !== 'null');
+}
+
 // Check if a date string is valid (YYYY-MM format)
 function isValidDateString(dateStr: string | null | undefined): boolean {
-  if (!dateStr || dateStr === 'undefined' || dateStr === 'null') return false;
+  if (!isValidString(dateStr)) return false;
   const parts = dateStr.split('-');
   if (parts.length !== 2) return false;
   const [year, month] = parts;
@@ -350,9 +355,7 @@ export function ResumePDF({
             .map((category: ResumeSkillGroup) => ({
               ...category,
               // Filter out empty/blank skill names
-              skills: category.skills.filter(skill =>
-                skill.name && skill.name.trim() !== '' && skill.name !== 'undefined' && skill.name !== 'null'
-              ),
+              skills: category.skills.filter(skill => isValidString(skill.name)),
             }))
             // Only render categories that have at least one valid skill
             .filter(category => category.skills.length > 0)
@@ -420,15 +423,15 @@ export function ResumePDF({
                       </Text>
                     )}
                   </View>
-                  {[edu.degree, edu.fieldOfStudy].filter(v => v && v !== 'undefined' && v !== 'null').length > 0 && (
+                  {[edu.degree, edu.fieldOfStudy].filter(isValidString).length > 0 && (
                     <Text style={styles.experienceCompany}>
-                      {[edu.degree, edu.fieldOfStudy].filter(v => v && v !== 'undefined' && v !== 'null').join(' • ')}
+                      {[edu.degree, edu.fieldOfStudy].filter(isValidString).join(' • ')}
                     </Text>
                   )}
-                  {edu.location && edu.location !== 'undefined' && edu.location !== 'null' && (
+                  {isValidString(edu.location) && (
                     <Text style={styles.projectDescription}>{edu.location}</Text>
                   )}
-                  {edu.description && edu.description !== 'undefined' && edu.description !== 'null' && (
+                  {isValidString(edu.description) && (
                     <Text style={styles.projectDescription}>{edu.description}</Text>
                   )}
                 </View>
@@ -446,7 +449,7 @@ export function ResumePDF({
               const hasEndDate = isValidDateString(proj.endDate);
               const isOngoing = proj.endDate === null;
               const showDateRange = hasStartDate || hasEndDate || isOngoing;
-              const technologies = (proj.technologies || []).filter(t => t && t !== 'undefined' && t !== 'null');
+              const technologies = (proj.technologies || []).filter(isValidString);
               return (
                 <View key={index} style={styles.projectItem}>
                   <View style={styles.projectHeader}>
@@ -459,12 +462,12 @@ export function ResumePDF({
                       </Text>
                     )}
                   </View>
-                  {proj.url && proj.url !== 'undefined' && proj.url !== 'null' && (
+                  {isValidString(proj.url) && (
                     <Link src={proj.url} style={styles.projectUrl}>
                       {proj.url}
                     </Link>
                   )}
-                  {proj.description && proj.description !== 'undefined' && proj.description !== 'null' && (
+                  {isValidString(proj.description) && (
                     <Text style={styles.projectDescription}>{proj.description}</Text>
                   )}
                   {technologies.length > 0 && (
