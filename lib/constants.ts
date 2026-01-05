@@ -305,6 +305,7 @@ export const RESUME_CONFIG = {
   jobUrlTimeout: 30000,
   jobContentMaxChars: 10000,
   jobTitleMaxLength: 200,
+  jobDescriptionMaxLength: 50000, // ~10k words pasted job description
   // Preview settings (for modal)
   previewSkillCategories: 3,
   previewSkillsPerCategory: 4,

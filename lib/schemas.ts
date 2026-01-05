@@ -133,7 +133,12 @@ export const ResumeGenerateSchema = z.object({
   locale: z.enum(['en', 'zh', 'ja', 'es', 'pt-BR', 'de', 'fr', 'it', 'nl', 'pl']).default('en'),
   jobTitle: z.string().max(RESUME_CONFIG.jobTitleMaxLength).optional(),
   jobUrl: z.string().url().optional(),
-  jobDescription: z.string().max(50000).optional(), // Full job posting text (up to ~10k words)
+  jobDescription: z.string().max(RESUME_CONFIG.jobDescriptionMaxLength).optional(),
+});
+
+// Cover letter generation request schema (extends resume schema with companyUrl)
+export const CoverLetterGenerateSchema = ResumeGenerateSchema.extend({
+  companyUrl: z.string().url().optional(),
 });
 
 // Learning resources request schema
@@ -168,6 +173,7 @@ export type Education = z.infer<typeof EducationSchema>;
 export type UserAddress = z.infer<typeof UserAddressSchema>;
 export type ProfileUpdate = z.infer<typeof ProfileUpdateSchema>;
 export type ResumeGenerateInput = z.infer<typeof ResumeGenerateSchema>;
+export type CoverLetterGenerateInput = z.infer<typeof CoverLetterGenerateSchema>;
 export type LearningResourcesInput = z.infer<typeof LearningResourcesSchema>;
 export type AffiliatedLinkInput = z.infer<typeof AffiliatedLinkSchema>;
 export type MapUpdateInput = z.infer<typeof MapUpdateSchema>;

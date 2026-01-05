@@ -23,9 +23,13 @@ Users can generate professional PDF resumes and personalized cover letters based
 
 1. Dashboard shows bio textarea, contact info, work experience, and projects
 2. User clicks "Export Resume" → opens `ResumeExportModal`
-3. User optionally enters job title, job posting URL, output language, and cover letter toggle
+3. User selects job input type from dropdown:
+   - **No specific job** - General resume without job targeting
+   - **Job title only** - Minimal targeting based on title inference
+   - **Job posting URL** - AI parses job requirements from URL (LinkedIn, Indeed, generic)
+   - **Paste full description** - Most reliable; user pastes job posting text directly
 4. `POST /api/resume/generate` fetches user's skills from all career maps
-5. If job URL provided, AI analyzes requirements
+5. If job info provided (URL, title, or description), AI analyzes requirements
 6. AI optimizes experience descriptions and generates tailored content (parallel)
 7. If cover letter toggle enabled, `POST /api/cover-letter/generate` creates personalized letter
 8. API checks subscription tier via `shouldHaveWatermark()`
@@ -83,8 +87,9 @@ Users can select output language independent of UI language:
 ## API Route
 
 `POST /api/resume/generate`:
-- Input: `{ locale, jobTitle?, jobUrl? }`
+- Input: `{ locale, jobTitle?, jobUrl?, jobDescription? }`
 - Returns: profile, experience (optimized), resumeContent, jobRequirements, stats, hasWatermark
+- Job input priority: `jobDescription` > `jobUrl` > `jobTitle` (most specific wins)
 
 ## AI Functions (`lib/ai-resume.ts`)
 
@@ -124,9 +129,10 @@ Job board detection is in `lib/indeed-parser.ts` and `lib/mcp/tavily.ts`.
 ### Cover Letter API
 
 `POST /api/cover-letter/generate`:
-- Input: `{ locale, jobTitle?, jobUrl?, companyUrl? }`
+- Input: `{ locale, jobTitle?, jobUrl?, jobDescription?, companyUrl? }`
 - Returns: profile, coverLetterContent (greeting, opening, body, closing, signature, keyStrengths, companyConnection)
 - Credit cost: Same as resume generation (20 credits)
+- Uses shared `CoverLetterGenerateSchema` from `lib/schemas.ts` (extends `ResumeGenerateSchema`)
 
 ## Configuration (`RESUME_CONFIG`)
 
@@ -139,6 +145,7 @@ Job board detection is in `lib/indeed-parser.ts` and `lib/mcp/tavily.ts`.
 | `maxRequiredSkillsInContext` | 10 | Max required skills in AI filtering context |
 | `maxPreferredSkillsInContext` | 5 | Max preferred skills in AI filtering context |
 | `maxResponsibilitiesInContext` | 5 | Max responsibilities in AI filtering context |
+| `jobDescriptionMaxLength` | 50000 | Max chars for pasted job description (~10k words) |
 | `pdfMaxProjects` | 5 | Projects shown in PDF |
 
 ## Types

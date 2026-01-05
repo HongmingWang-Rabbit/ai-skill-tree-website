@@ -518,7 +518,7 @@ export function ResumeExportModal({
                       className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-semibold rounded-lg transition-all flex items-center justify-center gap-2"
                     >
                       <SparklesIcon className="w-5 h-5" />
-                      {jobTitle || jobUrl ? t('generateTargeted') : t('generateGeneral')}
+                      {jobInputType !== 'none' ? t('generateTargeted') : t('generateGeneral')}
                     </button>
                   </div>
                 </div>

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { eq } from 'drizzle-orm';
-import { z } from 'zod';
 import { authOptions } from '@/lib/auth';
 import { db, users, userCareerGraphs, careers, skillGraphs, type SkillNodeData } from '@/lib/db';
 import { parseURL } from '@/lib/document-parser';
@@ -13,20 +12,12 @@ import {
   type UserProfile,
   type JobRequirements,
 } from '@/lib/ai-resume';
+import { CoverLetterGenerateSchema } from '@/lib/schemas';
 import { searchCompanyInfo, formatCompanyResearchForAI } from '@/lib/mcp/tavily';
 import { parseJobUrl, isValidJobContent } from '@/lib/job-url-parser';
 import { type Locale } from '@/i18n/routing';
 import { hasEnoughCredits, deductCredits } from '@/lib/credits';
 import { DOCUMENT_IMPORT_CONFIG } from '@/lib/constants';
-
-// Input validation schema
-const CoverLetterGenerateSchema = z.object({
-  locale: z.enum(['en', 'zh', 'ja', 'es', 'pt-BR', 'de', 'fr', 'it', 'nl', 'pl']),
-  jobTitle: z.string().max(200).optional(),
-  jobUrl: z.string().url().optional(),
-  jobDescription: z.string().max(50000).optional(), // Full job posting text
-  companyUrl: z.string().url().optional(),
-});
 
 // POST /api/cover-letter/generate - Generate cover letter content
 export async function POST(request: Request) {
