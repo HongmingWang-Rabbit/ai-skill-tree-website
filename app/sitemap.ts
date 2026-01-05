@@ -26,18 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     });
 
-    // Add dashboard page for each locale
-    entries.push({
-      url: getLocaleUrl(locale, '/dashboard'),
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-      alternates: {
-        languages: Object.fromEntries(
-          locales.map((l) => [l, getLocaleUrl(l, '/dashboard')])
-        ),
-      },
-    });
+    // Note: /dashboard is excluded - it's a private authenticated page blocked by robots.txt
 
     // Add pricing page for each locale
     entries.push({
