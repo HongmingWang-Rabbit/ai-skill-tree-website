@@ -77,6 +77,8 @@
   "manageProjects": "Proyectos",
   "manageEducation": "Educación",
   "projectsTitle": "Proyectos y portafolio",
+  "projectsDescription": "Gestione sus proyectos y elementos de portafolio.",
+  "backToDashboard": "Volver al panel",
   "addProject": "Añadir proyecto",
   "editProject": "Editar",
   "deleteProject": "Eliminar",

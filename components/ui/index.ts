@@ -20,6 +20,7 @@ export {
   TrashIcon,
   ConnectionIcon,
   ArrowRightIcon,
+  ArrowLeftIcon,
   PreviewIcon,
   CheckCircleIcon,
   MergeIcon,

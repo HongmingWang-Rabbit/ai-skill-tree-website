@@ -238,6 +238,17 @@ export const LEARNING_CONFIG = {
 // Derived: All learning platform domains (flattened)
 export const LEARNING_PLATFORM_DOMAINS = Object.values(LEARNING_CONFIG.platforms).flat();
 
+// Editor Modal Configuration (shared by ProjectEditor, ExperienceEditor, EducationEditor)
+export const EDITOR_MODAL_CONFIG = {
+  zIndex: 50,
+  backdropOpacity: 60,
+  maxWidth: 'max-w-2xl',
+  maxHeight: 'max-h-[85vh]',
+  contentMaxHeight: 'max-h-[60vh]',
+  listPreviewTechLimit: 5, // Max technologies to show in project list preview
+  textareaRows: 4,
+} as const;
+
 // Resume Export Configuration
 export const RESUME_CONFIG = {
   // User profile limits

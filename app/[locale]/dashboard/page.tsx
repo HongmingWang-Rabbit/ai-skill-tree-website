@@ -12,9 +12,9 @@ import { SearchInput } from '@/components/ui/SearchInput';
 import { useCareerSearch } from '@/hooks/useCareerSearch';
 import { ExperienceEditor } from '@/components/dashboard/ExperienceEditor';
 import { EducationEditor } from '@/components/dashboard/EducationEditor';
+import { ProjectEditor } from '@/components/dashboard/ProjectEditor';
 import { DropdownMenu, type DropdownMenuItem, TrashIcon, MergeIcon, ConfirmModal, showToast, EditIcon, ImportIcon, BriefcaseIcon, ResumeIcon, SaveIcon, PhoneIcon, MapPinIcon, FolderIcon, BookOpenIcon } from '@/components/ui';
 import type { ImportResult } from '@/components/import';
-import { ProjectEditor } from '@/components/dashboard/ProjectEditor';
 
 // Lazy load heavy modals to reduce initial bundle size
 const DocumentImportModal = dynamic(

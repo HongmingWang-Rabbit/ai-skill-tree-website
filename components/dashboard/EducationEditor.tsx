@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { GlassPanel, CloseIcon, TrashIcon, EditIcon, PlusIcon } from '@/components/ui';
+import { GlassPanel, CloseIcon, TrashIcon, EditIcon, PlusIcon, ArrowLeftIcon } from '@/components/ui';
 import { type Education } from '@/lib/schemas';
 import { RESUME_CONFIG } from '@/lib/constants';
 
@@ -81,7 +81,8 @@ export function EducationEditor({
     setError(null);
   }, []);
 
-  const handleCancel = useCallback(() => {
+  // Cancel editing/adding - go back to list
+  const handleBack = useCallback(() => {
     setFormData(emptyForm);
     setEditingId(null);
     setIsAdding(false);
@@ -97,52 +98,54 @@ export function EducationEditor({
       await onSave(newItems);
       setItems(newItems);
       if (editingId === id) {
-        handleCancel();
+        handleBack();
       }
     } catch {
       setError(t('saveFailed'));
     } finally {
       setDeletingId(null);
     }
-  }, [items, editingId, handleCancel, onSave, t]);
+  }, [items, editingId, handleBack, onSave, t]);
 
-  const handleSaveForm = useCallback(() => {
+  // Save current form and immediately persist to backend
+  const handleSaveForm = useCallback(async () => {
     if (!formData.school.trim()) {
       setError(t('educationRequired'));
       return;
     }
 
-    const newItem: Education = {
-      id: editingId || generateId(),
-      school: formData.school.trim(),
-      degree: formData.degree.trim() || undefined,
-      fieldOfStudy: formData.fieldOfStudy.trim() || undefined,
-      startDate: formData.startDate || undefined,
-      endDate: formData.isCurrent ? null : (formData.endDate || undefined),
-      location: formData.location.trim() || undefined,
-      description: formData.description.trim() || undefined,
-    };
-
-    if (editingId) {
-      setItems(prev => prev.map(item => item.id === editingId ? newItem : item));
-    } else {
-      setItems(prev => [newItem, ...prev]);
-    }
-
-    handleCancel();
-  }, [formData, editingId, handleCancel, t]);
-
-  const handleSaveAll = useCallback(async () => {
     setIsSaving(true);
+    setError(null);
+
     try {
-      await onSave(items);
-      onClose();
+      const newItem: Education = {
+        id: editingId || generateId(),
+        school: formData.school.trim(),
+        degree: formData.degree.trim() || undefined,
+        fieldOfStudy: formData.fieldOfStudy.trim() || undefined,
+        startDate: formData.startDate || undefined,
+        endDate: formData.isCurrent ? null : (formData.endDate || undefined),
+        location: formData.location.trim() || undefined,
+        description: formData.description.trim() || undefined,
+      };
+
+      let newItems: Education[];
+      if (editingId) {
+        newItems = items.map(item => item.id === editingId ? newItem : item);
+      } else {
+        newItems = [newItem, ...items];
+      }
+
+      // Save to backend immediately
+      await onSave(newItems);
+      setItems(newItems);
+      handleBack();
     } catch {
       setError(t('saveFailed'));
     } finally {
       setIsSaving(false);
     }
-  }, [items, onSave, onClose, t]);
+  }, [formData, editingId, items, handleBack, onSave, t]);
 
   const updateField = useCallback(<K extends keyof EducationFormData>(
     field: K,
@@ -173,10 +176,25 @@ export function EducationEditor({
           className="w-full max-w-2xl max-h-[85vh] overflow-hidden"
         >
           <GlassPanel className="p-0 overflow-hidden">
+            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-700">
-              <h2 className="text-lg font-semibold text-white">
-                {t('educationTitle')}
-              </h2>
+              <div className="flex items-center gap-3">
+                {isEditing && (
+                  <button
+                    onClick={handleBack}
+                    disabled={isSaving}
+                    className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <ArrowLeftIcon className="w-5 h-5 text-slate-400" />
+                  </button>
+                )}
+                <h2 className="text-lg font-semibold text-white">
+                  {isEditing
+                    ? (editingId ? t('editEducation') : t('addEducation'))
+                    : t('educationTitle')
+                  }
+                </h2>
+              </div>
               <button
                 onClick={onClose}
                 disabled={isSaving}
@@ -186,6 +204,7 @@ export function EducationEditor({
               </button>
             </div>
 
+            {/* Content */}
             <div className="p-4 max-h-[60vh] overflow-y-auto">
               {error && (
                 <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
@@ -193,225 +212,228 @@ export function EducationEditor({
                 </div>
               )}
 
-              {isEditing && (
-                <div className="mb-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-                  <h3 className="text-sm font-medium text-slate-300 mb-3">
-                    {editingId ? t('editEducation') : t('addEducation')}
-                  </h3>
+              {/* Edit/Add Form Page */}
+              {isEditing ? (
+                <div className="space-y-4">
+                  {/* School */}
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">
+                      {t('school')} *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.school}
+                      onChange={(e) => updateField('school', e.target.value)}
+                      maxLength={RESUME_CONFIG.educationSchoolMaxLength}
+                      className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                      placeholder={t('schoolPlaceholder')}
+                      autoFocus
+                    />
+                  </div>
 
-                  <div className="space-y-3">
+                  {/* Degree & Field of Study */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">
-                        {t('school')} *
+                        {t('degree')}
                       </label>
                       <input
                         type="text"
-                        value={formData.school}
-                        onChange={(e) => updateField('school', e.target.value)}
-                        maxLength={RESUME_CONFIG.educationSchoolMaxLength}
+                        value={formData.degree}
+                        onChange={(e) => updateField('degree', e.target.value)}
+                        maxLength={RESUME_CONFIG.educationDegreeMaxLength}
                         className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
-                        placeholder={t('schoolPlaceholder')}
+                        placeholder={t('degreePlaceholder')}
                       />
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">
-                          {t('degree')}
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.degree}
-                          onChange={(e) => updateField('degree', e.target.value)}
-                          maxLength={RESUME_CONFIG.educationDegreeMaxLength}
-                          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
-                          placeholder={t('degreePlaceholder')}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">
-                          {t('fieldOfStudy')}
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.fieldOfStudy}
-                          onChange={(e) => updateField('fieldOfStudy', e.target.value)}
-                          maxLength={RESUME_CONFIG.educationFieldMaxLength}
-                          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
-                          placeholder={t('fieldOfStudyPlaceholder')}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">
-                          {t('startDate')}
-                        </label>
-                        <input
-                          type="month"
-                          value={formData.startDate}
-                          onChange={(e) => updateField('startDate', e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1">
-                          {t('endDate')}
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="month"
-                            value={formData.endDate}
-                            onChange={(e) => updateField('endDate', e.target.value)}
-                            disabled={formData.isCurrent}
-                            className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 disabled:opacity-50"
-                          />
-                          <label className="flex items-center gap-1 text-xs text-slate-400">
-                            <input
-                              type="checkbox"
-                              checked={formData.isCurrent}
-                              onChange={(e) => updateField('isCurrent', e.target.checked)}
-                            />
-                            {t('currentEducation')}
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">
-                        {t('location')}
+                        {t('fieldOfStudy')}
                       </label>
                       <input
                         type="text"
-                        value={formData.location}
-                        onChange={(e) => updateField('location', e.target.value)}
-                        maxLength={RESUME_CONFIG.educationLocationMaxLength}
+                        value={formData.fieldOfStudy}
+                        onChange={(e) => updateField('fieldOfStudy', e.target.value)}
+                        maxLength={RESUME_CONFIG.educationFieldMaxLength}
                         className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
-                        placeholder={t('locationPlaceholder')}
+                        placeholder={t('fieldOfStudyPlaceholder')}
                       />
                     </div>
+                  </div>
 
+                  {/* Dates */}
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">
-                        {t('description')}
+                        {t('startDate')}
                       </label>
-                      <textarea
-                        value={formData.description}
-                        onChange={(e) => updateField('description', e.target.value)}
-                        maxLength={RESUME_CONFIG.educationDescriptionMaxLength}
-                        rows={3}
-                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 resize-none"
-                        placeholder={t('educationDescriptionPlaceholder')}
+                      <input
+                        type="month"
+                        value={formData.startDate}
+                        onChange={(e) => updateField('startDate', e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
                       />
                     </div>
-
-                    <div className="flex justify-end gap-2 pt-1">
-                      <button
-                        onClick={handleCancel}
-                        disabled={isSaving}
-                        className="px-3 py-1 text-xs text-slate-400 hover:text-white transition-colors disabled:opacity-50"
-                      >
-                        {t('cancel')}
-                      </button>
-                      <button
-                        onClick={handleSaveForm}
-                        disabled={isSaving}
-                        className="px-3 py-1 text-xs bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded transition-colors disabled:opacity-50"
-                      >
-                        {t('saveEducation')}
-                      </button>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">
+                        {t('endDate')}
+                      </label>
+                      <input
+                        type="month"
+                        value={formData.endDate}
+                        onChange={(e) => updateField('endDate', e.target.value)}
+                        disabled={formData.isCurrent}
+                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 disabled:opacity-50"
+                      />
                     </div>
+                  </div>
+
+                  {/* Current education checkbox */}
+                  <label className="flex items-center gap-2 text-sm text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={formData.isCurrent}
+                      onChange={(e) => updateField('isCurrent', e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-600 bg-slate-900 text-amber-500 focus:ring-amber-500"
+                    />
+                    {t('currentEducation')}
+                  </label>
+
+                  {/* Location */}
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">
+                      {t('location')}
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => updateField('location', e.target.value)}
+                      maxLength={RESUME_CONFIG.educationLocationMaxLength}
+                      className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500"
+                      placeholder={t('locationPlaceholder')}
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">
+                      {t('description')}
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => updateField('description', e.target.value)}
+                      maxLength={RESUME_CONFIG.educationDescriptionMaxLength}
+                      rows={4}
+                      className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 resize-none"
+                      placeholder={t('educationDescriptionPlaceholder')}
+                    />
                   </div>
                 </div>
+              ) : (
+                /* List Page */
+                <>
+                  {/* Add button */}
+                  {!hasReachedLimit && (
+                    <button
+                      onClick={handleAdd}
+                      className="w-full mb-4 p-3 flex items-center justify-center gap-2 text-sm text-amber-400 hover:text-amber-300 border border-dashed border-slate-600 hover:border-amber-500/50 rounded-lg transition-colors"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      {t('addEducation')}
+                    </button>
+                  )}
+
+                  {/* Education list */}
+                  {items.length > 0 ? (
+                    <div className="space-y-3">
+                      {items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-3 bg-slate-800/50 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-white truncate">{item.school}</h4>
+                              <p className="text-sm text-slate-400">
+                                {[item.degree, item.fieldOfStudy].filter(Boolean).join(' • ')}
+                              </p>
+                              <p className="text-xs text-slate-500 mt-1">
+                                {[item.startDate, item.endDate || (item.endDate === null ? t('present') : '')].filter(Boolean).join(' - ')}
+                              </p>
+                              {item.location && (
+                                <p className="text-xs text-slate-500">{item.location}</p>
+                              )}
+                              {item.description && (
+                                <p className="text-xs text-slate-400 mt-2 line-clamp-2">
+                                  {item.description}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 ml-2">
+                              <button
+                                onClick={() => handleEdit(item)}
+                                className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-700 rounded transition-colors"
+                                title={t('editEducation')}
+                              >
+                                <EditIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                disabled={deletingId === item.id}
+                                className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors disabled:opacity-50"
+                                title={t('deleteEducation')}
+                              >
+                                {deletingId === item.id ? (
+                                  <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <TrashIcon className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-slate-500">
+                      <div className="text-4xl mb-3">🎓</div>
+                      <p>{t('noEducation')}</p>
+                    </div>
+                  )}
+                </>
               )}
-
-              <div className="space-y-3">
-                {!hasReachedLimit && !isEditing && (
-                  <button
-                    onClick={handleAdd}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-dashed border-slate-600 transition-colors"
-                  >
-                    <PlusIcon className="w-4 h-4" />
-                    {t('addEducation')}
-                  </button>
-                )}
-
-                {items.length === 0 && !isEditing && (
-                  <p className="text-sm text-slate-400 text-center py-6">
-                    {t('noEducation')}
-                  </p>
-                )}
-
-                {items.map(item => (
-                  <div
-                    key={item.id}
-                    className="p-3 bg-slate-800/50 rounded-lg border border-slate-700 flex items-start justify-between gap-3"
-                  >
-                    <div>
-                      <p className="text-white font-semibold">{item.school}</p>
-                      <p className="text-sm text-slate-300">
-                        {[item.degree, item.fieldOfStudy].filter(Boolean).join(' • ')}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {[item.startDate, item.endDate || (item.endDate === null ? t('present') : '')].filter(Boolean).join(' - ')}
-                      </p>
-                      {item.location && (
-                        <p className="text-xs text-slate-400">{item.location}</p>
-                      )}
-                      {item.description && (
-                        <p className="text-xs text-slate-300 mt-1">{item.description}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-700 rounded-lg transition-colors"
-                      >
-                        <EditIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        disabled={deletingId === item.id || isSaving}
-                        className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        {deletingId === item.id ? (
-                          <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <TrashIcon className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 border-t border-slate-700 bg-slate-900/60">
-              <div className="text-xs text-slate-400">
-                {items.length}/{RESUME_CONFIG.educationMaxItems} {t('educationLabel')}
-              </div>
-              <div className="flex gap-2">
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-4 border-t border-slate-700">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleBack}
+                    disabled={isSaving}
+                    className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button
+                    onClick={handleSaveForm}
+                    disabled={isSaving}
+                    className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {isSaving && (
+                      <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {t('saveEducation')}
+                  </button>
+                </>
+              ) : (
                 <button
                   onClick={onClose}
-                  disabled={isSaving}
-                  className="px-3 py-1 text-sm text-slate-300 hover:text-white transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
                 >
                   {t('cancel')}
                 </button>
-                <button
-                  onClick={handleSaveAll}
-                  disabled={isSaving}
-                  className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {isSaving ? (
-                    <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    t('saveAll')
-                  )}
-                </button>
-              </div>
+              )}
             </div>
           </GlassPanel>
         </motion.div>

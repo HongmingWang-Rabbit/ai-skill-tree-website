@@ -76,6 +76,8 @@
   "edit": "編集",
   "manageProjects": "プロジェクト",
   "projectsTitle": "プロジェクト & ポートフォリオ",
+  "projectsDescription": "プロジェクトとポートフォリオを管理します。",
+  "backToDashboard": "ダッシュボードに戻る",
   "addProject": "プロジェクトを追加",
   "editProject": "編集",
   "deleteProject": "削除",

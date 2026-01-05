@@ -77,6 +77,8 @@
   "manageProjects": "Projects",
   "manageEducation": "Education",
   "projectsTitle": "Projects & Portfolio",
+  "projectsDescription": "Manage your projects and portfolio items.",
+  "backToDashboard": "Back to Dashboard",
   "addProject": "Add Project",
   "editProject": "Edit",
   "deleteProject": "Delete",

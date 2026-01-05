@@ -76,6 +76,8 @@
   "edit": "编辑",
   "manageProjects": "项目经历",
   "projectsTitle": "项目 & 作品集",
+  "projectsDescription": "管理您的项目和作品集。",
+  "backToDashboard": "返回仪表盘",
   "addProject": "添加项目",
   "editProject": "编辑",
   "deleteProject": "删除",

@@ -77,6 +77,8 @@
   "manageProjects": "Projecten",
   "manageEducation": "Opleiding",
   "projectsTitle": "Projecten & Portfolio",
+  "projectsDescription": "Beheer uw projecten en portfolio-items.",
+  "backToDashboard": "Terug naar Dashboard",
   "addProject": "Project Toevoegen",
   "editProject": "Bewerken",
   "deleteProject": "Verwijderen",
