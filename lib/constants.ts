@@ -156,24 +156,11 @@ export const TAVILY_CONFIG = {
   },
 } as const;
 
-// Job Board Parsing Configuration
+// Job Board Configuration
+// Note: LinkedIn and Indeed are JS-rendered and require Tavily search
 export const JOB_BOARD_CONFIG = {
-  // Indeed JSON API field mappings (Indeed's API structure varies, these are common field names)
-  indeed: {
-    jsonIndicator: 'json=1', // URL parameter indicating JSON response
-    fieldMappings: {
-      title: ['jobTitle', 'title', 'displayTitle'],
-      company: ['company', 'companyName', 'employer', 'hiringOrganization'],
-      location: ['location', 'jobLocation', 'formattedLocation'],
-      salary: ['salary', 'salaryText', 'extractedSalary', 'salarySnippet'],
-      description: ['description', 'jobDescription', 'snippet', 'jobSnippet'],
-      requirements: ['requirements', 'qualifications', 'jobRequirements'],
-      benefits: ['benefits', 'jobBenefits'],
-      jobType: ['jobType', 'employmentType', 'type'],
-    },
-  },
-  // HTTP headers for job board requests
-  acceptHeader: 'application/json, text/plain, */*',
+  // Domains that require Tavily search instead of direct scraping
+  tavilySearchDomains: ['linkedin.com', 'indeed.com'],
 } as const;
 
 // Merge Map Configuration

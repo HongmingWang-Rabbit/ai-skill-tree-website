@@ -215,6 +215,35 @@ export async function searchLinkedInJob(
 }
 
 /**
+ * Search for Indeed job posting details
+ * Indeed job pages are JS-rendered and can't be scraped directly
+ * @param jobUrl - Indeed job URL
+ * @param jobTitle - Optional job title to improve search
+ * @param jobKey - Optional job key extracted from URL
+ */
+export async function searchIndeedJob(
+  jobUrl: string,
+  jobTitle?: string,
+  jobKey?: string | null
+): Promise<TavilySearchResponse | null> {
+  // Build search query - prioritize job title for better results
+  let query: string;
+  if (jobTitle) {
+    query = `${jobTitle} job description requirements qualifications company`;
+  } else if (jobKey) {
+    query = `indeed job ${jobKey} description requirements company`;
+  } else {
+    query = 'indeed job posting description requirements';
+  }
+
+  return searchTavily(query, {
+    searchDepth: 'advanced',
+    maxResults: 5,
+    includeDomains: ['indeed.com', 'ca.indeed.com', 'uk.indeed.com', 'au.indeed.com'],
+  });
+}
+
+/**
  * Format LinkedIn job search results for AI context
  */
 export function formatJobSearchResultsForAI(

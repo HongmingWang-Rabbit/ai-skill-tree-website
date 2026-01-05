@@ -4,8 +4,8 @@
  */
 
 import { parseURL } from './document-parser';
-import { isLinkedInJobUrl, searchLinkedInJob, formatJobSearchResultsForAI } from './mcp/tavily';
-import { parseIndeedJob, isIndeedJsonUrl } from './indeed-parser';
+import { isLinkedInJobUrl, searchLinkedInJob, searchIndeedJob, formatJobSearchResultsForAI } from './mcp/tavily';
+import { isIndeedJobUrl, extractIndeedJobKey } from './indeed-parser';
 import { DOCUMENT_IMPORT_CONFIG } from './constants';
 
 /**
@@ -31,15 +31,16 @@ export async function parseJobUrl(
       // Tavily search failed
     }
   }
-  // Indeed JSON API URLs
-  else if (isIndeedJsonUrl(jobUrl)) {
+  // Indeed URLs also need Tavily search (JS-rendered pages)
+  else if (isIndeedJobUrl(jobUrl)) {
     try {
-      const indeedContent = await parseIndeedJob(jobUrl);
-      if (indeedContent && indeedContent.length > DOCUMENT_IMPORT_CONFIG.minContentLength) {
-        content = indeedContent;
+      const jobKey = extractIndeedJobKey(jobUrl);
+      const searchResults = await searchIndeedJob(jobUrl, jobTitle, jobKey);
+      if (searchResults && searchResults.results.length > 0) {
+        content = formatJobSearchResultsForAI(searchResults);
       }
     } catch {
-      // Indeed parsing failed
+      // Tavily search failed
     }
   }
 

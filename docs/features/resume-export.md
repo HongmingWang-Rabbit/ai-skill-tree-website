@@ -116,10 +116,10 @@ The cover letter feature creates personalized letters with:
 
 **Job URL Parsing:** The system handles multiple job board formats via `lib/job-url-parser.ts`:
 - **LinkedIn** - Uses Tavily search (JS-rendered pages can't be scraped directly)
-- **Indeed** - Parses JSON API responses (`?json=1` URLs) via `lib/indeed-parser.ts`
+- **Indeed** - Uses Tavily search (JS-rendered pages can't be scraped directly)
 - **Generic URLs** - Direct HTML parsing via `lib/document-parser.ts`
 
-Configuration for Indeed field mappings is in `JOB_BOARD_CONFIG` in `lib/constants.ts`.
+Job board detection is in `lib/indeed-parser.ts` and `lib/mcp/tavily.ts`.
 
 ### Cover Letter API
 
