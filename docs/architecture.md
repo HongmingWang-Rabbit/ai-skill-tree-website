@@ -35,6 +35,8 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 | `ai-document.ts` | Document extraction: `extractSkillsFromDocument()`, `mergeExtractedWithExisting()` |
 | `ai-resume.ts` | Resume/Cover Letter AI: `analyzeJobPosting()`, `analyzeJobTitle()`, `optimizeExperience()`, `generateResumeContent()`, `generateCoverLetter()` |
 | `document-parser.ts` | Parsing: `parsePDF()` (dynamic import), `parseWord()`, `parseImage()`, `parseURL()` |
+| `job-url-parser.ts` | Job URL parsing: `parseJobUrl()`, `isValidJobContent()` - unified handler for LinkedIn, Indeed, generic URLs |
+| `indeed-parser.ts` | Indeed JSON API: `isIndeedJsonUrl()`, `parseIndeedJob()` - parses Indeed's `?json=1` API responses |
 | `mcp/tavily.ts` | Web search: `searchTavily()`, `searchLearningResources()`, `searchCompanyInfo()`, `isLinkedInJobUrl()`, `searchLinkedInJob()` |
 | `auth.ts` | NextAuth config with Google, Twitter, WeChat, Web3 providers |
 | `stripe.ts` | Stripe client: `getStripe()`, `getTierFromPriceId()` |
@@ -48,7 +50,7 @@ Detailed reference for codebase structure. See [CLAUDE.md](../CLAUDE.md) for qui
 - **Routes**: `ROUTES`, `API_ROUTES`
 - **Assets**: `ASSETS.ICON`, `ASSETS.ICON_LARGE`
 - **Billing**: `BILLING_CONFIG` (tiers, creditCosts, signupBonus)
-- **Features**: `AI_CHAT_CONFIG`, `DOCUMENT_IMPORT_CONFIG`, `RESUME_CONFIG`, `LEARNING_CONFIG`, `BLOG_CONFIG`
+- **Features**: `AI_CHAT_CONFIG`, `DOCUMENT_IMPORT_CONFIG`, `RESUME_CONFIG`, `LEARNING_CONFIG`, `BLOG_CONFIG`, `JOB_BOARD_CONFIG`
 - **Layout**: `MASTER_GRAPH_CONFIG`, `LANDING_PAGE_CONFIG`
 - **SEO**: `SEO_CONFIG`, `SITE_URL`
 - **i18n**: `AI_LOCALE_INSTRUCTIONS`, `LOCALE_NAMES`, `LOCALE_DISPLAY_NAMES`, `LOCALE_FLAGS`, `PDF_LABELS`

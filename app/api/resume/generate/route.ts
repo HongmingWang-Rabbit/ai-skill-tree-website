@@ -4,8 +4,7 @@ import { eq } from 'drizzle-orm';
 import { authOptions } from '@/lib/auth';
 import { db, users, userCareerGraphs, careers, skillGraphs, type SkillNodeData } from '@/lib/db';
 import { ResumeGenerateSchema } from '@/lib/schemas';
-import { parseURL } from '@/lib/document-parser';
-import { isLinkedInJobUrl, searchLinkedInJob, formatJobSearchResultsForAI } from '@/lib/mcp/tavily';
+import { parseJobUrl, isValidJobContent } from '@/lib/job-url-parser';
 import { SKILL_PASS_THRESHOLD } from '@/lib/constants';
 import {
   analyzeJobPosting,
@@ -164,33 +163,11 @@ export async function POST(request: Request) {
     let jobRequirements: JobRequirements | null = null;
 
     if (jobUrl) {
-      let jobContent: string | null = null;
-
-      // Check if it's a LinkedIn job URL - these need Tavily search
-      if (isLinkedInJobUrl(jobUrl)) {
-        try {
-          // Use Tavily to search for LinkedIn job details
-          const searchResults = await searchLinkedInJob(jobUrl, jobTitle);
-          if (searchResults && searchResults.results.length > 0) {
-            jobContent = formatJobSearchResultsForAI(searchResults);
-          }
-        } catch {
-          // Tavily search failed, will fall back to job title
-        }
-      } else {
-        // For non-LinkedIn URLs, try direct parsing
-        try {
-          const parsed = await parseURL(jobUrl);
-          if (parsed.content && parsed.content.length > 50) {
-            jobContent = parsed.content;
-          }
-        } catch {
-          // Direct parsing failed
-        }
-      }
+      // Parse job URL (handles LinkedIn, Indeed, and generic URLs)
+      const jobContent = await parseJobUrl(jobUrl, jobTitle);
 
       // Analyze job content if we got any
-      if (jobContent && jobContent.length > 50) {
+      if (isValidJobContent(jobContent)) {
         jobRequirements = await analyzeJobPosting(jobContent, jobTitle, locale as Locale);
       } else if (jobTitle) {
         // Fall back to job title analysis

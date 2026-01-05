@@ -114,6 +114,13 @@ The cover letter feature creates personalized letters with:
 4. AI uses all this context to tailor every paragraph to that specific company
 5. No placeholder text like "[Company Name]" is ever used
 
+**Job URL Parsing:** The system handles multiple job board formats via `lib/job-url-parser.ts`:
+- **LinkedIn** - Uses Tavily search (JS-rendered pages can't be scraped directly)
+- **Indeed** - Parses JSON API responses (`?json=1` URLs) via `lib/indeed-parser.ts`
+- **Generic URLs** - Direct HTML parsing via `lib/document-parser.ts`
+
+Configuration for Indeed field mappings is in `JOB_BOARD_CONFIG` in `lib/constants.ts`.
+
 ### Cover Letter API
 
 `POST /api/cover-letter/generate`:

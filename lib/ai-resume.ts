@@ -975,7 +975,9 @@ You MUST write ALL content in the specified language above. Do not mix languages
 CRITICAL RULES:
 - NEVER use placeholders like [Company Name] - extract the actual company name from the job posting
 - NEVER write generic content - every cover letter must be tailored to the specific company and role
-- If company name is provided, use it. If not, find it in the job posting content
+- If company name is provided in TARGET POSITION, use it. If not, find it in the FULL JOB POSTING section
+- IMPORTANT: The WORK EXPERIENCE section lists the candidate's PAST employers - these are NOT the company being applied to!
+- The target company MUST come from the TARGET POSITION or FULL JOB POSTING sections ONLY
 - Research and reference specific details about the company from the job posting
 
 Your task is to generate a professional cover letter that:
@@ -1068,7 +1070,7 @@ CANDIDATE PROFILE:
 - Email: ${profile.email}
 ${profile.bio ? `- Professional Summary: ${profile.bio}` : ""}
 
-WORK EXPERIENCE:
+CANDIDATE'S PAST WORK EXPERIENCE (these are PREVIOUS employers, NOT the target company):
 ${experienceContext}
 
 SKILLS (with proficiency):
@@ -1109,7 +1111,8 @@ IMPORTANT:
 - NEVER use placeholder text like [Company Name] or [公司名称] - always use the actual company name from the job posting
 - Extract and USE the company name from the job posting content if not explicitly provided
 - Reference specific details about the company, their products/services, or mission from the job posting
-- CRITICAL: Use non-breaking space (\\u00A0) to keep compound terms together: React\\u00A0Native, Visual\\u00A0Studio, Next.js, etc.`;
+- CRITICAL: Use non-breaking space (\\u00A0) to keep compound terms together: React\\u00A0Native, Visual\\u00A0Studio, Next.js, etc.
+- CRITICAL: Do NOT confuse past employers (listed in CANDIDATE'S PAST WORK EXPERIENCE) with the TARGET company. The greeting should address the company from TARGET POSITION or FULL JOB POSTING only!`;
 
   const response = await openai.chat.completions.create({
     model: RESUME_CONFIG.aiModel,
