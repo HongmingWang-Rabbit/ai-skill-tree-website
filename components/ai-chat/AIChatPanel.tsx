@@ -4,9 +4,9 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GlassPanel, ChatIcon, MinimizeIcon, ImportIcon } from '@/components/ui';
+import { GlassPanel, ChatIcon, MinimizeIcon, ImportIcon, SparklesIcon } from '@/components/ui';
 import { ChatMessage } from './ChatMessage';
-import { ChatInput } from './ChatInput';
+import { ChatInput, type SlashCommand } from './ChatInput';
 import { ModificationPreview } from './ModificationPreview';
 import type { ImportResult } from '@/components/import/DocumentImportModal';
 import { type SkillNode, type SkillEdge } from '@/lib/schemas';
@@ -27,6 +27,7 @@ export interface ChatMessageType {
   modifications?: ChatModification['modifications'];
   isOffTopic?: boolean;
   pending?: boolean;
+  skill?: { id: string; name: string };
 }
 
 interface AIChatPanelProps {
@@ -64,7 +65,27 @@ export function AIChatPanel({
   } | null>(null);
   const [streamingContent, setStreamingContent] = useState('');
   const [showImportModal, setShowImportModal] = useState(false);
+  const [slashCommands, setSlashCommands] = useState<SlashCommand[]>([]);
+  const [activeSkill, setActiveSkill] = useState<{ id: string; name: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch slash commands on mount
+  useEffect(() => {
+    async function fetchCommands() {
+      try {
+        const response = await fetch(API_ROUTES.AI_CHAT);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setSlashCommands(data.data);
+          }
+        }
+      } catch {
+        // Silently fail - commands will just not be available
+      }
+    }
+    fetchCommands();
+  }, []);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -86,6 +107,7 @@ export function AIChatPanel({
 
     setIsLoading(true);
     setStreamingContent('');
+    setActiveSkill(null);
 
     try {
       const response = await fetch(API_ROUTES.AI_CHAT, {
@@ -112,7 +134,7 @@ export function AIChatPanel({
       if (!reader) throw new Error('No response body');
 
       let fullContent = '';
-      let finalResult: ChatModification | null = null;
+      let finalResult: (ChatModification & { _skill?: { id: string; name: string } }) | null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -128,7 +150,6 @@ export function AIChatPanel({
             if (data.chunk) {
               fullContent += data.chunk;
               // Try to extract message content for display
-              // Look for "message": "..." pattern
               const messageMatch = fullContent.match(/"message"\s*:\s*"([^"]*)/);
               if (messageMatch) {
                 setStreamingContent(messageMatch[1].replace(/\\n/g, '\n'));
@@ -137,6 +158,10 @@ export function AIChatPanel({
 
             if (data.done && data.result) {
               finalResult = data.result;
+              // Set active skill from response
+              if (data.result._skill) {
+                setActiveSkill(data.result._skill);
+              }
             }
 
             if (data.error) {
@@ -160,6 +185,7 @@ export function AIChatPanel({
           content: messageContent,
           modifications: finalResult.modifications,
           isOffTopic: finalResult.isOffTopic,
+          skill: finalResult._skill,
         };
 
         setMessages(prev => [...prev, assistantMessage]);
@@ -181,8 +207,7 @@ export function AIChatPanel({
           });
         }
       }
-    } catch (error) {
-      console.error('Chat error:', error);
+    } catch {
       setMessages(prev => [...prev, {
         id: assistantMessageId,
         role: 'assistant',
@@ -192,6 +217,7 @@ export function AIChatPanel({
       setStreamingContent('');
     } finally {
       setIsLoading(false);
+      setActiveSkill(null);
     }
   }, [careerTitle, careerDescription, currentNodes, currentEdges, messages, userMaps, locale, isLoading, isReadOnly, t]);
 
@@ -284,6 +310,20 @@ export function AIChatPanel({
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                   <h3 className="text-sm font-medium text-slate-200">{t('title')}</h3>
+                  {/* Active skill indicator */}
+                  <AnimatePresence>
+                    {activeSkill && (
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 text-xs"
+                      >
+                        <SparklesIcon className="w-3 h-3" />
+                        {activeSkill.name}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </div>
                 <div className="flex items-center gap-2">
                   {canUndo && (
@@ -322,6 +362,23 @@ export function AIChatPanel({
                         </button>
                       )}
                     </div>
+                    {/* Slash commands hint */}
+                    {slashCommands.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-slate-700/30">
+                        <p className="text-xs text-slate-500 mb-2">Available commands:</p>
+                        <div className="flex flex-wrap gap-1 justify-center">
+                          {slashCommands.map(cmd => (
+                            <button
+                              key={cmd.command}
+                              onClick={() => handleSendMessage(cmd.command)}
+                              className="px-2 py-1 text-xs rounded bg-slate-800/50 text-violet-400 hover:bg-slate-700/50 transition-colors"
+                            >
+                              {cmd.command}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -356,6 +413,7 @@ export function AIChatPanel({
                 onSend={handleSendMessage}
                 disabled={isLoading || isReadOnly}
                 placeholder={isReadOnly ? t('readOnlyPlaceholder') : t('inputPlaceholder')}
+                slashCommands={slashCommands}
               />
             </GlassPanel>
           </motion.div>

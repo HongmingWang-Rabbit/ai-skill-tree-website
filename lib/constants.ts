@@ -109,14 +109,27 @@ export const AI_CHAT_CONFIG = {
   model: 'gpt-4o-mini' as const,
   chatHistoryLimit: 10,
   skillDisplayLimit: 30, // Max skills to show in system prompt
+  timeout: 60000, // 60 second timeout for AI calls
   // Animation
   springDamping: 25,
   springStiffness: 300,
-  // Search intent detection keywords
-  searchKeywords: {
-    trending: ['trending', 'trend', 'latest', 'new', 'popular', 'hot', '2024', '2025', 'modern'],
-    search: ['search', 'find', 'look up', 'google', 'web', 'online', 'internet'],
+  // Skill-specific max tokens
+  skillMaxTokens: {
+    expand: 3000,
+    trending: 3000,
+    resources: 2500,
+    chat: 4000,
   },
+  // Skill system context limits (max skills to include in prompt)
+  skillContext: {
+    minimal: 0,
+    small: 10,
+    medium: 15,
+    default: 20,
+    large: 30,
+    historyLimit: 5, // Max chat messages in skill context
+  },
+  defaultCareerFallback: 'software development',
 } as const;
 
 // Tavily Web Search Configuration
